@@ -8,6 +8,9 @@ endif()
 ########################################## projects ##############################################
 add_library(stroke INTERFACE
     stroke/matrix.h
+    stroke/scalar_functions.h
+    stroke/matrix_functions.h
+    stroke/pretty_printers.h
 )
 target_link_libraries(stroke INTERFACE glm::glm whack)
 target_include_directories(stroke INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

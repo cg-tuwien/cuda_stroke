@@ -14,26 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ *****************************************************************************/
 
-#include <cmath>
-#include <limits>
+#pragma once
 
-#include <catch2/catch_test_macros.hpp>
-
-#ifdef NDEBUG
-constexpr bool asserts_are_enabled = false;
-#else
-constexpr bool asserts_are_enabled = true;
-#endif
-
-TEST_CASE("main.cpp (check that asserts are enabled)")
+namespace stroke {
+template <typename T>
+T sq(const T& v)
 {
-    REQUIRE(asserts_are_enabled);
+    return v * v;
 }
-
-TEST_CASE("main.cpp (check that NaNs are enabled (-ffast-math removes support and -fno-finite-math-only puts it back in))")
-{
-    REQUIRE(std::isnan(std::numeric_limits<float>::quiet_NaN() * float(std::chrono::system_clock::now().time_since_epoch().count())));
-    REQUIRE(std::isnan(double(std::numeric_limits<float>::quiet_NaN() * float(std::chrono::system_clock::now().time_since_epoch().count()))));
-}
+} // namespace stroke

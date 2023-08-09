@@ -19,11 +19,91 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <whack/array.h>
+
+#include "scalar_functions.h"
 
 namespace stroke {
 
-struct Cov2d {
-    glm::vec3 values;
+template <unsigned n_dims, typename scalar_t>
+struct SymmetricMat {
+};
+
+template <unsigned n_dims, typename scalar_t>
+bool operator==(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
+{
+    return a.data == b.data;
+}
+
+template <unsigned n_dims, typename scalar_t>
+using Cov = SymmetricMat<n_dims, scalar_t>;
+
+template <typename scalar_t>
+struct SymmetricMat<2, scalar_t> {
+    glm::vec<3, scalar_t> data;
+
+    SymmetricMat(const glm::mat<2, 2, scalar_t>& mat)
+        : data(mat[0][0], mat[0][1], mat[1][1])
+    {
+    }
+    SymmetricMat(scalar_t d = 0)
+        : data { d, 0, d }
+    {
+    }
+    SymmetricMat(scalar_t m_00, scalar_t m_01, scalar_t m_11)
+        : data(m_00, m_01, m_11)
+    {
+    }
+};
+
+template <typename scalar_t>
+struct Cov2 : SymmetricMat<2, scalar_t> {
+    Cov2(const glm::mat<2, 2, scalar_t>& mat)
+        : SymmetricMat<2, scalar_t>(mat)
+    {
+    }
+    Cov2(scalar_t d = 0)
+        : SymmetricMat<2, scalar_t>(d)
+    {
+    }
+    Cov2(scalar_t m_00, scalar_t m_01, scalar_t m_11)
+        : SymmetricMat<2, scalar_t>(m_00, m_01, m_11)
+    {
+    }
+};
+
+template <typename scalar_t>
+struct SymmetricMat<3, scalar_t> {
+    whack::Array<scalar_t, 6> data;
+
+    SymmetricMat(const glm::mat<3, 3, scalar_t>& mat)
+        : data { mat[0][0], mat[0][1], mat[0][2], mat[1][1], mat[1][2], mat[2][2] }
+    {
+    }
+    SymmetricMat(scalar_t d = 0)
+        : data { d, 0, 0, d, 0, d }
+    {
+    }
+    SymmetricMat(scalar_t m_00, scalar_t m_01, scalar_t m_02, scalar_t m_11, scalar_t m_12, scalar_t m_22)
+        : data { m_00, m_01, m_02, m_11, m_12, m_22 }
+    {
+    }
+};
+
+template <typename scalar_t>
+struct Cov3 : SymmetricMat<3, scalar_t> {
+    Cov3(const glm::mat<3, 3, scalar_t>& mat)
+        : SymmetricMat<3, scalar_t>(mat)
+    {
+    }
+    Cov3(scalar_t d = 0)
+        : SymmetricMat<3, scalar_t>(d)
+    {
+    }
+    Cov3(scalar_t m_00, scalar_t m_01, scalar_t m_02, scalar_t m_11, scalar_t m_12, scalar_t m_22)
+        : SymmetricMat<3, scalar_t>(m_00, m_01, m_02, m_11, m_12, m_22)
+    {
+    }
 };
 
 } // namespace stroke

@@ -4,6 +4,7 @@ project(cuda_stroke_unittests LANGUAGES CUDA CXX)
 add_executable(unittests
     main.cpp
     matrix_benchmark.cu
+    matrices.cpp
 )
 
 target_link_libraries(unittests PUBLIC Catch2::Catch2WithMain CUDA::nvToolsExt stroke)

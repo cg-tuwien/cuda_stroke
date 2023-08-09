@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Stroke
+ * Alpine Terrain Renderer
  * Copyright (C) 2023 Adam Celarek
  *
  * This program is free software: you can redistribute it and/or modify
@@ -14,26 +14,24 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ *****************************************************************************/
 
-#include <cmath>
-#include <limits>
+#pragma once
 
-#include <catch2/catch_test_macros.hpp>
+#include "matrix.h"
 
-#ifdef NDEBUG
-constexpr bool asserts_are_enabled = false;
-#else
-constexpr bool asserts_are_enabled = true;
-#endif
+namespace stroke {
 
-TEST_CASE("main.cpp (check that asserts are enabled)")
+template <unsigned n_dims, typename scalar_t>
+scalar_t det(const SymmetricMat<n_dims, scalar_t>& m)
 {
-    REQUIRE(asserts_are_enabled);
+    return {};
 }
 
-TEST_CASE("main.cpp (check that NaNs are enabled (-ffast-math removes support and -fno-finite-math-only puts it back in))")
+template <typename scalar_t>
+scalar_t det(const SymmetricMat<2, scalar_t>& m)
 {
-    REQUIRE(std::isnan(std::numeric_limits<float>::quiet_NaN() * float(std::chrono::system_clock::now().time_since_epoch().count())));
-    REQUIRE(std::isnan(double(std::numeric_limits<float>::quiet_NaN() * float(std::chrono::system_clock::now().time_since_epoch().count()))));
+    return m.data[0] * m.data[2] - sq(m.data[1]);
 }
+
+} // namespace stroke
