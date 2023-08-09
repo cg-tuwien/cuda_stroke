@@ -6,7 +6,7 @@ add_executable(unittests
     matrix_benchmark.cu
 )
 
-target_link_libraries(unittests PUBLIC Catch2::Catch2WithMain CUDA::nvToolsExt stroke whack)
+target_link_libraries(unittests PUBLIC Catch2::Catch2WithMain CUDA::nvToolsExt stroke)
 if (UNIX)
     target_compile_options(unittests PUBLIC -U NDEBUG)
 else()

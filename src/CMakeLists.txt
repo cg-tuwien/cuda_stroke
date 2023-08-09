@@ -10,5 +10,4 @@ add_library(stroke INTERFACE
     stroke/matrix.h
 )
 target_link_libraries(stroke INTERFACE glm::glm whack)
-target_compile_definitions(stroke INTERFACE GLM_FORCE_XYZW_ONLY GLM_FORCE_INLINE)
 target_include_directories(stroke INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
