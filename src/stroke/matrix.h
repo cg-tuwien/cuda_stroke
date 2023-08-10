@@ -39,59 +39,86 @@ glm::mat<n_dims, n_dims, scalar_t> to_glm(const SymmetricMat<n_dims, scalar_t>& 
 template <unsigned n_dims, typename scalar_t>
 using Cov = SymmetricMat<n_dims, scalar_t>;
 
+namespace detail {
+    constexpr unsigned n_elements_of_symmetric_matrix(unsigned n_dims)
+    {
+        unsigned n = n_dims;
+        while (n_dims > 0)
+            n += --n_dims;
+        return n;
+    }
+    static_assert(n_elements_of_symmetric_matrix(2) == 3);
+    static_assert(n_elements_of_symmetric_matrix(3) == 6);
+
+    template <unsigned n_dims, typename scalar_t>
+    struct SymmetricMatBase {
+        using StorageArray = cuda::std::array<scalar_t, detail::n_elements_of_symmetric_matrix(n_dims)>;
+        static_assert(sizeof(StorageArray) == sizeof(scalar_t) * detail::n_elements_of_symmetric_matrix(n_dims));
+
+    protected:
+        StorageArray m_data;
+
+    public:
+        SymmetricMatBase() = default;
+        SymmetricMatBase(const StorageArray& d)
+            : m_data(d) {};
+
+        scalar_t& operator[](uint32_t i)
+        {
+            return m_data[i];
+        }
+        const scalar_t& operator[](uint32_t i) const
+        {
+            return m_data[i];
+        }
+
+        StorageArray& data()
+        {
+            return m_data;
+        }
+
+        const StorageArray& data() const
+        {
+            return m_data;
+        }
+    };
+} // namespace detail
+
 template <typename scalar_t>
-struct SymmetricMat<2, scalar_t> {
+struct SymmetricMat<2, scalar_t> : public detail::SymmetricMatBase<2, scalar_t> {
 private:
-    cuda::std::array<scalar_t, 3> m_data;
+    using Base = detail::SymmetricMatBase<2, scalar_t>;
+    using StorageArray = typename Base::StorageArray;
 
 public:
     SymmetricMat(const glm::mat<2, 2, scalar_t>& mat)
-        : m_data { mat[0][0], mat[0][1], mat[1][1] }
+        : Base(StorageArray({ mat[0][0], mat[0][1], mat[1][1] }))
     {
     }
     SymmetricMat(scalar_t d = 0)
-        : m_data { d, 0, d }
+        : Base(StorageArray({ d, 0, d }))
     {
     }
     SymmetricMat(scalar_t m_00, scalar_t m_01, scalar_t m_11)
-        : m_data { m_00, m_01, m_11 }
+        : Base(StorageArray({ m_00, m_01, m_11 }))
     {
-    }
-
-    scalar_t& operator[](uint32_t i)
-    {
-        return m_data[i];
-    }
-    const scalar_t& operator[](uint32_t i) const
-    {
-        return m_data[i];
     }
 
     scalar_t& operator()(unsigned row, unsigned col)
     {
-        return m_data[row + col];
+        return Base::data()[row + col];
     }
 
     const scalar_t& operator()(unsigned row, unsigned col) const
     {
-        return m_data[row + col];
-    }
-
-    cuda::std::array<scalar_t, 3>& data()
-    {
-        return m_data;
-    }
-
-    const cuda::std::array<scalar_t, 3>& data() const
-    {
-        return m_data;
+        return Base::data()[row + col];
     }
 
     operator glm::mat<2, 2, scalar_t>() const
     {
         return {
-            m_data[0], m_data[1],
-            m_data[1], m_data[2]
+            Base::data()[0], Base::data()[1],
+            Base::data()[1], Base::data()[2]
         };
     }
 };
@@ -115,41 +142,32 @@ struct Cov2 : SymmetricMat<2, scalar_t> {
 };
 
 template <typename scalar_t>
-struct SymmetricMat<3, scalar_t> {
+struct SymmetricMat<3, scalar_t> : public detail::SymmetricMatBase<3, scalar_t> {
 private:
-    cuda::std::array<scalar_t, 6> m_data;
+    using Base = detail::SymmetricMatBase<3, scalar_t>;
+    using StorageArray = typename Base::StorageArray;
 
 public:
     SymmetricMat(const glm::mat<3, 3, scalar_t>& mat)
-        : m_data { mat[0][0], mat[0][1], mat[0][2], mat[1][1], mat[1][2], mat[2][2] }
+        : Base(StorageArray({ mat[0][0], mat[0][1], mat[0][2], mat[1][1], mat[1][2], mat[2][2] }))
     {
     }
     SymmetricMat(scalar_t d = 0)
-        : m_data { d, 0, 0, d, 0, d }
+        : Base(StorageArray({ d, 0, 0, d, 0, d }))
     {
     }
     SymmetricMat(scalar_t m_00, scalar_t m_01, scalar_t m_02, scalar_t m_11, scalar_t m_12, scalar_t m_22)
-        : m_data { m_00, m_01, m_02, m_11, m_12, m_22 }
+        : Base(StorageArray({ m_00, m_01, m_02, m_11, m_12, m_22 }))
     {
     }
-
-    scalar_t& operator[](uint32_t i)
-    {
-        return m_data[i];
-    }
-    const scalar_t& operator[](uint32_t i) const
-    {
-        return m_data[i];
-    }
-
     scalar_t& operator()(unsigned row, unsigned col)
     {
         // https://godbolt.org/z/hhr595aj5
         const auto min = std::min(row, col);
         const auto max = std::max(row, col);
         if (min == 2)
-            return m_data[5];
-        return m_data[2 * min + max];
+            return Base::data()[5];
+        return Base::data()[2 * min + max];
     }
 
     const scalar_t& operator()(unsigned row, unsigned col) const
@@ -158,26 +176,17 @@ public:
         const auto min = std::min(row, col);
         const auto max = std::max(row, col);
         if (min == 2)
-            return m_data[5];
-        return m_data[2 * min + max];
-    }
-
-    cuda::std::array<scalar_t, 6>& data()
-    {
-        return m_data;
-    }
-
-    const cuda::std::array<scalar_t, 6>& data() const
-    {
-        return m_data;
+            return Base::data()[5];
+        return Base::data()[2 * min + max];
     }
 
     operator glm::mat<3, 3, scalar_t>() const
     {
+        const auto& m = Base::data();
         return {
-            m_data[0], m_data[1], m_data[2],
-            m_data[1], m_data[3], m_data[4],
-            m_data[2], m_data[4], m_data[5]
+            m[0], m[1], m[2],
+            m[1], m[3], m[4],
+            m[2], m[4], m[5]
         };
     }
 };
