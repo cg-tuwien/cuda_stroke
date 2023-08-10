@@ -41,7 +41,6 @@ std::ostream& operator<<(std::ostream& os, const glm::mat<n, m, T>& mat)
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const stroke::Cov2<T>& m)
 {
-    //    os << glm::to_string(glm::mat2x2(value.data[0]));
-    os << "Cov2((" << m.data[0] << ", " << m.data[1] << "), (" << m.data[1] << ", " << m.data[2] << "))";
+    os << "Cov2((" << m[0] << ", " << m[1] << "), (" << m[1] << ", " << m[2] << "))";
     return os;
 }

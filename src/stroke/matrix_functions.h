@@ -23,6 +23,28 @@
 namespace stroke {
 
 template <unsigned n_dims, typename scalar_t>
+bool operator==(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
+{
+    return a.data() == b.data();
+}
+
+template <typename scalar_t>
+glm::vec<2, scalar_t> operator*(const SymmetricMat<2, scalar_t>& m, const glm::vec<2, scalar_t>& v)
+{
+    return { m[0] * v.x + m[1] * v.y, m[1] * v.x + m[2] * v.y };
+}
+
+template <typename scalar_t>
+glm::vec<3, scalar_t> operator*(const SymmetricMat<3, scalar_t>& m, const glm::vec<3, scalar_t>& v)
+{
+    return {
+        m[0] * v.x + m[1] * v.y + m[2] * v.z,
+        m[1] * v.x + m[3] * v.y + m[4] * v.z,
+        m[2] * v.x + m[4] * v.y + m[5] * v.z
+    };
+}
+
+template <unsigned n_dims, typename scalar_t>
 scalar_t det(const SymmetricMat<n_dims, scalar_t>& m)
 {
     return {};
@@ -31,7 +53,7 @@ scalar_t det(const SymmetricMat<n_dims, scalar_t>& m)
 template <typename scalar_t>
 scalar_t det(const SymmetricMat<2, scalar_t>& m)
 {
-    return m.data[0] * m.data[2] - sq(m.data[1]);
+    return m[0] * m[2] - sq(m[1]);
 }
 
 } // namespace stroke
