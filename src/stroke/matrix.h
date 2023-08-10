@@ -40,10 +40,10 @@ using Cov = SymmetricMat<n_dims, scalar_t>;
 
 template <typename scalar_t>
 struct SymmetricMat<2, scalar_t> {
-    glm::vec<3, scalar_t> data;
+    whack::Array<scalar_t, 3> data;
 
     SymmetricMat(const glm::mat<2, 2, scalar_t>& mat)
-        : data(mat[0][0], mat[0][1], mat[1][1])
+        : data { mat[0][0], mat[0][1], mat[1][1] }
     {
     }
     SymmetricMat(scalar_t d = 0)
@@ -51,10 +51,20 @@ struct SymmetricMat<2, scalar_t> {
     {
     }
     SymmetricMat(scalar_t m_00, scalar_t m_01, scalar_t m_11)
-        : data(m_00, m_01, m_11)
+        : data { m_00, m_01, m_11 }
     {
     }
+
+    operator glm::mat<2, 2, scalar_t>()
+    {
+        return {
+            data[0], data[1],
+            data[1], data[2]
+        };
+    }
 };
+static_assert(sizeof(SymmetricMat<2, float>) == 3 * 4);
+static_assert(sizeof(SymmetricMat<2, double>) == 3 * 8);
 
 template <typename scalar_t>
 struct Cov2 : SymmetricMat<2, scalar_t> {
@@ -88,7 +98,18 @@ struct SymmetricMat<3, scalar_t> {
         : data { m_00, m_01, m_02, m_11, m_12, m_22 }
     {
     }
+
+    operator glm::mat<3, 3, scalar_t>()
+    {
+        return {
+            data[0], data[1], data[2],
+            data[1], data[3], data[4],
+            data[2], data[4], data[5]
+        };
+    }
 };
+static_assert(sizeof(SymmetricMat<3, float>) == 6 * 4);
+static_assert(sizeof(SymmetricMat<3, double>) == 6 * 8);
 
 template <typename scalar_t>
 struct Cov3 : SymmetricMat<3, scalar_t> {

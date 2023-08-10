@@ -23,22 +23,42 @@
 #include "stroke/matrix.h"
 #include "stroke/matrix_functions.h"
 
-TEST_CASE("matrix construction")
+TEST_CASE("SymmetricMat/Cov construction")
 {
-    // 2d construct
+    // 2d
+    CHECK(stroke::Cov<2, float>(1.f, 2.f, 3.f) == stroke::Cov2(1.f, 2.f, 3.f));
+    CHECK(stroke::SymmetricMat<2, float>(1.f, 2.f, 3.f) == stroke::Cov2(1.f, 2.f, 3.f));
     CHECK(stroke::Cov2<float>() == stroke::Cov2(0.f, 0.f, 0.f));
     CHECK(stroke::Cov2(glm::mat2()) == stroke::Cov2(0.f, 0.f, 0.f));
+    CHECK(stroke::Cov2(glm::mat2(1, 2, 2, 3)) == stroke::Cov2(1.f, 2.f, 3.f));
     CHECK(stroke::Cov2(2.f) == stroke::Cov2(2.f, 0.f, 2.f));
 
-    // 3d construct
+    // 3d
+    CHECK(stroke::Cov<3, float>(1, 2, 3, 4, 5, 6) == stroke::Cov3<float>(1, 2, 3, 4, 5, 6));
+    CHECK(stroke::SymmetricMat<3, float>(1, 2, 3, 4, 5, 6) == stroke::Cov3<float>(1, 2, 3, 4, 5, 6));
     CHECK(stroke::Cov3<float>() == stroke::Cov3(0.f));
     CHECK(stroke::Cov3<float>() == stroke::Cov3(0.f, 0.f, 0.f, 0.f, 0.f, 0.f));
     CHECK(stroke::Cov3(2.f) == stroke::Cov3(2.f, 0.f, 0.f, 2.f, 0.f, 2.f));
-    CHECK(stroke::Cov3(glm::mat3x3(1, 2, 3, 2, 4, 5, 3, 4, 6)) == stroke::Cov3<float>(1, 2, 3, 4, 5, 6));
+    CHECK(stroke::Cov3(glm::mat3(
+              1, 2, 3,
+              2, 4, 5,
+              3, 5, 6))
+        == stroke::Cov3<float>(1, 2, 3, 4, 5, 6));
+}
+
+TEST_CASE("SymmetricMat/Cov glm casting")
+{
+    CHECK(glm::mat2(1, 2, 2, 3) == glm::mat2(stroke::Cov2(1.f, 2.f, 3.f)));
+    CHECK(glm::mat3(
+              1, 2, 3,
+              2, 4, 5,
+              3, 5, 6)
+        == glm::mat3(stroke::Cov3<float>(1, 2, 3, 4, 5, 6)));
 }
 
 TEST_CASE("det")
 {
+    CHECK(determinant(glm::mat2(1, 2, 2, 3)) == det(stroke::Cov2(1.f, 2.f, 3.f)));
     CHECK(det(stroke::Cov<2, float>(2, 3, 4)) == -1);
     CHECK(det(stroke::Cov<2, float>(1, 0, 1)) == 1);
     CHECK(det(stroke::Cov<2, float>(2, 3, 4)) == -1);
