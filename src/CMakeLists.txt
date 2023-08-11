@@ -11,6 +11,8 @@ add_library(stroke INTERFACE
     stroke/scalar_functions.h
     stroke/matrix_functions.h
     stroke/pretty_printers.h
+    stroke/algorithms.h
+    stroke/cuda_compat.h
 )
 target_link_libraries(stroke INTERFACE glm::glm whack)
 target_include_directories(stroke INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
