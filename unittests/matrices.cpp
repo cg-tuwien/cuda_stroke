@@ -18,6 +18,7 @@
 
 #include "stroke/pretty_printers.h"
 
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 #include "stroke/matrix.h"
@@ -32,6 +33,8 @@ TEST_CASE("matrices: SymmetricMat/Cov construction")
     CHECK(stroke::Cov2(glm::mat2()) == stroke::Cov2(0.f, 0.f, 0.f));
     CHECK(stroke::Cov2(glm::mat2(1, 2, 2, 3)) == stroke::Cov2(1.f, 2.f, 3.f));
     CHECK(stroke::Cov2(2.f) == stroke::Cov2(2.f, 0.f, 2.f));
+    CHECK(stroke::Cov2<float>(stroke::Cov2(2.f).data()) == stroke::Cov2(2.f));
+    CHECK(stroke::Cov2(stroke::Cov2(2.f)) == stroke::Cov2(2.f)); // copy ctor
 
     // 3d
     CHECK(stroke::Cov<3, float>(1, 2, 3, 4, 5, 6) == stroke::Cov3<float>(1, 2, 3, 4, 5, 6));
@@ -39,6 +42,8 @@ TEST_CASE("matrices: SymmetricMat/Cov construction")
     CHECK(stroke::Cov3<float>() == stroke::Cov3(0.f));
     CHECK(stroke::Cov3<float>() == stroke::Cov3(0.f, 0.f, 0.f, 0.f, 0.f, 0.f));
     CHECK(stroke::Cov3(2.f) == stroke::Cov3(2.f, 0.f, 0.f, 2.f, 0.f, 2.f));
+    CHECK(stroke::Cov3<float>(stroke::Cov3(2.f).data()) == stroke::Cov3(2.f));
+    CHECK(stroke::Cov3(stroke::Cov3(2.f)) == stroke::Cov3(2.f)); // copy ctor
     CHECK(stroke::Cov3(glm::mat3(
               1, 2, 3,
               2, 4, 5,
@@ -110,10 +115,52 @@ TEST_CASE("matrices: SymmetricMat/Cov mul with vector")
     check(stroke::Cov3(5.3f, 2.2f, 1.5f, 3.4f, 2.3f, 6.5f), glm::vec3(3.3f, 2.3f, 1.2f));
 }
 
-TEST_CASE("matrices: det")
+TEST_CASE("matrices: SymmetricMat/Cov basic matrix ops")
 {
-    CHECK(determinant(glm::mat2(1, 2, 2, 3)) == det(stroke::Cov2(1.f, 2.f, 3.f)));
-    CHECK(det(stroke::Cov<2, float>(2, 3, 4)) == -1);
-    CHECK(det(stroke::Cov<2, float>(1, 0, 1)) == 1);
-    CHECK(det(stroke::Cov<2, float>(2, 3, 4)) == -1);
+    const auto check = [](const auto& A, const auto& B) {
+        const auto glmA = to_glm(A);
+        const auto glmB = to_glm(B);
+        CHECK(to_glm(A + B) == glmA + glmB);
+        CHECK(to_glm(A - B) == glmA - glmB);
+
+        CHECK(to_glm(A + 2.f) == glmA + 2.f);
+        CHECK(to_glm(A - 2.f) == glmA - 2.f);
+        CHECK(to_glm(A * 2.f) == glmA * 2.f);
+        CHECK(to_glm(2.f + A) == 2.f + glmA);
+        CHECK(to_glm(2.f - A) == 2.f - glmA);
+        CHECK(to_glm(2.f * A) == 2.f * glmA);
+        CHECK(to_glm(matrixCompMult(A, B)) == matrixCompMult(glmA, glmB));
+        CHECK(A * B == glmA * glmB);
+        CHECK(determinant(A) == Catch::Approx(determinant(glmA)));
+        CHECK(determinant(B) == Catch::Approx(determinant(glmB)));
+    };
+    check(stroke::Cov2(4.f, 2.f, 3.f), stroke::Cov2(1.3f, 0.8f, 2.3f));
+    check(stroke::Cov2(2.f, 1.5f, 4.f), stroke::Cov2(1.8f, 0.8f, 2.3f));
+
+    check(stroke::Cov3(11.f, 2.f, 3.f, 14.f, 5.f, 16.f), stroke::Cov3(5.4f, 0.8f, 3.5f, 6.2f, 2.5f, 9.6f));
+    check(stroke::Cov3(5.3f, 2.2f, 1.5f, 3.4f, 2.3f, 6.5f), stroke::Cov3(5.4f, 1.8f, 0.5f, 4.2f, 1.3f, 7.6f));
+}
+
+TEST_CASE("matrices: SymmetricMat/Cov inverse")
+{
+    const auto check = [](const auto& S) {
+        const auto glm_S = to_glm(S);
+        REQUIRE(det(S) > 0.1);
+        const auto inv_S = inverse(S);
+        const auto glm_inv_S = inverse(glm_S);
+        for (auto col = 0; col < glm_S.length(); ++col) {
+            for (auto row = 0; row < glm_S.length(); ++row) {
+                CHECK(inv_S(col, row) == Catch::Approx(glm_inv_S[col][row]));
+            }
+        }
+    };
+    check(stroke::Cov2(4.f, 2.f, 3.f));
+    check(stroke::Cov2(1.3f, 0.8f, 2.3f));
+    check(stroke::Cov2(2.f, 1.5f, 4.f));
+    check(stroke::Cov2(1.8f, 0.8f, 2.3f));
+
+    check(stroke::Cov3(11.f, 2.f, 3.f, 14.f, 5.f, 16.f));
+    check(stroke::Cov3(5.4f, 0.8f, 3.5f, 6.2f, 2.5f, 9.6f));
+    check(stroke::Cov3(5.3f, 2.2f, 1.5f, 3.4f, 2.3f, 6.5f));
+    check(stroke::Cov3(5.4f, 1.8f, 0.5f, 4.2f, 1.3f, 7.6f));
 }

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <cuda/std/array>
+#include <whack/array.h>
 
 #include <glm/glm.hpp>
 
@@ -52,7 +52,7 @@ namespace detail {
 
     template <unsigned n_dims, typename scalar_t>
     struct SymmetricMatBase {
-        using StorageArray = cuda::std::array<scalar_t, detail::n_elements_of_symmetric_matrix(n_dims)>;
+        using StorageArray = whack::Array<scalar_t, detail::n_elements_of_symmetric_matrix(n_dims)>;
         static_assert(sizeof(StorageArray) == sizeof(scalar_t) * detail::n_elements_of_symmetric_matrix(n_dims));
 
     protected:
@@ -88,9 +88,15 @@ template <typename scalar_t>
 struct SymmetricMat<2, scalar_t> : public detail::SymmetricMatBase<2, scalar_t> {
 private:
     using Base = detail::SymmetricMatBase<2, scalar_t>;
-    using StorageArray = typename Base::StorageArray;
 
 public:
+    using StorageArray = typename Base::StorageArray;
+
+    /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
+    SymmetricMat(const StorageArray& data)
+        : Base(data)
+    {
+    }
     SymmetricMat(const glm::mat<2, 2, scalar_t>& mat)
         : Base(StorageArray({ mat[0][0], mat[0][1], mat[1][1] }))
     {
@@ -127,16 +133,27 @@ static_assert(sizeof(SymmetricMat<2, double>) == 3 * 8);
 
 template <typename scalar_t>
 struct Cov2 : SymmetricMat<2, scalar_t> {
+private:
+    using Base = SymmetricMat<2, scalar_t>;
+
+public:
+    using StorageArray = typename Base::StorageArray;
+
+    /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
+    Cov2(const StorageArray& data)
+        : Base(data)
+    {
+    }
     Cov2(const glm::mat<2, 2, scalar_t>& mat)
-        : SymmetricMat<2, scalar_t>(mat)
+        : Base(mat)
     {
     }
     Cov2(scalar_t d = 0)
-        : SymmetricMat<2, scalar_t>(d)
+        : Base(d)
     {
     }
     Cov2(scalar_t m_00, scalar_t m_01, scalar_t m_11)
-        : SymmetricMat<2, scalar_t>(m_00, m_01, m_11)
+        : Base(m_00, m_01, m_11)
     {
     }
 };
@@ -145,9 +162,15 @@ template <typename scalar_t>
 struct SymmetricMat<3, scalar_t> : public detail::SymmetricMatBase<3, scalar_t> {
 private:
     using Base = detail::SymmetricMatBase<3, scalar_t>;
-    using StorageArray = typename Base::StorageArray;
 
 public:
+    using StorageArray = typename Base::StorageArray;
+
+    /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
+    SymmetricMat(const StorageArray& data)
+        : Base(data)
+    {
+    }
     SymmetricMat(const glm::mat<3, 3, scalar_t>& mat)
         : Base(StorageArray({ mat[0][0], mat[0][1], mat[0][2], mat[1][1], mat[1][2], mat[2][2] }))
     {
@@ -195,16 +218,27 @@ static_assert(sizeof(SymmetricMat<3, double>) == 6 * 8);
 
 template <typename scalar_t>
 struct Cov3 : SymmetricMat<3, scalar_t> {
+private:
+    using Base = SymmetricMat<3, scalar_t>;
+
+public:
+    using StorageArray = typename Base::StorageArray;
+
+    /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
+    Cov3(const StorageArray& data)
+        : Base(data)
+    {
+    }
     Cov3(const glm::mat<3, 3, scalar_t>& mat)
-        : SymmetricMat<3, scalar_t>(mat)
+        : Base(mat)
     {
     }
     Cov3(scalar_t d = 0)
-        : SymmetricMat<3, scalar_t>(d)
+        : Base(d)
     {
     }
     Cov3(scalar_t m_00, scalar_t m_01, scalar_t m_02, scalar_t m_11, scalar_t m_12, scalar_t m_22)
-        : SymmetricMat<3, scalar_t>(m_00, m_01, m_02, m_11, m_12, m_22)
+        : Base(m_00, m_01, m_02, m_11, m_12, m_22)
     {
     }
 };
