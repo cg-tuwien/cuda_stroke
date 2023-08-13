@@ -6,6 +6,7 @@ add_executable(stroke_unittests
     matrix_benchmark.cu
     matrices.cpp
     algorithms.cpp
+    gaussian.cpp
 )
 
 target_link_libraries(stroke_unittests PUBLIC Catch2::Catch2WithMain CUDA::nvToolsExt stroke)

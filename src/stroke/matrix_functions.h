@@ -22,59 +22,62 @@
 
 #include "algorithms.h"
 #include "matrix.h"
+#include "scalar_functions.h"
 
 namespace stroke {
+template <glm::length_t n_dims, typename scalar_t>
+struct SymmetricMat;
 
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 bool operator==(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return a.data() == b.data();
 }
 
 // scalar functions
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 SymmetricMat<n_dims, scalar_t> operator+(const SymmetricMat<n_dims, scalar_t>& a, const scalar_t& b)
 {
     return { cwise_fun(a.data(), b, cuda::std::plus<scalar_t> {}) };
 }
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 SymmetricMat<n_dims, scalar_t> operator-(const SymmetricMat<n_dims, scalar_t>& a, const scalar_t& b)
 {
     return { cwise_fun(a.data(), b, cuda::std::minus<scalar_t> {}) };
 }
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 SymmetricMat<n_dims, scalar_t> operator*(const SymmetricMat<n_dims, scalar_t>& a, const scalar_t& b)
 {
     return { cwise_fun(a.data(), b, cuda::std::multiplies<scalar_t> {}) };
 }
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 SymmetricMat<n_dims, scalar_t> operator+(const scalar_t& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return { cwise_fun(b.data(), a, cuda::std::plus<scalar_t> {}) };
 }
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 SymmetricMat<n_dims, scalar_t> operator-(const scalar_t& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return { cwise_fun(b.data(), a, [](const auto& b, const auto& a) { return a - b; }) };
 }
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 SymmetricMat<n_dims, scalar_t> operator*(const scalar_t& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return { cwise_fun(b.data(), a, cuda::std::multiplies<scalar_t> {}) };
 }
 
 // component wise functions
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 SymmetricMat<n_dims, scalar_t> operator+(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return { cwise_fun(a.data(), b.data(), cuda::std::plus<scalar_t> {}) };
 }
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 SymmetricMat<n_dims, scalar_t> operator-(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return { cwise_fun(a.data(), b.data(), cuda::std::minus<scalar_t> {}) };
 }
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 SymmetricMat<n_dims, scalar_t> matrixCompMult(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return { cwise_fun(a.data(), b.data(), cuda::std::multiplies<scalar_t> {}) };
@@ -138,7 +141,7 @@ scalar_t determinant(const SymmetricMat<2, scalar_t>& m)
     return m[0] * m[2] - sq(m[1]);
 }
 
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 scalar_t det(const SymmetricMat<n_dims, scalar_t>& m)
 {
     return determinant(m);

@@ -22,27 +22,28 @@
 
 #include <glm/glm.hpp>
 
+#include "matrix_functions.h"
 #include "scalar_functions.h"
 
 namespace stroke {
 
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 struct SymmetricMat {
 };
 
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 glm::mat<n_dims, n_dims, scalar_t> to_glm(const SymmetricMat<n_dims, scalar_t>& m)
 {
     return glm::mat<n_dims, n_dims, scalar_t>(m);
 }
 
-template <unsigned n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename scalar_t>
 using Cov = SymmetricMat<n_dims, scalar_t>;
 
 namespace detail {
-    constexpr unsigned n_elements_of_symmetric_matrix(unsigned n_dims)
+    constexpr glm::length_t n_elements_of_symmetric_matrix(glm::length_t n_dims)
     {
-        unsigned n = n_dims;
+        glm::length_t n = n_dims;
         while (n_dims > 0)
             n += --n_dims;
         return n;
@@ -50,7 +51,7 @@ namespace detail {
     static_assert(n_elements_of_symmetric_matrix(2) == 3);
     static_assert(n_elements_of_symmetric_matrix(3) == 6);
 
-    template <unsigned n_dims, typename scalar_t>
+    template <glm::length_t n_dims, typename scalar_t>
     struct SymmetricMatBase {
         using StorageArray = whack::Array<scalar_t, detail::n_elements_of_symmetric_matrix(n_dims)>;
         static_assert(sizeof(StorageArray) == sizeof(scalar_t) * detail::n_elements_of_symmetric_matrix(n_dims));
@@ -97,11 +98,11 @@ public:
         : Base(data)
     {
     }
-    SymmetricMat(const glm::mat<2, 2, scalar_t>& mat)
+    explicit SymmetricMat(const glm::mat<2, 2, scalar_t>& mat)
         : Base(StorageArray({ mat[0][0], mat[0][1], mat[1][1] }))
     {
     }
-    SymmetricMat(scalar_t d = 0)
+    explicit SymmetricMat(scalar_t d = 0)
         : Base(StorageArray({ d, 0, d }))
     {
     }
@@ -144,11 +145,11 @@ public:
         : Base(data)
     {
     }
-    Cov2(const glm::mat<2, 2, scalar_t>& mat)
+    explicit Cov2(const glm::mat<2, 2, scalar_t>& mat)
         : Base(mat)
     {
     }
-    Cov2(scalar_t d = 0)
+    explicit Cov2(scalar_t d = 0)
         : Base(d)
     {
     }
@@ -171,11 +172,11 @@ public:
         : Base(data)
     {
     }
-    SymmetricMat(const glm::mat<3, 3, scalar_t>& mat)
+    explicit SymmetricMat(const glm::mat<3, 3, scalar_t>& mat)
         : Base(StorageArray({ mat[0][0], mat[0][1], mat[0][2], mat[1][1], mat[1][2], mat[2][2] }))
     {
     }
-    SymmetricMat(scalar_t d = 0)
+    explicit SymmetricMat(scalar_t d = 0)
         : Base(StorageArray({ d, 0, 0, d, 0, d }))
     {
     }
@@ -229,11 +230,11 @@ public:
         : Base(data)
     {
     }
-    Cov3(const glm::mat<3, 3, scalar_t>& mat)
+    explicit Cov3(const glm::mat<3, 3, scalar_t>& mat)
         : Base(mat)
     {
     }
-    Cov3(scalar_t d = 0)
+    explicit Cov3(scalar_t d = 0)
         : Base(d)
     {
     }

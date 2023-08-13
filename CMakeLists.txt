@@ -18,6 +18,14 @@ if(NOT TARGET glm::glm)
     )
     FetchContent_MakeAvailable(glm)
 endif()
+if(NOT TARGET gcem)
+    FetchContent_Declare(gcem
+        GIT_REPOSITORY https://github.com/kthohr/gcem.git
+        GIT_TAG origin/master
+        SOURCE_DIR 		${CMAKE_SOURCE_DIR}/3rdparty/gcem
+    )
+    FetchContent_MakeAvailable(gcem)
+endif()
 if(BUILD_STROKE_UNITTESTS OR BUILD_TESTING)
     FetchContent_Declare(catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git

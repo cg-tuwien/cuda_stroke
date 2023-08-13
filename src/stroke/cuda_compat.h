@@ -43,7 +43,8 @@
 #define STROKE_INLINE inline
 #endif
 #else
-#define STROKE_INLINE
+// prevent linker errors for non-template functions
+#define STROKE_INLINE static
 #endif
 
 #define STROKE_DEVICES_INLINE STROKE_DEVICES STROKE_INLINE

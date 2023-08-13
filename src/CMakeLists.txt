@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-if (STROKE_CUDA)
-    project(cuda_stroke_lib LANGUAGES CUDA CXX)
-else()
-    project(cuda_stroke_lib LANGUAGES CXX)
-endif()
+project(cuda_stroke_lib LANGUAGES CUDA CXX)
 
 ########################################## projects ##############################################
 add_library(stroke INTERFACE
@@ -13,6 +9,7 @@ add_library(stroke INTERFACE
     stroke/pretty_printers.h
     stroke/algorithms.h
     stroke/cuda_compat.h
+    stroke/gaussian.h
 )
-target_link_libraries(stroke INTERFACE glm::glm whack)
+target_link_libraries(stroke INTERFACE glm::glm whack gcem)
 target_include_directories(stroke INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
