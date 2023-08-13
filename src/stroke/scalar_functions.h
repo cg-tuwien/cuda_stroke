@@ -38,10 +38,12 @@ STROKE_DEVICES_INLINE int sign(scalar_t v)
 }
 
 namespace approximate {
+    // static prevents linker errors
+
     // http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html
     // https://github.com/xodobox/fastapprox/blob/master/fastapprox/src/fastexp.h
     // 2x faster, error in the range of e^-4 (dunno about relativ error)
-    STROKE_DEVICES_INLINE float fasterpow2(float p)
+    STROKE_DEVICES_INLINE static float fasterpow2(float p)
     {
         float clipp = (p < -126) ? -126.0f : p;
         union {
@@ -51,13 +53,13 @@ namespace approximate {
         return v.f;
     }
 
-    STROKE_DEVICES_INLINE float fasterexp(float p)
+    STROKE_DEVICES_INLINE static float fasterexp(float p)
     {
         return fasterpow2(1.442695040f * p);
     }
 
     // slightly faster than std::exp, slightly less precise (error in the range of e-10)
-    STROKE_DEVICES_INLINE float fastpow2(float p)
+    STROKE_DEVICES_INLINE static float fastpow2(float p)
     {
         float offset = (p < 0) ? 1.0f : 0.0f;
         float clipp = (p < -126) ? -126.0f : p;
@@ -71,7 +73,7 @@ namespace approximate {
         return v.f;
     }
 
-    STROKE_DEVICES_INLINE float fastexp(float p)
+    STROKE_DEVICES_INLINE static float fastexp(float p)
     {
         return fastpow2(1.442695040f * p);
     }
