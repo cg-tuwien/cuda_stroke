@@ -22,7 +22,6 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "stroke/matrix.h"
-#include "stroke/matrix_functions.h"
 
 TEST_CASE("matrices: SymmetricMat/Cov construction")
 {

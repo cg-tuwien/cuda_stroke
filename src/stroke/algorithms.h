@@ -33,6 +33,13 @@ STROKE_DEVICES_INLINE auto transform(const Array<T, N>& vec, Function fun) -> Ar
     }
     return retvec;
 }
+template <typename T, typename SizeType, SizeType N, template <typename, SizeType> typename Array, typename Function>
+STROKE_DEVICES_INLINE void transform_inplace(Array<T, N>* vec, Function fun)
+{
+    for (unsigned i = 0; i < N; ++i) {
+        (*vec)[i] = fun((*vec)[i]);
+    }
+}
 
 /// apply a lambda component wise on the elements of 2 arrays
 template <typename T1, typename T2, typename SizeType, SizeType N, template <typename, SizeType> typename Array, typename Function>
@@ -47,6 +54,15 @@ STROKE_DEVICES_INLINE auto cwise_fun(const Array<T1, N>& m1, const Array<T2, N>&
     }
     return vec;
 }
+template <typename T1, typename T2, typename SizeType, SizeType N, template <typename, SizeType> typename Array, typename Function>
+STROKE_DEVICES_INLINE void cwise_inplace_fun(Array<T1, N>* m1, const Array<T2, N>& m2, Function fun)
+{
+    for (unsigned i = 0; i < N; ++i) {
+        const T1& a = (*m1)[i];
+        const T2& b = m2[i];
+        (*m1)[i] = fun(a, b);
+    }
+}
 
 /// apply a lambda component wise on the elements of an array and a scalar
 template <typename T1, typename SizeType, SizeType N, template <typename, SizeType> typename Array, typename Function>
@@ -57,6 +73,14 @@ STROKE_DEVICES_INLINE auto cwise_fun(const Array<T1, N>& a, const T1& b, Functio
         vec[i] = fun(a[i], b);
     }
     return vec;
+}
+template <typename T1, typename SizeType, SizeType N, template <typename, SizeType> typename Array, typename Function>
+STROKE_DEVICES_INLINE void cwise_inplace_fun(Array<T1, N>* m1, const T1& b, Function fun)
+{
+    for (unsigned i = 0; i < N; ++i) {
+        const T1& a = (*m1)[i];
+        (*m1)[i] = fun(a, b);
+    }
 }
 
 template <typename T1, typename T2, typename SizeType, SizeType N, template <typename, SizeType> typename Array, typename Function>
