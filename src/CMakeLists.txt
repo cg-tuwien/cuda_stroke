@@ -11,6 +11,7 @@ add_library(stroke INTERFACE
     stroke/cuda_compat.h
     stroke/gaussian.h
     stroke/ray.h
+    stroke/welford.h
 )
 target_link_libraries(stroke INTERFACE glm::glm whack gcem)
 target_include_directories(stroke INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
