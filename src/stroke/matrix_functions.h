@@ -29,69 +29,69 @@ template <glm::length_t n_dims, typename scalar_t>
 struct SymmetricMat;
 
 template <glm::length_t n_dims, typename scalar_t>
-bool operator==(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
+STROKE_DEVICES_INLINE bool operator==(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return a.data() == b.data();
 }
 
 // scalar functions
 template <glm::length_t n_dims, typename scalar_t>
-SymmetricMat<n_dims, scalar_t> operator+(const SymmetricMat<n_dims, scalar_t>& a, const scalar_t& b)
+STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> operator+(const SymmetricMat<n_dims, scalar_t>& a, const scalar_t& b)
 {
     return { cwise_fun(a.data(), b, cuda::std::plus<scalar_t> {}) };
 }
 template <glm::length_t n_dims, typename scalar_t>
-SymmetricMat<n_dims, scalar_t> operator-(const SymmetricMat<n_dims, scalar_t>& a, const scalar_t& b)
+STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> operator-(const SymmetricMat<n_dims, scalar_t>& a, const scalar_t& b)
 {
     return { cwise_fun(a.data(), b, cuda::std::minus<scalar_t> {}) };
 }
 template <glm::length_t n_dims, typename scalar_t>
-SymmetricMat<n_dims, scalar_t> operator*(const SymmetricMat<n_dims, scalar_t>& a, const scalar_t& b)
+STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> operator*(const SymmetricMat<n_dims, scalar_t>& a, const scalar_t& b)
 {
     return { cwise_fun(a.data(), b, cuda::std::multiplies<scalar_t> {}) };
 }
 template <glm::length_t n_dims, typename scalar_t>
-SymmetricMat<n_dims, scalar_t> operator+(const scalar_t& a, const SymmetricMat<n_dims, scalar_t>& b)
+STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> operator+(const scalar_t& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return { cwise_fun(b.data(), a, cuda::std::plus<scalar_t> {}) };
 }
 template <glm::length_t n_dims, typename scalar_t>
-SymmetricMat<n_dims, scalar_t> operator-(const scalar_t& a, const SymmetricMat<n_dims, scalar_t>& b)
+STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> operator-(const scalar_t& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return { cwise_fun(b.data(), a, [](const auto& b, const auto& a) { return a - b; }) };
 }
 template <glm::length_t n_dims, typename scalar_t>
-SymmetricMat<n_dims, scalar_t> operator*(const scalar_t& a, const SymmetricMat<n_dims, scalar_t>& b)
+STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> operator*(const scalar_t& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return { cwise_fun(b.data(), a, cuda::std::multiplies<scalar_t> {}) };
 }
 
 // component wise functions
 template <glm::length_t n_dims, typename scalar_t>
-SymmetricMat<n_dims, scalar_t> operator+(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
+STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> operator+(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return { cwise_fun(a.data(), b.data(), cuda::std::plus<scalar_t> {}) };
 }
 template <glm::length_t n_dims, typename scalar_t>
-SymmetricMat<n_dims, scalar_t> operator-(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
+STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> operator-(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return { cwise_fun(a.data(), b.data(), cuda::std::minus<scalar_t> {}) };
 }
 template <glm::length_t n_dims, typename scalar_t>
-SymmetricMat<n_dims, scalar_t> matrixCompMult(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
+STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> matrixCompMult(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
 {
     return { cwise_fun(a.data(), b.data(), cuda::std::multiplies<scalar_t> {}) };
 }
 
 // mat vec mul
 template <typename scalar_t>
-glm::vec<2, scalar_t> operator*(const SymmetricMat<2, scalar_t>& m, const glm::vec<2, scalar_t>& v)
+STROKE_DEVICES_INLINE glm::vec<2, scalar_t> operator*(const SymmetricMat<2, scalar_t>& m, const glm::vec<2, scalar_t>& v)
 {
     return { m[0] * v.x + m[1] * v.y, m[1] * v.x + m[2] * v.y };
 }
 
 template <typename scalar_t>
-glm::vec<3, scalar_t> operator*(const SymmetricMat<3, scalar_t>& m, const glm::vec<3, scalar_t>& v)
+STROKE_DEVICES_INLINE glm::vec<3, scalar_t> operator*(const SymmetricMat<3, scalar_t>& m, const glm::vec<3, scalar_t>& v)
 {
     return {
         m[0] * v.x + m[1] * v.y + m[2] * v.z,
@@ -102,7 +102,7 @@ glm::vec<3, scalar_t> operator*(const SymmetricMat<3, scalar_t>& m, const glm::v
 
 // mat mat mul
 template <typename scalar_t>
-glm::mat<2, 2, scalar_t> operator*(const SymmetricMat<2, scalar_t>& A, const SymmetricMat<2, scalar_t>& B)
+STROKE_DEVICES_INLINE glm::mat<2, 2, scalar_t> operator*(const SymmetricMat<2, scalar_t>& A, const SymmetricMat<2, scalar_t>& B)
 {
     return {
         A[0] * B[0] + A[1] * B[1], A[1] * B[0] + A[2] * B[1],
@@ -111,7 +111,7 @@ glm::mat<2, 2, scalar_t> operator*(const SymmetricMat<2, scalar_t>& A, const Sym
 }
 
 template <typename scalar_t>
-glm::mat<3, 3, scalar_t> operator*(const SymmetricMat<3, scalar_t>& A, const SymmetricMat<3, scalar_t>& B)
+STROKE_DEVICES_INLINE glm::mat<3, 3, scalar_t> operator*(const SymmetricMat<3, scalar_t>& A, const SymmetricMat<3, scalar_t>& B)
 {
     return {
         A[0] * B[0] + A[1] * B[1] + A[2] * B[2],
@@ -130,32 +130,32 @@ glm::mat<3, 3, scalar_t> operator*(const SymmetricMat<3, scalar_t>& A, const Sym
 
 // determinant
 template <typename scalar_t>
-scalar_t determinant(const SymmetricMat<3, scalar_t>& m)
+STROKE_DEVICES_INLINE scalar_t determinant(const SymmetricMat<3, scalar_t>& m)
 {
     return m[0] * m[3] * m[5] + 2 * m[1] * m[2] * m[4] - m[0] * m[4] * m[4] - m[3] * m[2] * m[2] - m[5] * m[1] * m[1];
 }
 
 template <typename scalar_t>
-scalar_t determinant(const SymmetricMat<2, scalar_t>& m)
+STROKE_DEVICES_INLINE scalar_t determinant(const SymmetricMat<2, scalar_t>& m)
 {
     return m[0] * m[2] - sq(m[1]);
 }
 
 template <glm::length_t n_dims, typename scalar_t>
-scalar_t det(const SymmetricMat<n_dims, scalar_t>& m)
+STROKE_DEVICES_INLINE scalar_t det(const SymmetricMat<n_dims, scalar_t>& m)
 {
     return determinant(m);
 }
 
 // inverse
 template <typename scalar_t>
-SymmetricMat<2, scalar_t> inverse(const SymmetricMat<2, scalar_t>& m)
+STROKE_DEVICES_INLINE SymmetricMat<2, scalar_t> inverse(const SymmetricMat<2, scalar_t>& m)
 {
     return (scalar_t(1) / det(m)) * SymmetricMat<2, scalar_t>(m[2], -m[1], m[0]);
 }
 
 template <typename scalar_t>
-SymmetricMat<3, scalar_t> inverse(const SymmetricMat<3, scalar_t>& m)
+STROKE_DEVICES_INLINE SymmetricMat<3, scalar_t> inverse(const SymmetricMat<3, scalar_t>& m)
 {
     const auto i11 = m[3] * m[5] - m[4] * m[4];
     const auto i12 = m[2] * m[4] - m[1] * m[5];

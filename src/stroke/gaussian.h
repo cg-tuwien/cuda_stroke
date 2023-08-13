@@ -22,6 +22,7 @@
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/glm.hpp>
 
+#include "cuda_compat.h"
 #include "matrix.h"
 #include "ray.h"
 
@@ -42,14 +43,14 @@ struct ParamsWithWeight<1, scalar_t> {
 };
 
 template <glm::length_t n_dims, typename scalar_t>
-scalar_t eval_exponential_inv_C(const glm::vec<n_dims, scalar_t>& centre, const Cov<n_dims, scalar_t>& inversed_covariance, const glm::vec<n_dims, scalar_t>& point)
+STROKE_DEVICES_INLINE scalar_t eval_exponential_inv_C(const glm::vec<n_dims, scalar_t>& centre, const Cov<n_dims, scalar_t>& inversed_covariance, const glm::vec<n_dims, scalar_t>& point)
 {
     const auto t = point - centre;
     const auto v = scalar_t(-0.5) * glm::dot(t, (inversed_covariance * t));
     return stroke::exp(v);
 }
 template <typename scalar_t>
-scalar_t eval_exponential_inv_C(const scalar_t& centre, const scalar_t& inv_variance, const scalar_t& point)
+STROKE_DEVICES_INLINE scalar_t eval_exponential_inv_C(const scalar_t& centre, const scalar_t& inv_variance, const scalar_t& point)
 {
     const auto t = point - centre;
     const auto v = scalar_t(-0.5) * sq(t) * inv_variance;
@@ -57,19 +58,20 @@ scalar_t eval_exponential_inv_C(const scalar_t& centre, const scalar_t& inv_vari
 }
 
 template <glm::length_t n_dims, typename scalar_t>
-scalar_t eval_exponential(const glm::vec<n_dims, scalar_t>& centre, const Cov<n_dims, scalar_t>& covariance, const glm::vec<n_dims, scalar_t>& point)
+STROKE_DEVICES_INLINE scalar_t eval_exponential(const glm::vec<n_dims, scalar_t>& centre, const Cov<n_dims, scalar_t>& covariance, const glm::vec<n_dims, scalar_t>& point)
 {
     return eval_exponential_inv_C(centre, inverse(covariance), point);
 }
+
 template <typename scalar_t>
-scalar_t eval_exponential(const scalar_t& centre, const scalar_t& variance, const scalar_t& point)
+STROKE_DEVICES_INLINE scalar_t eval_exponential(const scalar_t& centre, const scalar_t& variance, const scalar_t& point)
 {
     return eval_exponential_inv_C(centre, 1 / variance, point);
 }
 
 template <typename scalar_t,
     std::enable_if_t<std::is_floating_point<scalar_t>::value, bool> = true>
-scalar_t norm_factor(const scalar_t& variance)
+STROKE_DEVICES_INLINE scalar_t norm_factor(const scalar_t& variance)
 {
     constexpr auto factor = scalar_t(gcem::sqrt(2 * glm::pi<double>()));
     static_assert(factor > 0); // make sure factor is consteval
@@ -77,14 +79,14 @@ scalar_t norm_factor(const scalar_t& variance)
 }
 
 template <glm::length_t n_dims, typename scalar_t>
-scalar_t norm_factor(const Cov<n_dims, scalar_t>& covariance)
+STROKE_DEVICES_INLINE scalar_t norm_factor(const Cov<n_dims, scalar_t>& covariance)
 {
     constexpr auto factor = scalar_t(gcem::pow(2 * glm::pi<double>(), double(n_dims)));
     return 1 / sqrt(factor * det(covariance));
 }
 
 template <typename scalar_t>
-ParamsWithWeight<1, scalar_t> project_on_ray_inv_C(const glm::vec<3, scalar_t>& centre, const SymmetricMat<3, scalar_t>& inversed_covariance, const Ray<3, scalar_t>& ray)
+STROKE_DEVICES_INLINE ParamsWithWeight<1, scalar_t> project_on_ray_inv_C(const glm::vec<3, scalar_t>& centre, const SymmetricMat<3, scalar_t>& inversed_covariance, const Ray<3, scalar_t>& ray)
 {
     // equations following the diploma thesis by Simon Fraiss (https://www.cg.tuwien.ac.at/research/publications/2022/FRAISS-2022-CGMM/)
     // little optimised
@@ -102,7 +104,7 @@ ParamsWithWeight<1, scalar_t> project_on_ray_inv_C(const glm::vec<3, scalar_t>& 
 }
 
 template <typename scalar_t>
-ParamsWithWeight<1, scalar_t> project_on_ray(const glm::vec<3, scalar_t>& centre, const SymmetricMat<3, scalar_t>& covariance, const Ray<3, scalar_t>& ray)
+STROKE_DEVICES_INLINE ParamsWithWeight<1, scalar_t> project_on_ray(const glm::vec<3, scalar_t>& centre, const SymmetricMat<3, scalar_t>& covariance, const Ray<3, scalar_t>& ray)
 {
     return project_on_ray_inv_C(centre, inverse(covariance), ray);
 }
