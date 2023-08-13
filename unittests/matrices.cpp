@@ -133,6 +133,17 @@ TEST_CASE("matrices: SymmetricMat/Cov basic matrix ops")
         CHECK(A * B == glmA * glmB);
         CHECK(determinant(A) == Catch::Approx(determinant(glmA)));
         CHECK(determinant(B) == Catch::Approx(determinant(glmB)));
+        CHECK(isnan(A) == false);
+        auto C = A;
+        CHECK(!stroke::isnan(A));
+        CHECK(!stroke::isnan(C));
+        C[0] = std::numeric_limits<double>::quiet_NaN();
+        CHECK(stroke::isnan(C[0]));
+        CHECK(stroke::isnan(C));
+        C[0] = 1.0;
+        CHECK(!stroke::isnan(C));
+        C[1] = 0 / 0.0;
+        CHECK(stroke::isnan(C));
     };
     check(stroke::Cov2(4.f, 2.f, 3.f), stroke::Cov2(1.3f, 0.8f, 2.3f));
     check(stroke::Cov2(2.f, 1.5f, 4.f), stroke::Cov2(1.8f, 0.8f, 2.3f));

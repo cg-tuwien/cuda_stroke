@@ -59,4 +59,15 @@ STROKE_DEVICES_INLINE auto cwise_fun(const Array<T1, N>& a, const T1& b, Functio
     return vec;
 }
 
+template <typename T1, typename T2, typename SizeType, SizeType N, template <typename, SizeType> typename Array, typename Function>
+__host__ __device__ STROKE_DEVICES_INLINE T2
+reduce(const Array<T1, N>& m1, T2 initial, Function fun)
+{
+    for (unsigned i = 0; i < m1.size(); ++i) {
+        const T1& a = m1[i];
+        initial = fun(initial, a);
+    }
+    return initial;
+}
+
 } // namespace stroke

@@ -176,6 +176,18 @@ STROKE_DEVICES_INLINE glm::vec<3, scalar_t> diagonal(const SymmetricMat<3, scala
     return { m[0], m[3], m[5] };
 }
 
+template <glm::length_t n_dims, typename scalar_t>
+STROKE_DEVICES_INLINE bool isnan(const SymmetricMat<n_dims, scalar_t>& m)
+{
+    return reduce(m.data(), false, [](bool boolean, const scalar_t& v) { return boolean || isnan(v); });
+}
+
+template <glm::length_t n_dims, typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t trace(const SymmetricMat<n_dims, scalar_t>& m)
+{
+    return sum(diagonal(m));
+}
+
 template <typename scalar_t>
 STROKE_DEVICES_INLINE SymmetricMat<2, scalar_t> inverse(const SymmetricMat<2, scalar_t>& m)
 {
@@ -241,6 +253,30 @@ STROKE_DEVICES_INLINE glm::vec<DIMS, scalar_t> diagonal(const glm::mat<DIMS, DIM
     for (unsigned i = 0; i < DIMS; ++i)
         d[i] = x[i][i];
     return d;
+}
+
+template <int DIMS, typename scalar_t>
+STROKE_DEVICES_INLINE bool isnan(const glm::vec<DIMS, scalar_t>& x)
+{
+    bool nan = false;
+    for (unsigned i = 0; i < DIMS; ++i)
+        nan = nan || isnan(x[i]);
+    return nan;
+}
+
+template <int DIMS, typename scalar_t>
+STROKE_DEVICES_INLINE bool isnan(const glm::mat<DIMS, DIMS, scalar_t>& x)
+{
+    bool nan = false;
+    for (unsigned i = 0; i < DIMS; ++i)
+        nan = nan || isnan(x[i]);
+    return nan;
+}
+
+template <glm::length_t n_dims, typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t trace(const glm::mat<n_dims, n_dims, scalar_t>& m)
+{
+    return sum(diagonal(m));
 }
 
 } // namespace glm

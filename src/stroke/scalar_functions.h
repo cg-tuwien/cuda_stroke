@@ -178,7 +178,8 @@ __forceinline__ __device__ double cos(double x)
     return ::cos(x);
 }
 
-template <typename T>
+template <typename T,
+    std::enable_if_t<std::is_floating_point<T>::value, bool> = true>
 __forceinline__ __device__ bool isnan(T x)
 {
     return ::isnan(x);
@@ -240,7 +241,8 @@ inline __host__ __device__ scalar_t cos(scalar_t x)
     return std::cos(x);
 }
 
-template <typename T>
+template <typename T,
+    std::enable_if_t<std::is_floating_point<T>::value, bool> = true>
 __host__ __device__ inline bool isnan(T x)
 {
     return std::isnan(x);

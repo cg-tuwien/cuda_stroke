@@ -99,4 +99,23 @@ TEST_CASE("algorithms")
         REQUIRE(result[1] == Catch::Approx(22));
         REQUIRE(result[2] == Catch::Approx(35));
     }
+
+    SECTION("reduce fun on whack::Array")
+    {
+        {
+            whack::Array<int, 3> m1 = { 1, 2, 3 };
+            int result = stroke::reduce(m1, int(0), cuda::std::plus<int>());
+            REQUIRE(result == 6);
+        }
+        {
+            whack::Array<int, 3> m1 = { 1, 2, 3 };
+            bool result = stroke::reduce(m1, int(1), cuda::std::logical_and<int>());
+            REQUIRE(result);
+        }
+        {
+            whack::Array<int, 3> m1 = { 0, 2, 3 };
+            bool result = stroke::reduce(m1, int(1), cuda::std::logical_and<int>());
+            REQUIRE(!result);
+        }
+    }
 }
