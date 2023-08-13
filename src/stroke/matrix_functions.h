@@ -34,7 +34,7 @@ STROKE_DEVICES_INLINE bool operator==(const SymmetricMat<n_dims, scalar_t>& a, c
     return a.data() == b.data();
 }
 
-// scalar functions
+// matrix scalar binary functions
 template <glm::length_t n_dims, typename scalar_t>
 STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> operator+(const SymmetricMat<n_dims, scalar_t>& a, const scalar_t& b)
 {
@@ -82,6 +82,11 @@ STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> matrixCompMult(const Symmet
 {
     return { cwise_fun(a.data(), b.data(), cuda::std::multiplies<scalar_t> {}) };
 }
+template <glm::length_t n_dims, typename scalar_t>
+STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> cwise_mul(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
+{
+    return matrixCompMult(a, b);
+}
 
 // mat vec mul
 template <typename scalar_t>
@@ -128,7 +133,7 @@ STROKE_DEVICES_INLINE glm::mat<3, 3, scalar_t> operator*(const SymmetricMat<3, s
     };
 }
 
-// determinant
+// unary functions
 template <typename scalar_t>
 STROKE_DEVICES_INLINE scalar_t determinant(const SymmetricMat<3, scalar_t>& m)
 {
@@ -147,7 +152,30 @@ STROKE_DEVICES_INLINE scalar_t det(const SymmetricMat<n_dims, scalar_t>& m)
     return determinant(m);
 }
 
-// inverse
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t sum(const SymmetricMat<2, scalar_t>& m)
+{
+    return m[0] + 2 * m[1] + m[2];
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t sum(const SymmetricMat<3, scalar_t>& m)
+{
+    return m[0] + 2 * m[1] + 2 * m[2] + m[3] + 2 * m[4] + m[5];
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE glm::vec<2, scalar_t> diagonal(const SymmetricMat<2, scalar_t>& m)
+{
+    return { m[0], m[2] };
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE glm::vec<3, scalar_t> diagonal(const SymmetricMat<3, scalar_t>& m)
+{
+    return { m[0], m[3], m[5] };
+}
+
 template <typename scalar_t>
 STROKE_DEVICES_INLINE SymmetricMat<2, scalar_t> inverse(const SymmetricMat<2, scalar_t>& m)
 {
@@ -167,3 +195,52 @@ STROKE_DEVICES_INLINE SymmetricMat<3, scalar_t> inverse(const SymmetricMat<3, sc
 }
 
 } // namespace stroke
+
+namespace glm {
+// convenience functions for the glm namespace
+template <glm::length_t n_dims, typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t det(const mat<n_dims, n_dims, scalar_t>& m)
+{
+    return determinant(m);
+}
+
+template <glm::length_t n_dims, typename scalar_t>
+STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> cwise_mul(const glm::mat<n_dims, n_dims, scalar_t>& m1, const glm::mat<n_dims, n_dims, scalar_t>& m2)
+{
+    return matrixCompMult(m1, m2);
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t sum(const glm::vec<2, scalar_t>& v)
+{
+    return v[0] + v[1];
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t sum(const glm::vec<3, scalar_t>& v)
+{
+    return v[0] + v[1] + v[2];
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t sum(const glm::mat<2, 2, scalar_t>& m)
+{
+    return sum(m[0]) + sum(m[1]);
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t sum(const glm::mat<3, 3, scalar_t>& m)
+{
+    return sum(m[0]) + sum(m[1]) + sum(m[2]);
+}
+
+template <int DIMS, typename scalar_t>
+STROKE_DEVICES_INLINE glm::vec<DIMS, scalar_t> diagonal(const glm::mat<DIMS, DIMS, scalar_t>& x)
+{
+    glm::vec<DIMS, scalar_t> d;
+    for (unsigned i = 0; i < DIMS; ++i)
+        d[i] = x[i][i];
+    return d;
+}
+
+} // namespace glm
