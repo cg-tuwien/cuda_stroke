@@ -23,8 +23,23 @@
 #include <glm/glm.hpp>
 
 #include "matrix.h"
+#include "ray.h"
 
 namespace stroke::gaussian {
+
+template <glm::length_t n_dims, typename scalar_t>
+struct ParamsWithWeight {
+    scalar_t weight;
+    glm::vec<n_dims, scalar_t> centre;
+    Cov<n_dims, scalar_t> C;
+};
+
+template <typename scalar_t>
+struct ParamsWithWeight<1, scalar_t> {
+    scalar_t weight;
+    scalar_t centre;
+    scalar_t C;
+};
 
 template <glm::length_t n_dims, typename scalar_t>
 scalar_t eval_exponential_inv_C(const glm::vec<n_dims, scalar_t>& centre, const Cov<n_dims, scalar_t>& inversed_covariance, const glm::vec<n_dims, scalar_t>& point)
@@ -66,6 +81,30 @@ scalar_t norm_factor(const Cov<n_dims, scalar_t>& covariance)
 {
     constexpr auto factor = scalar_t(gcem::pow(2 * glm::pi<double>(), double(n_dims)));
     return 1 / sqrt(factor * det(covariance));
+}
+
+template <typename scalar_t>
+ParamsWithWeight<1, scalar_t> project_on_ray_inv_C(const glm::vec<3, scalar_t>& centre, const SymmetricMat<3, scalar_t>& inversed_covariance, const Ray<3, scalar_t>& ray)
+{
+    // equations following the diploma thesis by Simon Fraiss (https://www.cg.tuwien.ac.at/research/publications/2022/FRAISS-2022-CGMM/)
+    // little optimised
+    //    const auto variance = 1 / dot(ray.direction, inversed_covariance * ray.direction);
+    //    const auto position = dot(ray.direction, inversed_covariance * (centre - ray.origin)) * variance;
+    //    const auto weight = eval_exponential_inv_C(centre, inversed_covariance, ray.origin + position * ray.direction);
+
+    // probably more optimised, no benchmark
+    const auto Cxd = inversed_covariance * ray.direction;
+    const auto variance = 1 / dot(ray.direction, Cxd);
+    const auto position = dot(Cxd, (centre - ray.origin)) * variance;
+    const auto weight = eval_exponential_inv_C(centre, inversed_covariance, ray.origin + position * ray.direction);
+
+    return { weight, position, variance };
+}
+
+template <typename scalar_t>
+ParamsWithWeight<1, scalar_t> project_on_ray(const glm::vec<3, scalar_t>& centre, const SymmetricMat<3, scalar_t>& covariance, const Ray<3, scalar_t>& ray)
+{
+    return project_on_ray_inv_C(centre, inverse(covariance), ray);
 }
 
 } // namespace stroke::gaussian

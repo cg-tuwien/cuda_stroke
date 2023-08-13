@@ -23,6 +23,29 @@
 
 #include "glm/ext/scalar_constants.hpp"
 #include "stroke/gaussian.h"
+#include "stroke/ray.h"
+
+namespace {
+template <glm::length_t n_dims, typename scalar_t>
+glm::mat<n_dims, n_dims, scalar_t> random_matrix(whack::random::HostGenerator<scalar_t>* rnd)
+{
+    glm::mat<n_dims, n_dims, scalar_t> mat;
+    for (auto c = 0; c < n_dims; ++c) {
+        for (auto r = 0; r < n_dims; ++r) {
+            mat[c][r] = rnd->normal();
+        }
+    }
+    return mat;
+}
+
+template <glm::length_t n_dims, typename scalar_t>
+stroke::Cov<n_dims, scalar_t> random_cov(whack::random::HostGenerator<scalar_t>* rnd)
+{
+    const auto mat = random_matrix<n_dims, scalar_t>(rnd);
+    return stroke::Cov<n_dims, scalar_t>(mat * transpose(mat)) + stroke::Cov<n_dims, scalar_t>(0.05);
+}
+
+} // namespace
 
 TEST_CASE("gaussian")
 {
@@ -58,14 +81,14 @@ TEST_CASE("gaussian")
             {
                 // 2d
                 const auto centre = rnd.normal2();
-                const auto covariance = Cov2(rnd.normal(), rnd.normal(), rnd.normal());
+                const auto covariance = random_cov<2, float>(&rnd);
                 const auto point = rnd.normal2();
                 CHECK(gaussian::eval_exponential(centre, covariance, point) == Catch::Approx(gaussian::eval_exponential_inv_C(centre, inverse(covariance), point)));
             }
             {
                 // 3d
                 const auto centre = rnd.normal3();
-                const auto covariance = Cov3(rnd.normal(), rnd.normal(), rnd.normal(), rnd.normal(), rnd.normal(), rnd.normal());
+                const auto covariance = random_cov<3, float>(&rnd);
                 const auto point = rnd.normal3();
                 CHECK(gaussian::eval_exponential(centre, covariance, point) == Catch::Approx(gaussian::eval_exponential_inv_C(centre, inverse(covariance), point)));
             }
@@ -86,6 +109,43 @@ TEST_CASE("gaussian")
         // 3d
         CHECK(gaussian::norm_factor(Cov3(1.f)) == Catch::Approx(1 / sqrt(two_pi * two_pi * two_pi)));
         CHECK(gaussian::norm_factor(Cov3(4.f)) == Catch::Approx(1 / sqrt(two_pi * two_pi * two_pi * 4 * 4 * 4)));
+    }
+
+    SECTION("project a 3d gaussian onto a ray")
+    {
+        whack::random::HostGenerator<float> rnd;
+        for (int i = 0; i < 10; ++i) {
+            {
+                const auto centre = rnd.normal3();
+                const auto covariance = random_cov<3, float>(&rnd);
+
+                {
+                    const auto ray = stroke::Ray<3, float> { centre, glm::normalize(rnd.normal3()) };
+                    const auto [oneD_weight, oneD_centre, oneD_variance] = gaussian::project_on_ray(centre, covariance, ray);
+                    CHECK(oneD_centre == Catch::Approx(0));
+                    CHECK(oneD_weight == Catch::Approx(1));
+                    CHECK(gaussian::eval_exponential(centre, covariance, ray.origin + ray.direction * 0.8f) == Catch::Approx(oneD_weight * gaussian::eval_exponential(oneD_centre, oneD_variance, 0.8f)));
+                }
+                {
+                    const auto direction = glm::normalize(rnd.normal3());
+                    const auto ray = stroke::Ray<3, float> { centre - direction * 0.7f, direction };
+                    const auto [oneD_weight, oneD_centre, oneD_variance] = gaussian::project_on_ray(centre, covariance, ray);
+                    CHECK(oneD_centre == Catch::Approx(0.7));
+                    CHECK(gaussian::eval_exponential(centre, covariance, ray.origin + ray.direction * 0.5f) == Catch::Approx(oneD_weight * gaussian::eval_exponential(oneD_centre, oneD_variance, 0.5f)));
+                    CHECK(gaussian::eval_exponential(centre, covariance, ray.origin + ray.direction * 0.8f) == Catch::Approx(oneD_weight * gaussian::eval_exponential(oneD_centre, oneD_variance, 0.8f)));
+                    CHECK(gaussian::eval_exponential(centre, covariance, ray.origin + ray.direction * 1.3f) == Catch::Approx(oneD_weight * gaussian::eval_exponential(oneD_centre, oneD_variance, 1.3f)));
+                }
+                {
+                    const auto direction = glm::normalize(rnd.normal3());
+                    const auto ray = stroke::Ray<3, float> { centre - direction * 0.7f, direction };
+                    const auto cov_based = gaussian::project_on_ray(centre, covariance, ray);
+                    const auto invcov_based = gaussian::project_on_ray_inv_C(centre, inverse(covariance), ray);
+                    CHECK(cov_based.weight == Catch::Approx(invcov_based.weight));
+                    CHECK(cov_based.centre == Catch::Approx(invcov_based.centre));
+                    CHECK(cov_based.C == Catch::Approx(invcov_based.C));
+                }
+            }
+        }
     }
 }
 
