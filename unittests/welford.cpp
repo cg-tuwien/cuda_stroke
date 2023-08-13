@@ -94,7 +94,7 @@ TEST_CASE("welford")
         }
         const glm::dvec3 welford_mean = welford_with_cov.mean();
         const glm::dvec3 welford_mean2 = welford_mean_only.mean();
-        const glm::dmat3x3 welford_cov = welford_with_cov.cov_matrix();
+        const glm::dmat3x3 welford_cov = glm::dmat3x3(welford_with_cov.cov_matrix());
         glm::dvec3 actual_mean;
         glm::dmat3x3 actual_cov;
         std::tie(actual_mean, actual_cov) = compute_moments(data);

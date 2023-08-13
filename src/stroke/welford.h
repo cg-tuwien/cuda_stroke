@@ -28,7 +28,8 @@ namespace stroke::welford {
 template <int N_DIMS, typename scalar_t>
 struct WeightedMeanAndCov {
     using vec_t = glm::vec<N_DIMS, scalar_t>;
-    using mat_t = glm::mat<N_DIMS, N_DIMS, scalar_t>;
+    //    using mat_t = glm::mat<N_DIMS, N_DIMS, scalar_t>;
+    using mat_t = Cov<N_DIMS, scalar_t>;
     scalar_t w_sum = 0;
     vec_t v_mean = vec_t { 0 };
     mat_t C = mat_t { 0 };
@@ -46,7 +47,7 @@ struct WeightedMeanAndCov {
         v_mean += scalar_t(w / w_sum) * delta1;
         const auto delta2 = (v - v_mean);
 
-        C += w * glm::outerProduct(delta1, delta2);
+        C += mat_t(w * glm::outerProduct(delta1, delta2));
         assert(!isnan(C));
     }
 
