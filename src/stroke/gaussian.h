@@ -78,11 +78,27 @@ STROKE_DEVICES_INLINE scalar_t norm_factor(const scalar_t& variance)
     return 1 / (sqrt(variance) * factor);
 }
 
+template <typename scalar_t,
+    std::enable_if_t<std::is_floating_point<scalar_t>::value, bool> = true>
+STROKE_DEVICES_INLINE scalar_t norm_factor_inv_C(const scalar_t& variance)
+{
+    constexpr auto factor = scalar_t(1 / gcem::sqrt(2 * glm::pi<double>()));
+    static_assert(factor > 0); // make sure factor is consteval
+    return sqrt(variance) * factor;
+}
+
 template <glm::length_t n_dims, typename scalar_t>
 STROKE_DEVICES_INLINE scalar_t norm_factor(const Cov<n_dims, scalar_t>& covariance)
 {
     constexpr auto factor = scalar_t(gcem::pow(2 * glm::pi<double>(), double(n_dims)));
     return 1 / sqrt(factor * det(covariance));
+}
+
+template <glm::length_t n_dims, typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t norm_factor_inv_C(const Cov<n_dims, scalar_t>& inversed_covariance)
+{
+    constexpr auto factor = scalar_t(1 / gcem::sqrt(gcem::pow(2 * glm::pi<double>(), double(n_dims))));
+    return factor * sqrt(det(inversed_covariance));
 }
 
 template <typename scalar_t>

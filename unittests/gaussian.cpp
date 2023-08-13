@@ -101,14 +101,17 @@ TEST_CASE("gaussian")
         // 1d
         CHECK(gaussian::norm_factor(1.f) == Catch::Approx(1 / sqrt(2 * glm::pi<float>())));
         CHECK(gaussian::norm_factor(4.f) == Catch::Approx(0.5f / sqrt(2 * glm::pi<float>())));
+        CHECK(gaussian::norm_factor(2.3f) == Catch::Approx(gaussian::norm_factor_inv_C(1 / 2.3)));
 
         // 2d
         CHECK(gaussian::norm_factor(Cov2(1.f)) == Catch::Approx(1 / sqrt(two_pi * two_pi)));
         CHECK(gaussian::norm_factor(Cov2(4.f)) == Catch::Approx(1 / sqrt(two_pi * two_pi * 16)));
+        CHECK(gaussian::norm_factor(Cov2(3.4, 1.2, 2.3)) == Catch::Approx(gaussian::norm_factor_inv_C(inverse(Cov2(3.4, 1.2, 2.3)))));
 
         // 3d
         CHECK(gaussian::norm_factor(Cov3(1.f)) == Catch::Approx(1 / sqrt(two_pi * two_pi * two_pi)));
         CHECK(gaussian::norm_factor(Cov3(4.f)) == Catch::Approx(1 / sqrt(two_pi * two_pi * two_pi * 4 * 4 * 4)));
+        CHECK(gaussian::norm_factor(Cov3(3.4, 1.2, 1.3, 4.2, 1.0, 3.6)) == Catch::Approx(gaussian::norm_factor_inv_C(inverse(Cov3(3.4, 1.2, 1.3, 4.2, 1.0, 3.6)))));
     }
 
     SECTION("project a 3d gaussian onto a ray")

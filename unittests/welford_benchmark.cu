@@ -37,8 +37,8 @@ struct BenchmarkResults {
 namespace {
 void run_matrix_benchmarks()
 {
-    constexpr auto n_welfords = 1'000'000;
-    constexpr auto n_samples = 1000;
+    constexpr auto n_welfords = 10'000;
+    constexpr auto n_samples = 100;
     constexpr auto n_threads_per_block = 128;
     constexpr auto n_blocks = (n_welfords + n_threads_per_block - 1) / n_threads_per_block;
     constexpr auto location = whack::Location::Device;
