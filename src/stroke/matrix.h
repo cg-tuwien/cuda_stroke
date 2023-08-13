@@ -121,7 +121,7 @@ public:
         return Base::data()[row + col];
     }
 
-    operator glm::mat<2, 2, scalar_t>() const
+    explicit operator glm::mat<2, 2, scalar_t>() const
     {
         return {
             Base::data()[0], Base::data()[1],
@@ -204,7 +204,7 @@ public:
         return Base::data()[2 * min + max];
     }
 
-    operator glm::mat<3, 3, scalar_t>() const
+    explicit operator glm::mat<3, 3, scalar_t>() const
     {
         const auto& m = Base::data();
         return {
