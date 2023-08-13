@@ -151,9 +151,3 @@ TEST_CASE("gaussian")
         }
     }
 }
-
-// next steps:
-// port existing gaussian stuff
-// port existing welford stuff
-// port gradients
-// make everything cudaable
