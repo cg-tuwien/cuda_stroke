@@ -28,7 +28,29 @@ namespace stroke {
 template <glm::length_t n_dims, typename scalar_t>
 struct SymmetricMat;
 
-// component wise functions
+// binary functions
+template <typename scalar_t>
+STROKE_DEVICES_INLINE SymmetricMat<2, scalar_t> affine_transform(const SymmetricMat<2, scalar_t>& S, const glm::mat<2, 2, scalar_t>& M)
+{
+    return {
+        M[0][0] * (S[0] * M[0][0] + S[1] * M[1][0]) + M[1][0] * (S[1] * M[0][0] + S[2] * M[1][0]),
+        M[0][0] * (S[0] * M[0][1] + S[1] * M[1][1]) + M[1][0] * (S[1] * M[0][1] + S[2] * M[1][1]),
+        M[0][1] * (S[0] * M[0][1] + S[1] * M[1][1]) + M[1][1] * (S[1] * M[0][1] + S[2] * M[1][1])
+    };
+}
+template <typename scalar_t>
+STROKE_DEVICES_INLINE SymmetricMat<3, scalar_t> affine_transform(const SymmetricMat<3, scalar_t>& S, const glm::mat<3, 3, scalar_t>& M)
+{
+    return {
+        M[0][0] * (S[0] * M[0][0] + S[1] * M[1][0] + S[2] * M[2][0]) + M[1][0] * (S[1] * M[0][0] + S[3] * M[1][0] + S[4] * M[2][0]) + M[2][0] * (S[2] * M[0][0] + S[4] * M[1][0] + S[5] * M[2][0]),
+        M[0][0] * (S[0] * M[0][1] + S[1] * M[1][1] + S[2] * M[2][1]) + M[1][0] * (S[1] * M[0][1] + S[3] * M[1][1] + S[4] * M[2][1]) + M[2][0] * (S[2] * M[0][1] + S[4] * M[1][1] + S[5] * M[2][1]),
+        M[0][0] * (S[0] * M[0][2] + S[1] * M[1][2] + S[2] * M[2][2]) + M[1][0] * (S[1] * M[0][2] + S[3] * M[1][2] + S[4] * M[2][2]) + M[2][0] * (S[2] * M[0][2] + S[4] * M[1][2] + S[5] * M[2][2]),
+        M[0][1] * (S[0] * M[0][1] + S[1] * M[1][1] + S[2] * M[2][1]) + M[1][1] * (S[1] * M[0][1] + S[3] * M[1][1] + S[4] * M[2][1]) + M[2][1] * (S[2] * M[0][1] + S[4] * M[1][1] + S[5] * M[2][1]),
+        M[0][1] * (S[0] * M[0][2] + S[1] * M[1][2] + S[2] * M[2][2]) + M[1][1] * (S[1] * M[0][2] + S[3] * M[1][2] + S[4] * M[2][2]) + M[2][1] * (S[2] * M[0][2] + S[4] * M[1][2] + S[5] * M[2][2]),
+        M[0][2] * (S[0] * M[0][2] + S[1] * M[1][2] + S[2] * M[2][2]) + M[1][2] * (S[1] * M[0][2] + S[3] * M[1][2] + S[4] * M[2][2]) + M[2][2] * (S[2] * M[0][2] + S[4] * M[1][2] + S[5] * M[2][2])
+    };
+}
+
 template <glm::length_t n_dims, typename scalar_t>
 STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> matrixCompMult(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
 {

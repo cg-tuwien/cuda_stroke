@@ -16,12 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *****************************************************************************/
 
-#include "stroke/pretty_printers.h"
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 #include "stroke/matrix.h"
+#include "stroke/pretty_printers.h"
+
+#include "test_helpers.h"
 
 TEST_CASE("matrices: SymmetricMat/Cov construction")
 {
@@ -173,4 +175,27 @@ TEST_CASE("matrices: SymmetricMat/Cov inverse")
     check(stroke::Cov3(5.4f, 0.8f, 3.5f, 6.2f, 2.5f, 9.6f));
     check(stroke::Cov3(5.3f, 2.2f, 1.5f, 3.4f, 2.3f, 6.5f));
     check(stroke::Cov3(5.4f, 1.8f, 0.5f, 4.2f, 1.3f, 7.6f));
+}
+
+TEST_CASE("matrices: SymmetricMat/Cov affine transform")
+{
+    whack::random::HostGenerator<float> rng;
+
+    const auto check = [](const auto& S, const auto& M) {
+        const auto glm_S = to_glm(S);
+        REQUIRE(det(S) > 0.1);
+
+        const auto spoke_result = affine_transform(S, M);
+        const auto glm_result = M * glm_S * transpose(M);
+
+        for (auto col = 0; col < glm_S.length(); ++col) {
+            for (auto row = 0; row < glm_S.length(); ++row) {
+                CHECK(spoke_result(col, row) == Catch::Approx(glm_result[col][row]).scale(1));
+            }
+        }
+    };
+    for (int i = 0; i < 10; ++i) {
+        check(random_cov<2, float>(&rng), random_matrix<2, float>(&rng));
+        check(random_cov<3, float>(&rng), random_matrix<3, float>(&rng));
+    }
 }

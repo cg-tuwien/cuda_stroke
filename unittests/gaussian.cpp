@@ -18,34 +18,13 @@
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
-
+#include <glm/ext/scalar_constants.hpp>
 #include <whack/random/generators.h>
 
-#include "glm/ext/scalar_constants.hpp"
 #include "stroke/gaussian.h"
 #include "stroke/ray.h"
 
-namespace {
-template <glm::length_t n_dims, typename scalar_t>
-glm::mat<n_dims, n_dims, scalar_t> random_matrix(whack::random::HostGenerator<scalar_t>* rnd)
-{
-    glm::mat<n_dims, n_dims, scalar_t> mat;
-    for (auto c = 0; c < n_dims; ++c) {
-        for (auto r = 0; r < n_dims; ++r) {
-            mat[c][r] = rnd->normal();
-        }
-    }
-    return mat;
-}
-
-template <glm::length_t n_dims, typename scalar_t>
-stroke::Cov<n_dims, scalar_t> random_cov(whack::random::HostGenerator<scalar_t>* rnd)
-{
-    const auto mat = random_matrix<n_dims, scalar_t>(rnd);
-    return stroke::Cov<n_dims, scalar_t>(mat * transpose(mat)) + stroke::Cov<n_dims, scalar_t>(0.05);
-}
-
-} // namespace
+#include "test_helpers.h"
 
 TEST_CASE("gaussian")
 {

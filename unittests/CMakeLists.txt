@@ -9,6 +9,8 @@ add_executable(stroke_unittests
     gaussian.cpp
     welford.cpp
     welford_benchmark.cu
+    test_helpers.h
 )
 
 target_link_libraries(stroke_unittests PUBLIC Catch2::Catch2WithMain CUDA::nvToolsExt stroke)
+target_compile_options(stroke_unittests PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo>)
