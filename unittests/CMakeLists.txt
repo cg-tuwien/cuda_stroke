@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.18)
 project(cuda_stroke_unittests LANGUAGES CUDA CXX)
 
+include(FetchContent)
+FetchContent_Declare(catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+    GIT_TAG v3.4.0
+    SOURCE_DIR 		${CMAKE_SOURCE_DIR}/3rdparty/Catch2
+)
+FetchContent_MakeAvailable(catch2)
+find_package(CUDAToolkit)
+
 add_executable(stroke_unittests
     main.cpp
     matrix_benchmark.cu
