@@ -16,13 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *****************************************************************************/
 
+#include "stroke/pretty_printers.h" // must come before catch includes
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 #include "stroke/matrix.h"
-#include "stroke/pretty_printers.h"
-
 #include "test_helpers.h"
 
 TEST_CASE("matrices: SymmetricMat/Cov construction")
