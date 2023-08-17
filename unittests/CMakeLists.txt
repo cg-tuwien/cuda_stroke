@@ -19,6 +19,7 @@ add_executable(stroke_unittests
     welford.cpp
     welford_benchmark.cu
     test_helpers.h
+    matrix.cu
 )
 
 target_link_libraries(stroke_unittests PUBLIC Catch2::Catch2WithMain CUDA::nvToolsExt stroke)
