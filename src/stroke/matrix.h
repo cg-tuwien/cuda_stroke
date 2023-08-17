@@ -95,6 +95,8 @@ private:
 public:
     using StorageArray = typename Base::StorageArray;
 
+    STROKE_DEVICES_INLINE SymmetricMat() = default;
+
     /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
     STROKE_DEVICES_INLINE SymmetricMat(const StorageArray& data)
         : Base(data)
@@ -104,7 +106,7 @@ public:
         : Base(StorageArray({ mat[0][0], mat[0][1], mat[1][1] }))
     {
     }
-    STROKE_DEVICES_INLINE explicit SymmetricMat(scalar_t d = 0)
+    STROKE_DEVICES_INLINE explicit SymmetricMat(scalar_t d)
         : Base(StorageArray({ d, 0, d }))
     {
     }
@@ -142,6 +144,8 @@ private:
 public:
     using StorageArray = typename Base::StorageArray;
 
+    STROKE_DEVICES_INLINE Cov2() = default;
+
     /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
     STROKE_DEVICES_INLINE Cov2(const StorageArray& data)
         : Base(data)
@@ -151,7 +155,7 @@ public:
         : Base(mat)
     {
     }
-    STROKE_DEVICES_INLINE explicit Cov2(scalar_t d = 0)
+    STROKE_DEVICES_INLINE explicit Cov2(scalar_t d)
         : Base(d)
     {
     }
@@ -169,6 +173,8 @@ private:
 public:
     using StorageArray = typename Base::StorageArray;
 
+    STROKE_DEVICES_INLINE SymmetricMat() = default;
+
     /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
     STROKE_DEVICES_INLINE SymmetricMat(const StorageArray& data)
         : Base(data)
@@ -178,7 +184,7 @@ public:
         : Base(StorageArray({ mat[0][0], mat[0][1], mat[0][2], mat[1][1], mat[1][2], mat[2][2] }))
     {
     }
-    STROKE_DEVICES_INLINE explicit SymmetricMat(scalar_t d = 0)
+    STROKE_DEVICES_INLINE explicit SymmetricMat(scalar_t d)
         : Base(StorageArray({ d, 0, 0, d, 0, d }))
     {
     }
@@ -227,6 +233,8 @@ private:
 public:
     using StorageArray = typename Base::StorageArray;
 
+    STROKE_DEVICES_INLINE Cov3() = default;
+
     /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
     STROKE_DEVICES_INLINE Cov3(const StorageArray& data)
         : Base(data)
@@ -236,7 +244,7 @@ public:
         : Base(mat)
     {
     }
-    STROKE_DEVICES_INLINE explicit Cov3(scalar_t d = 0)
+    STROKE_DEVICES_INLINE explicit Cov3(scalar_t d)
         : Base(d)
     {
     }
