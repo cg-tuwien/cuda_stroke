@@ -22,6 +22,7 @@
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/glm.hpp>
 
+#include "aabb.h"
 #include "cuda_compat.h"
 #include "matrix.h"
 #include "ray.h"
@@ -123,6 +124,16 @@ template <typename scalar_t>
 STROKE_DEVICES_INLINE ParamsWithWeight<1, scalar_t> project_on_ray(const glm::vec<3, scalar_t>& centre, const SymmetricMat<3, scalar_t>& covariance, const Ray<3, scalar_t>& ray)
 {
     return project_on_ray_inv_C(centre, inverse(covariance), ray);
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t integrate(const scalar_t& centre, const scalar_t& variance, const Aabb<1, scalar_t>& box)
+{
+    constexpr scalar_t sqrt2 = gcem::sqrt(scalar_t(2));
+    const auto cdf = [&](const scalar_t& x) {
+        return scalar_t(0.5) * (1 + stroke::erf((x - centre) / (variance * sqrt2)));
+    };
+    return cdf(box.max) - cdf(box.min);
 }
 
 } // namespace stroke::gaussian

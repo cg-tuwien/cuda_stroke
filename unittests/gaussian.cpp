@@ -46,6 +46,7 @@ TEST_CASE("gaussian")
         CHECK(gaussian::eval_exponential<3, float>({ -2.f, 1.f, 2.5f }, Cov3(1.5f), { 0.f, 0.f, 0.f }) < 0.5f);
         CHECK(gaussian::eval_exponential<3, float>({ 0.f, 0.f, 0.f }, Cov3(3.1f), { 10.f, -10.f, 0.f }) < 0.1f);
     }
+
     SECTION("inversed cov matrix")
     {
         whack::random::HostGenerator<float> rnd;
@@ -128,5 +129,16 @@ TEST_CASE("gaussian")
                 }
             }
         }
+    }
+
+    SECTION("integration")
+    {
+        // clang-format off
+        CHECK(gaussian::integrate<float>( 0.f,    1.f, { -10000.f,   10000.f }) == Catch::Approx(1.0f));
+        CHECK(gaussian::integrate<float>( 0.f,    1.f, {      0.f,   10000.f }) == Catch::Approx(0.5f));
+        CHECK(gaussian::integrate<float>( 0.f,    1.f, {   1000.f,   10000.f }) == Catch::Approx(0.0f));
+        CHECK(gaussian::integrate<float>(12.f,    1.f, {     12.f,   10012.f }) == Catch::Approx(0.5f));
+        CHECK(gaussian::integrate<float>( 0.f, 1000.f, {      1.f, 1000000.f }) == Catch::Approx(0.5f).margin(0.02));
+        // clang-format on
     }
 }
