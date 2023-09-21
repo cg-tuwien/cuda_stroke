@@ -153,7 +153,7 @@ STROKE_DEVICES_INLINE scalar_t integrate_fast(const scalar_t& centre, const scal
                 return y1 + (x - x1) * ((y2 - y1) / (x2 - x1));
             if (x < x3)
                 return y2 + (x - x2) * ((y3 - y2) / (x3 - x2));
-            return 1;
+            return scalar_t(1);
         };
         if (x > 0)
             return f(x);
