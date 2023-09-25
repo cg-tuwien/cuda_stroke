@@ -46,7 +46,7 @@ void symmetric_matrices_work_for_shared_data()
 
 } // namespace
 
-TEST_CASE("matrix symmetric works as shared data")
+TEST_CASE("matrix: symmetric works as shared data in cuda")
 {
     symmetric_matrices_work_for_shared_data();
 }

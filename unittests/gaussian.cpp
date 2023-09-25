@@ -146,6 +146,10 @@ TEST_CASE("gaussian")
         CHECK(gaussian::integrate<float>(   7.f, 5.f, {         2.f,       7.f }) == Catch::Approx(0.341345f));
         CHECK(gaussian::integrate<float>(   7.f, 5.f, {         2.f,       5.f }) == Catch::Approx(0.185923f));
         CHECK(gaussian::integrate<float>(  -3.f, 2.f, {        -1.f,       4.f }) == Catch::Approx(0.158423f));
-        // clang-format on
+
+        CHECK(gaussian::integrate_inv_C<float>(   7.f, 1/5.f, {         2.f,       7.f }) == Catch::Approx(0.341345f));
+        CHECK(gaussian::integrate_inv_C<float>(   7.f, 1/5.f, {         2.f,       5.f }) == Catch::Approx(0.185923f));
+        CHECK(gaussian::integrate_inv_C<float>(  -3.f, 1/2.f, {        -1.f,       4.f }) == Catch::Approx(0.158423f));
+		// clang-format on
     }
 }

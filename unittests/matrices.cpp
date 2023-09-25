@@ -51,6 +51,29 @@ TEST_CASE("matrices: SymmetricMat/Cov construction")
         == stroke::Cov3<float>(1, 2, 3, 4, 5, 6));
 }
 
+TEST_CASE("matrices: assignment")
+{
+    stroke::Cov<2, float> a;
+    a = stroke::Cov<2, float>(1.f, 2.f, 3.f);
+    a = stroke::Cov2<float>(1.f, 2.f, 3.f);
+    a = stroke::SymmetricMat<2, float>(1.f, 2.f, 3.f);
+
+    stroke::Cov<3, float> b;
+    b = stroke::Cov<3, float>(1, 2, 3, 4, 5, 6);
+    b = stroke::Cov3<float>(1, 2, 3, 4, 5, 6);
+    b = stroke::SymmetricMat<3, float>(1, 2, 3, 4, 5, 6);
+
+    stroke::Cov2<float> c;
+    c = stroke::Cov<2, float>(1.f, 2.f, 3.f);
+    c = stroke::Cov2<float>(1.f, 2.f, 3.f);
+    c = stroke::SymmetricMat<2, float>(1.f, 2.f, 3.f);
+
+    stroke::Cov3<float> d;
+    d = stroke::Cov<3, float>(1, 2, 3, 4, 5, 6);
+    d = stroke::Cov3<float>(1, 2, 3, 4, 5, 6);
+    d = stroke::SymmetricMat<3, float>(1, 2, 3, 4, 5, 6);
+}
+
 TEST_CASE("matrices: SymmetricMat/Cov glm casting")
 {
     CHECK(glm::mat2(1, 2, 2, 3) == glm::mat2(stroke::Cov2(1.f, 2.f, 3.f)));

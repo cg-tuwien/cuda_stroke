@@ -137,7 +137,7 @@ static_assert(sizeof(SymmetricMat<2, float>) == 3 * 4);
 static_assert(sizeof(SymmetricMat<2, double>) == 3 * 8);
 
 template <typename scalar_t>
-struct Cov2 : SymmetricMat<2, scalar_t> {
+struct Cov2 : public SymmetricMat<2, scalar_t> {
 private:
     using Base = SymmetricMat<2, scalar_t>;
 
@@ -162,6 +162,11 @@ public:
     STROKE_DEVICES_INLINE Cov2(scalar_t m_00, scalar_t m_01, scalar_t m_11)
         : Base(m_00, m_01, m_11)
     {
+    }
+    STROKE_DEVICES_INLINE Cov2& operator=(const Cov<2, scalar_t>& other)
+    {
+        Base::operator=(other);
+        return *this;
     }
 };
 
@@ -226,7 +231,7 @@ static_assert(sizeof(SymmetricMat<3, float>) == 6 * 4);
 static_assert(sizeof(SymmetricMat<3, double>) == 6 * 8);
 
 template <typename scalar_t>
-struct Cov3 : SymmetricMat<3, scalar_t> {
+struct Cov3 : public SymmetricMat<3, scalar_t> {
 private:
     using Base = SymmetricMat<3, scalar_t>;
 
@@ -251,6 +256,11 @@ public:
     STROKE_DEVICES_INLINE Cov3(scalar_t m_00, scalar_t m_01, scalar_t m_02, scalar_t m_11, scalar_t m_12, scalar_t m_22)
         : Base(m_00, m_01, m_02, m_11, m_12, m_22)
     {
+    }
+    STROKE_DEVICES_INLINE Cov3& operator=(const Cov<3, scalar_t>& other)
+    {
+        Base::operator=(other);
+        return *this;
     }
 };
 
