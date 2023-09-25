@@ -127,44 +127,34 @@ STROKE_DEVICES_INLINE ParamsWithWeight<1, scalar_t> project_on_ray(const glm::ve
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t integrate(const scalar_t& centre, const scalar_t& variance, const Aabb<1, scalar_t>& box)
-{
-    constexpr scalar_t sqrt2 = gcem::sqrt(scalar_t(2));
-    const auto cdf = [&](const scalar_t& x) {
-        return scalar_t(0.5) * (1 + stroke::erf((x - centre) / (variance * sqrt2)));
-    };
-    return cdf(box.max) - cdf(box.min);
+STROKE_DEVICES_INLINE scalar_t cdf_inv_C(const scalar_t& centre, const scalar_t& inv_variance, const scalar_t& x) {
+	constexpr scalar_t inv_sqrt2 = 1 / gcem::sqrt(scalar_t(2));
+	const auto scaling = inv_sqrt2 * inv_variance;
+	return scalar_t(0.5) * (1 + stroke::erf((x - centre) * scaling));
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t integrate_fast(const scalar_t& centre, const scalar_t& variance, const Aabb<1, scalar_t>& box)
-{
-    const auto fast_erf = [&](const scalar_t& x) {
-        const auto f = [&](const scalar_t& x) {
-            constexpr scalar_t x1 = 0.75;
-            constexpr scalar_t y1 = gcem::erf(x1);
-            constexpr scalar_t x2 = 1.5;
-            constexpr scalar_t y2 = gcem::erf(x2);
-            constexpr scalar_t x3 = 2;
-            constexpr scalar_t y3 = 1;
-            if (x < x1)
-                return x * (y1 / x1);
-            if (x < x2)
-                return y1 + (x - x1) * ((y2 - y1) / (x2 - x1));
-            if (x < x3)
-                return y2 + (x - x2) * ((y3 - y2) / (x3 - x2));
-            return scalar_t(1);
-        };
-        if (x > 0)
-            return f(x);
-        return -f(-x);
-    };
+STROKE_DEVICES_INLINE scalar_t integrate_inv_C(const scalar_t& centre, const scalar_t& inv_variance, const Aabb<1, scalar_t>& box) {
+	//	constexpr scalar_t inv_sqrt2 = 1 / gcem::sqrt(scalar_t(2));
+	//	const auto scaling = inv_sqrt2 * inv_variance;
+	//	const auto cdf = [&](const scalar_t& x) {
+	//		return scalar_t(0.5) * (1 + stroke::erf((x - centre) * scaling));
+	//	};
+	//	return cdf(box.max) - cdf(box.min);
 
-    constexpr scalar_t sqrt2 = gcem::sqrt(scalar_t(2));
-    const auto cdf = [&](const scalar_t& x) {
-        return scalar_t(0.5) * (1 + fast_erf((x - centre) / (variance * sqrt2)));
-    };
-    return cdf(box.max) - cdf(box.min);
+	constexpr scalar_t inv_sqrt2 = 1 / gcem::sqrt(scalar_t(2));
+	const auto scaling = inv_sqrt2 * inv_variance;
+	return scalar_t(0.5) * (stroke::erf((box.max - centre) * scaling) - stroke::erf((box.min - centre) * scaling));
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t integrate(const scalar_t& centre, const scalar_t& variance, const Aabb<1, scalar_t>& box) {
+	constexpr scalar_t sqrt2 = gcem::sqrt(scalar_t(2));
+	const auto scaling = 1 / (variance * sqrt2);
+	const auto cdf = [&](const scalar_t& x) {
+		return scalar_t(0.5) * (1 + stroke::erf((x - centre) * scaling));
+	};
+	return cdf(box.max) - cdf(box.min);
 }
 
 } // namespace stroke::gaussian
