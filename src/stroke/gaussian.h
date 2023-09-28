@@ -22,8 +22,8 @@
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/glm.hpp>
 
-#include "aabb.h"
 #include "cuda_compat.h"
+#include "geometry.h"
 #include "matrix.h"
 #include "ray.h"
 
@@ -134,7 +134,7 @@ STROKE_DEVICES_INLINE scalar_t cdf_inv_C(const scalar_t& centre, const scalar_t&
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t integrate_inv_C(const scalar_t& centre, const scalar_t& inv_variance, const Aabb<1, scalar_t>& box) {
+STROKE_DEVICES_INLINE scalar_t integrate_inv_C(const scalar_t& centre, const scalar_t& inv_variance, const geometry::Aabb<1, scalar_t>& box) {
 	//	constexpr scalar_t inv_sqrt2 = 1 / gcem::sqrt(scalar_t(2));
 	//	const auto scaling = inv_sqrt2 * inv_variance;
 	//	const auto cdf = [&](const scalar_t& x) {
@@ -148,7 +148,7 @@ STROKE_DEVICES_INLINE scalar_t integrate_inv_C(const scalar_t& centre, const sca
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t integrate(const scalar_t& centre, const scalar_t& variance, const Aabb<1, scalar_t>& box) {
+STROKE_DEVICES_INLINE scalar_t integrate(const scalar_t& centre, const scalar_t& variance, const geometry::Aabb<1, scalar_t>& box) {
 	constexpr scalar_t sqrt2 = gcem::sqrt(scalar_t(2));
 	const auto scaling = 1 / (variance * sqrt2);
 	const auto cdf = [&](const scalar_t& x) {
