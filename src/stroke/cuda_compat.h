@@ -36,14 +36,10 @@
 #define STROKE_DEVICES
 #endif
 
-#if defined(NDEBUG)
 #if defined(__CUDACC__)
 #define STROKE_INLINE __forceinline__
 #else
 #define STROKE_INLINE inline
-#endif
-#else
-#define STROKE_INLINE
 #endif
 
 #define STROKE_DEVICES_INLINE STROKE_DEVICES STROKE_INLINE
