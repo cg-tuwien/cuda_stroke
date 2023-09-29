@@ -160,16 +160,15 @@ public:
     {
     }
 	STROKE_DEVICES_INLINE Cov2(const Cov<2, scalar_t>& other)
-		: Base(other.data) {
+		: Base(other.data()) {
 	}
 	STROKE_DEVICES_INLINE Cov2(scalar_t m_00, scalar_t m_01, scalar_t m_11)
 		: Base(m_00, m_01, m_11) {
 	}
-	STROKE_DEVICES_INLINE Cov2& operator=(const Cov<2, scalar_t>& other)
-    {
-        Base::operator=(other);
+	STROKE_DEVICES_INLINE Cov2& operator=(const Cov<2, scalar_t>& other) {
+		Base::operator=(other);
         return *this;
-    }
+	}
 };
 
 template <typename scalar_t>
@@ -251,15 +250,14 @@ public:
         : Base(mat)
     {
     }
-    STROKE_DEVICES_INLINE explicit Cov3(scalar_t d)
-        : Base(d)
-    {
+	STROKE_DEVICES_INLINE explicit Cov3(scalar_t d)
+		: Base(d) {
 	}
 	STROKE_DEVICES_INLINE Cov3(scalar_t m_00, scalar_t m_01, scalar_t m_02, scalar_t m_11, scalar_t m_12, scalar_t m_22)
 		: Base(m_00, m_01, m_02, m_11, m_12, m_22) {
 	}
 	STROKE_DEVICES_INLINE Cov3(const Cov<3, scalar_t>& other)
-		: Base(other.data) {
+		: Base(other.data()) {
 	}
 	STROKE_DEVICES_INLINE Cov3& operator=(const Cov<3, scalar_t>& other) {
 		Base::operator=(other);
