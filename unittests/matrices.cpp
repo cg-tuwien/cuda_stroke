@@ -51,7 +51,7 @@ TEST_CASE("stroke matrices") {
 			== stroke::Cov3<float>(1, 2, 3, 4, 5, 6));
 	}
 
-	SECTION("assignment") {
+	SECTION("assignment and copy construction") {
 		stroke::Cov<2, float> a;
 		a = stroke::Cov<2, float>(1.f, 2.f, 3.f);
 		a = stroke::Cov2<float>(1.f, 2.f, 3.f);
@@ -71,6 +71,22 @@ TEST_CASE("stroke matrices") {
 		d = stroke::Cov<3, float>(1, 2, 3, 4, 5, 6);
 		d = stroke::Cov3<float>(1, 2, 3, 4, 5, 6);
 		d = stroke::SymmetricMat<3, float>(1, 2, 3, 4, 5, 6);
+
+		stroke::Cov<2, float>(stroke::Cov<2, float>(1.f, 2.f, 3.f));
+		stroke::Cov<2, float>(stroke::Cov2<float>(1.f, 2.f, 3.f));
+		stroke::Cov<2, float>(stroke::SymmetricMat<2, float>(1.f, 2.f, 3.f));
+
+		stroke::Cov<3, float>(stroke::Cov<3, float>(1, 2, 3, 4, 5, 6));
+		stroke::Cov<3, float>(stroke::Cov3<float>(1, 2, 3, 4, 5, 6));
+		stroke::Cov<3, float>(stroke::SymmetricMat<3, float>(1, 2, 3, 4, 5, 6));
+
+		stroke::Cov2<float>(stroke::Cov<2, float>(1.f, 2.f, 3.f));
+		stroke::Cov2<float>(stroke::Cov2<float>(1.f, 2.f, 3.f));
+		stroke::Cov2<float>(stroke::SymmetricMat<2, float>(1.f, 2.f, 3.f));
+
+		stroke::Cov3<float>(stroke::Cov<3, float>(1, 2, 3, 4, 5, 6));
+		stroke::Cov3<float>(stroke::Cov3<float>(1, 2, 3, 4, 5, 6));
+		stroke::Cov3<float>(stroke::SymmetricMat<3, float>(1, 2, 3, 4, 5, 6));
 	}
 
 	SECTION("SymmetricMat/Cov glm casting") {
