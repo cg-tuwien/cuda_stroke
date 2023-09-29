@@ -107,7 +107,6 @@ void run_matrix_benchmarks()
 
 } // namespace
 
-TEST_CASE("matrix benchmarks")
-{
-    run_matrix_benchmarks();
+TEST_CASE("stroke matrix benchmarks") {
+	run_matrix_benchmarks();
 }

@@ -26,9 +26,8 @@
 
 #include "test_helpers.h"
 
-TEST_CASE("gaussian")
-{
-    using namespace stroke;
+TEST_CASE("stroke gaussian") {
+	using namespace stroke;
     SECTION("normal cov matrix")
     {
         CHECK(gaussian::eval_exponential(0.f, 1.f, 0.f) == Catch::Approx(1.0));

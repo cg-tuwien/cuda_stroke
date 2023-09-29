@@ -95,7 +95,6 @@ void run_matrix_benchmarks()
 
 } // namespace
 
-TEST_CASE("welford benchmark")
-{
-    run_matrix_benchmarks();
+TEST_CASE("stroke welford benchmark") {
+	run_matrix_benchmarks();
 }
