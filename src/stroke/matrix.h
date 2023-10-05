@@ -201,8 +201,8 @@ public:
     STROKE_DEVICES_INLINE scalar_t& operator()(unsigned row, unsigned col)
     {
         // https://godbolt.org/z/hhr595aj5
-        const auto min = std::min(row, col);
-        const auto max = std::max(row, col);
+        const auto min = stroke::min(row, col);
+        const auto max = stroke::max(row, col);
         if (min == 2)
             return Base::data()[5];
         return Base::data()[2 * min + max];
