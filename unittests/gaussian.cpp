@@ -26,8 +26,9 @@
 
 #include "test_helpers.h"
 
-TEST_CASE("stroke gaussian") {
-	using namespace stroke;
+TEST_CASE("stroke gaussian")
+{
+    using namespace stroke;
     SECTION("normal cov matrix")
     {
         CHECK(gaussian::eval_exponential(0.f, 1.f, 0.f) == Catch::Approx(1.0));
@@ -149,6 +150,6 @@ TEST_CASE("stroke gaussian") {
         CHECK(gaussian::integrate_inv_C<float>(   7.f, 1/5.f, {         2.f,       7.f }) == Catch::Approx(0.341345f));
         CHECK(gaussian::integrate_inv_C<float>(   7.f, 1/5.f, {         2.f,       5.f }) == Catch::Approx(0.185923f));
         CHECK(gaussian::integrate_inv_C<float>(  -3.f, 1/2.f, {        -1.f,       4.f }) == Catch::Approx(0.158423f));
-		// clang-format on
+        // clang-format on
     }
 }

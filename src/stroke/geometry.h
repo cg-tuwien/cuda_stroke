@@ -28,29 +28,31 @@ namespace stroke::geometry {
 
 template <glm::length_t n_dims, class scalar_t>
 class Aabb {
-	using Vec = glm::vec<n_dims, scalar_t>;
+    using Vec = glm::vec<n_dims, scalar_t>;
 
 public:
-	Vec min = {};
-	Vec max = {};
-	[[nodiscard]] STROKE_DEVICES_INLINE glm::vec<n_dims, scalar_t> size() const { return max - min; }
-	[[nodiscard]] STROKE_DEVICES_INLINE bool contains(const Vec& point) const {
-		return glm::all(glm::lessThanEqual(min, point)) && glm::all(glm::greaterThan(max, point));
-	}
-	[[nodiscard]] STROKE_DEVICES_INLINE glm::vec<n_dims, scalar_t> centre() const { return (min + max) * scalar_t(0.5); }
+    Vec min = {};
+    Vec max = {};
+    [[nodiscard]] STROKE_DEVICES_INLINE glm::vec<n_dims, scalar_t> size() const { return max - min; }
+    [[nodiscard]] STROKE_DEVICES_INLINE bool contains(const Vec& point) const
+    {
+        return glm::all(glm::lessThanEqual(min, point)) && glm::all(glm::greaterThan(max, point));
+    }
+    [[nodiscard]] STROKE_DEVICES_INLINE glm::vec<n_dims, scalar_t> centre() const { return (min + max) * scalar_t(0.5); }
 };
 
 template <class scalar_t>
 class Aabb<1, scalar_t> {
 public:
-	scalar_t min = {};
-	scalar_t max = {};
+    scalar_t min = {};
+    scalar_t max = {};
 
-	[[nodiscard]] STROKE_DEVICES_INLINE scalar_t size() const { return max - min; }
-	[[nodiscard]] STROKE_DEVICES_INLINE bool contains(const scalar_t& point) const {
-		return point > min && point < max;
-	}
-	[[nodiscard]] STROKE_DEVICES_INLINE scalar_t centre() const { return (min + max) * scalar_t(0.5); }
+    [[nodiscard]] STROKE_DEVICES_INLINE scalar_t size() const { return max - min; }
+    [[nodiscard]] STROKE_DEVICES_INLINE bool contains(const scalar_t& point) const
+    {
+        return point > min && point < max;
+    }
+    [[nodiscard]] STROKE_DEVICES_INLINE scalar_t centre() const { return (min + max) * scalar_t(0.5); }
 };
 
 using Aabb1d = Aabb<1, double>;
@@ -64,38 +66,42 @@ using Aabb3f = Aabb<3, float>;
 using Aabb3i = Aabb<3, int>;
 
 template <glm::length_t n_dimensions, typename T>
-[[nodiscard]] STROKE_DEVICES_INLINE bool inside(const glm::vec<n_dimensions, T>& point, const Aabb<n_dimensions, T>& box) {
-	return box.contains(point);
+[[nodiscard]] STROKE_DEVICES_INLINE bool inside(const glm::vec<n_dimensions, T>& point, const Aabb<n_dimensions, T>& box)
+{
+    return box.contains(point);
 }
 
 template <glm::length_t n_dimensions, typename T>
-[[nodiscard]] STROKE_DEVICES_INLINE glm::vec<n_dimensions, T> centroid(const Aabb<n_dimensions, T>& box) {
-	return (box.max + box.min) * T(0.5);
+[[nodiscard]] STROKE_DEVICES_INLINE glm::vec<n_dimensions, T> centroid(const Aabb<n_dimensions, T>& box)
+{
+    return (box.max + box.min) * T(0.5);
 }
 
 template <glm::length_t n_dimensions, typename T>
-[[nodiscard]] STROKE_DEVICES_INLINE T distance(const Aabb<n_dimensions, T>& box, const glm::vec<n_dimensions, T>& point) {
-	T distance_squared = 0;
-	for (int i = 0; i < n_dimensions; ++i) {
-		T value = 0;
-		if (point[i] < box.min[i])
-			value = box.min[i] - point[i];
-		else if (point[i] > box.max[i])
-			value = point[i] - box.max[i];
-		distance_squared += value * value;
-	}
-	return stroke::sqrt(distance_squared);
+[[nodiscard]] STROKE_DEVICES_INLINE T distance(const Aabb<n_dimensions, T>& box, const glm::vec<n_dimensions, T>& point)
+{
+    T distance_squared = 0;
+    for (int i = 0; i < n_dimensions; ++i) {
+        T value = 0;
+        if (point[i] < box.min[i])
+            value = box.min[i] - point[i];
+        else if (point[i] > box.max[i])
+            value = point[i] - box.max[i];
+        distance_squared += value * value;
+    }
+    return stroke::sqrt(distance_squared);
 }
 
 template <glm::length_t n_dimensions, typename T>
-[[nodiscard]] STROKE_DEVICES_INLINE T largest_distance_to(const Aabb<n_dimensions, T>& box, const glm::vec<n_dimensions, T>& point) {
-	T distance_squared = 0;
-	for (int i = 0; i < n_dimensions; ++i) {
-		if (stroke::abs(box.min[i] - point[i]) > stroke::abs(box.max[i] - point[i]))
-			distance_squared += sq(box.min[i] - point[i]);
-		else
-			distance_squared += sq(box.max[i] - point[i]);
-	}
-	return stroke::sqrt(distance_squared);
+[[nodiscard]] STROKE_DEVICES_INLINE T largest_distance_to(const Aabb<n_dimensions, T>& box, const glm::vec<n_dimensions, T>& point)
+{
+    T distance_squared = 0;
+    for (int i = 0; i < n_dimensions; ++i) {
+        if (stroke::abs(box.min[i] - point[i]) > stroke::abs(box.max[i] - point[i]))
+            distance_squared += sq(box.min[i] - point[i]);
+        else
+            distance_squared += sq(box.max[i] - point[i]);
+    }
+    return stroke::sqrt(distance_squared);
 }
-}
+} // namespace stroke::geometry

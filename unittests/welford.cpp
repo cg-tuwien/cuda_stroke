@@ -65,8 +65,9 @@ double frobenius_norm(const glm::dmat3x3& m)
 }
 } // namespace
 
-TEST_CASE("stroke welford") {
-	constexpr double mean_x = 42.0;
+TEST_CASE("stroke welford")
+{
+    constexpr double mean_x = 42.0;
     constexpr double sd_x = 4.2;
     constexpr double sd_y = 0.5;
     constexpr unsigned N = 1000000;

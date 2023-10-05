@@ -198,59 +198,70 @@ __forceinline__ __device__ double erf(double x)
 // host versions, won't be called from device code.
 // the __device__ annotations are put here only to remove warnings in qt creator (warning beeing, that host functions can't be called)
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t max(scalar_t a, scalar_t b) {
-		return std::max(a, b);
+STROKE_DEVICES_INLINE scalar_t max(scalar_t a, scalar_t b)
+{
+    return std::max(a, b);
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t min(scalar_t a, scalar_t b) {
-		return std::min(a, b);
+STROKE_DEVICES_INLINE scalar_t min(scalar_t a, scalar_t b)
+{
+    return std::min(a, b);
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t exp(scalar_t x) {
-		return std::exp(x);
+STROKE_DEVICES_INLINE scalar_t exp(scalar_t x)
+{
+    return std::exp(x);
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t pow(scalar_t x, scalar_t y) {
-		return std::pow(x, y);
+STROKE_DEVICES_INLINE scalar_t pow(scalar_t x, scalar_t y)
+{
+    return std::pow(x, y);
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t log(scalar_t x) {
-		return std::log(x);
+STROKE_DEVICES_INLINE scalar_t log(scalar_t x)
+{
+    return std::log(x);
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t sqrt(scalar_t x) {
-		return std::sqrt(x);
+STROKE_DEVICES_INLINE scalar_t sqrt(scalar_t x)
+{
+    return std::sqrt(x);
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t abs(scalar_t x) {
-		return std::abs(x);
+STROKE_DEVICES_INLINE scalar_t abs(scalar_t x)
+{
+    return std::abs(x);
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t acos(scalar_t x) {
-		return std::acos(x);
+STROKE_DEVICES_INLINE scalar_t acos(scalar_t x)
+{
+    return std::acos(x);
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t cos(scalar_t x) {
-		return std::cos(x);
+STROKE_DEVICES_INLINE scalar_t cos(scalar_t x)
+{
+    return std::cos(x);
 }
 
 template <typename T,
-	std::enable_if_t<std::is_floating_point<T>::value, bool> = true>
-STROKE_DEVICES_INLINE bool isnan(T x) {
-		return std::isnan(x);
+    std::enable_if_t<std::is_floating_point<T>::value, bool> = true>
+STROKE_DEVICES_INLINE bool isnan(T x)
+{
+    return std::isnan(x);
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t erf(scalar_t x) {
-		return std::erf(x);
+STROKE_DEVICES_INLINE scalar_t erf(scalar_t x)
+{
+    return std::erf(x);
 }
 
 #endif

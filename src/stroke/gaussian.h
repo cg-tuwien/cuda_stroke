@@ -127,39 +127,43 @@ STROKE_DEVICES_INLINE ParamsWithWeight<1, scalar_t> project_on_ray(const glm::ve
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t cdf_inv_C(const scalar_t& centre, const scalar_t& inv_variance, const scalar_t& x) {
-	constexpr scalar_t inv_sqrt2 = 1 / gcem::sqrt(scalar_t(2));
-	const auto scaling = inv_sqrt2 * inv_variance;
-	return scalar_t(0.5) * (1 + stroke::erf((x - centre) * scaling));
+STROKE_DEVICES_INLINE scalar_t cdf_inv_C(const scalar_t& centre, const scalar_t& inv_variance, const scalar_t& x)
+{
+    constexpr scalar_t inv_sqrt2 = 1 / gcem::sqrt(scalar_t(2));
+    const auto scaling = inv_sqrt2 * inv_variance;
+    return scalar_t(0.5) * (1 + stroke::erf((x - centre) * scaling));
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t cdf(const scalar_t& centre, const scalar_t& variance, const scalar_t& x) {
-	return cdf_inv_C(centre, 1 / variance, x);
+STROKE_DEVICES_INLINE scalar_t cdf(const scalar_t& centre, const scalar_t& variance, const scalar_t& x)
+{
+    return cdf_inv_C(centre, 1 / variance, x);
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t integrate_inv_C(const scalar_t& centre, const scalar_t& inv_variance, const geometry::Aabb<1, scalar_t>& box) {
-	//	constexpr scalar_t inv_sqrt2 = 1 / gcem::sqrt(scalar_t(2));
-	//	const auto scaling = inv_sqrt2 * inv_variance;
-	//	const auto cdf = [&](const scalar_t& x) {
-	//		return scalar_t(0.5) * (1 + stroke::erf((x - centre) * scaling));
-	//	};
-	//	return cdf(box.max) - cdf(box.min);
+STROKE_DEVICES_INLINE scalar_t integrate_inv_C(const scalar_t& centre, const scalar_t& inv_variance, const geometry::Aabb<1, scalar_t>& box)
+{
+    //	constexpr scalar_t inv_sqrt2 = 1 / gcem::sqrt(scalar_t(2));
+    //	const auto scaling = inv_sqrt2 * inv_variance;
+    //	const auto cdf = [&](const scalar_t& x) {
+    //		return scalar_t(0.5) * (1 + stroke::erf((x - centre) * scaling));
+    //	};
+    //	return cdf(box.max) - cdf(box.min);
 
-	constexpr scalar_t inv_sqrt2 = 1 / gcem::sqrt(scalar_t(2));
-	const auto scaling = inv_sqrt2 * inv_variance;
-	return scalar_t(0.5) * (stroke::erf((box.max - centre) * scaling) - stroke::erf((box.min - centre) * scaling));
+    constexpr scalar_t inv_sqrt2 = 1 / gcem::sqrt(scalar_t(2));
+    const auto scaling = inv_sqrt2 * inv_variance;
+    return scalar_t(0.5) * (stroke::erf((box.max - centre) * scaling) - stroke::erf((box.min - centre) * scaling));
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t integrate(const scalar_t& centre, const scalar_t& variance, const geometry::Aabb<1, scalar_t>& box) {
-	constexpr scalar_t sqrt2 = gcem::sqrt(scalar_t(2));
-	const auto scaling = 1 / (variance * sqrt2);
-	const auto cdf = [&](const scalar_t& x) {
-		return scalar_t(0.5) * (1 + stroke::erf((x - centre) * scaling));
-	};
-	return cdf(box.max) - cdf(box.min);
+STROKE_DEVICES_INLINE scalar_t integrate(const scalar_t& centre, const scalar_t& variance, const geometry::Aabb<1, scalar_t>& box)
+{
+    constexpr scalar_t sqrt2 = gcem::sqrt(scalar_t(2));
+    const auto scaling = 1 / (variance * sqrt2);
+    const auto cdf = [&](const scalar_t& x) {
+        return scalar_t(0.5) * (1 + stroke::erf((x - centre) * scaling));
+    };
+    return cdf(box.max) - cdf(box.min);
 }
 
 } // namespace stroke::gaussian

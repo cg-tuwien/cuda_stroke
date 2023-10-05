@@ -25,8 +25,9 @@
 
 #include "stroke/algorithms.h"
 
-TEST_CASE("stroke algorithms") {
-	SECTION("transform cuda::std::array")
+TEST_CASE("stroke algorithms")
+{
+    SECTION("transform cuda::std::array")
     {
         cuda::std::array<int, 3> m1 = { 1, 2, 3 };
         cuda::std::array<int, 3> result = stroke::transform(m1, [](int v) { return v * 10; });
