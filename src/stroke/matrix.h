@@ -114,6 +114,11 @@ public:
         : Base(StorageArray({ m_00, m_01, m_11 }))
     {
     }
+	template <typename other_scalar_t>
+	STROKE_DEVICES_INLINE explicit SymmetricMat(const SymmetricMat<2, other_scalar_t>& other)
+		: Base({ scalar_t(other.data()[0]), scalar_t(other.data()[1]), scalar_t(other.data()[2]) })
+	{
+	}
 
     STROKE_DEVICES_INLINE scalar_t& operator()(unsigned row, unsigned col)
     {
@@ -165,6 +170,11 @@ public:
 	STROKE_DEVICES_INLINE Cov2(scalar_t m_00, scalar_t m_01, scalar_t m_11)
 		: Base(m_00, m_01, m_11) {
 	}
+	template <typename other_scalar_t>
+	STROKE_DEVICES_INLINE explicit Cov2(const Cov2<other_scalar_t>& other)
+		: Base(scalar_t(other.data()[0]), scalar_t(other.data()[1]), scalar_t(other.data()[2]))
+	{
+	}
 	STROKE_DEVICES_INLINE Cov2& operator=(const Cov<2, scalar_t>& other) {
 		Base::operator=(other);
         return *this;
@@ -207,6 +217,11 @@ public:
             return Base::data()[5];
         return Base::data()[2 * min + max];
     }
+	template <typename other_scalar_t>
+	STROKE_DEVICES_INLINE explicit SymmetricMat(const SymmetricMat<3, other_scalar_t>& other)
+		: Base({ scalar_t(other.data()[0]), scalar_t(other.data()[1]), scalar_t(other.data()[2]), scalar_t(other.data()[3]), scalar_t(other.data()[4]), scalar_t(other.data()[5]) })
+	{
+	}
 
     STROKE_DEVICES_INLINE const scalar_t& operator()(unsigned row, unsigned col) const
     {
@@ -260,6 +275,11 @@ public:
 		: Base(other.data()) {
 	}
 	STROKE_DEVICES_INLINE Cov3& operator=(const Cov<3, scalar_t>& other) {
+	template <typename other_scalar_t>
+	STROKE_DEVICES_INLINE explicit Cov3(const Cov<3, other_scalar_t>& other)
+		: Base(scalar_t(other.data()[0]), scalar_t(other.data()[1]), scalar_t(other.data()[2]), scalar_t(other.data()[3]), scalar_t(other.data()[4]), scalar_t(other.data()[5]))
+	{
+	}
 		Base::operator=(other);
 		return *this;
 	}

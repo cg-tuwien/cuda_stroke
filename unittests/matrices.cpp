@@ -89,6 +89,18 @@ TEST_CASE("stroke matrices") {
 		stroke::Cov3<float>(stroke::SymmetricMat<3, float>(1, 2, 3, 4, 5, 6));
 	}
 
+	SECTION("data type casting") {
+		stroke::Cov<2, float>(stroke::Cov<2, double>(1));
+		stroke::Cov<2, double>(stroke::Cov<2, float>(1));
+		stroke::Cov<3, float>(stroke::Cov<3, double>(1));
+		stroke::Cov<3, double>(stroke::Cov<3, float>(1));
+
+		stroke::Cov2<float>(stroke::Cov2<double>(1));
+		stroke::Cov2<double>(stroke::Cov2<float>(1));
+		stroke::Cov3<float>(stroke::Cov3<double>(1));
+		stroke::Cov3<double>(stroke::Cov3<float>(1));
+	}
+
 	SECTION("SymmetricMat/Cov glm casting") {
 		CHECK(glm::mat2(1, 2, 2, 3) == glm::mat2(stroke::Cov2(1.f, 2.f, 3.f)));
 		CHECK(glm::mat3(
