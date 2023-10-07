@@ -44,3 +44,10 @@ std::ostream& operator<<(std::ostream& os, const stroke::Cov2<T>& m)
     os << "Cov2((" << m[0] << ", " << m[1] << "), (" << m[1] << ", " << m[2] << "))";
     return os;
 }
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const stroke::Cov3<T>& m)
+{
+    os << "Cov3((" << m[0] << ", " << m[1] << ", " << m[2] << "), (" << m[1] << ", " << m[3] << ", " << m[4] << "), (" << m[2] << ", " << m[4] << ", " << m[5] << "))";
+    return os;
+}
