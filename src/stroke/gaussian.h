@@ -103,7 +103,7 @@ STROKE_DEVICES_INLINE scalar_t norm_factor_inv_C(const Cov<n_dims, scalar_t>& in
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE ParamsWithWeight<1, scalar_t> project_on_ray_inv_C(const glm::vec<3, scalar_t>& centre, const SymmetricMat<3, scalar_t>& inversed_covariance, const Ray<3, scalar_t>& ray)
+STROKE_DEVICES_INLINE ParamsWithWeight<1, scalar_t> intersect_with_ray_inv_C(const glm::vec<3, scalar_t>& centre, const SymmetricMat<3, scalar_t>& inversed_covariance, const Ray<3, scalar_t>& ray)
 {
     // equations following the diploma thesis by Simon Fraiss (https://www.cg.tuwien.ac.at/research/publications/2022/FRAISS-2022-CGMM/)
     // little optimised
@@ -124,9 +124,9 @@ STROKE_DEVICES_INLINE ParamsWithWeight<1, scalar_t> project_on_ray_inv_C(const g
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE ParamsWithWeight<1, scalar_t> project_on_ray(const glm::vec<3, scalar_t>& centre, const SymmetricMat<3, scalar_t>& covariance, const Ray<3, scalar_t>& ray)
+STROKE_DEVICES_INLINE ParamsWithWeight<1, scalar_t> intersect_with_ray(const glm::vec<3, scalar_t>& centre, const SymmetricMat<3, scalar_t>& covariance, const Ray<3, scalar_t>& ray)
 {
-    return project_on_ray_inv_C(centre, inverse(covariance), ray);
+    return intersect_with_ray_inv_C(centre, inverse(covariance), ray);
 }
 
 template <typename scalar_t>
