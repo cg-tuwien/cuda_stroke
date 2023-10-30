@@ -113,7 +113,10 @@ STROKE_DEVICES_INLINE ParamsWithWeight<1, scalar_t> project_on_ray_inv_C(const g
 
     // probably more optimised, no benchmark
     const auto Cxd = inversed_covariance * ray.direction;
-    const auto variance = 1 / dot(ray.direction, Cxd);
+    const auto dot_dir_cxd = dot(ray.direction, Cxd);
+    if (dot_dir_cxd <= 0.001f)
+        return { 0, 0, 1 };
+    const auto variance = 1 / dot_dir_cxd;
     const auto position = dot(Cxd, (centre - ray.origin)) * variance;
     const auto weight = eval_exponential_inv_C(centre, inversed_covariance, ray.origin + position * ray.direction);
 
