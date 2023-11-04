@@ -24,7 +24,6 @@
 
 namespace stroke {
 
-// functions that are not in the library
 template <typename T>
 STROKE_DEVICES_INLINE T sq(const T& v)
 {
@@ -265,5 +264,11 @@ STROKE_DEVICES_INLINE scalar_t erf(scalar_t x)
 }
 
 #endif
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t clamp(scalar_t v, scalar_t min, scalar_t max)
+{
+    return stroke::max(min, stroke::min(max, v));
+}
 
 } // namespace stroke
