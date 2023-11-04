@@ -42,6 +42,7 @@ add_library(stroke INTERFACE
     stroke/matrix_operators.h
     stroke/geometry.h
     stroke/utility.h
+    stroke/unittest/gradcheck.h
 )
 target_link_libraries(stroke INTERFACE glm::glm whack gcem)
 target_include_directories(stroke INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

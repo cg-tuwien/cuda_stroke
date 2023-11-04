@@ -24,7 +24,7 @@
 TEST_CASE("stroke scalar functions")
 {
 
-    SECTION("transform cuda::std::array")
+    SECTION("clamp")
     {
         CHECK(stroke::clamp(0, 1, 10) == 1);
         CHECK(stroke::clamp(5, 1, 10) == 5);

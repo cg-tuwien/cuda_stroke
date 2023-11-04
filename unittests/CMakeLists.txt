@@ -21,6 +21,7 @@ add_executable(stroke_unittests
     test_helpers.h
     matrix.cu
     scalar_functions.cpp
+    gradcheck.cu
 )
 
 target_link_libraries(stroke_unittests PUBLIC Catch2::Catch2WithMain CUDA::nvToolsExt stroke)
