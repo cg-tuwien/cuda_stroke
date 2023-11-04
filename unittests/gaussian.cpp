@@ -94,6 +94,17 @@ TEST_CASE("stroke gaussian")
         CHECK(gaussian::norm_factor(Cov3(3.4, 1.2, 1.3, 4.2, 1.0, 3.6)) == Catch::Approx(gaussian::norm_factor_inv_C(inverse(Cov3(3.4, 1.2, 1.3, 4.2, 1.0, 3.6)))));
     }
 
+    SECTION("normalised gaussian")
+    {
+        // 1d https://www.wolframalpha.com/input?i2d=true&i=pdf%5C%2840%29N%5C%2840%290.4%5C%2844%29+1.3%5C%2841%29%5C%2844%29+0.8%5C%2841%29
+        CHECK(gaussian::eval_normalised(0.4, 1.3, 0.8) == Catch::Approx(0.329013));
+
+        // 2d and 3d https://www.wolframcloud.com/obj/284b53f9-0a2f-4414-94af-d30e68b7bed2
+        // same, but screenshot: https://imgur.com/a/N4AJG0P
+        CHECK(gaussian::eval_normalised<2, double>({ 0.4, 0.7 }, { 1.5, 0.3, 1.2 }, { 0.3, 0.9 }) == Catch::Approx(0.118756));
+        CHECK(gaussian::eval_normalised<3, double>({ 0.4, 0.7, 0.8 }, { 1.5, 0.3, 0.2, 0.9, 0.1, 1.3 }, { 0.3, 0.9, 0.7 }) == Catch::Approx(0.0484231));
+    }
+
     SECTION("intersect a 3d gaussian with a ray")
     {
         whack::random::HostGenerator<float> rnd;
@@ -106,17 +117,18 @@ TEST_CASE("stroke gaussian")
                     const auto ray = stroke::Ray<3, float> { centre, glm::normalize(rnd.normal3()) };
                     const auto [oneD_weight, oneD_centre, oneD_variance] = gaussian::intersect_with_ray(centre, covariance, ray);
                     CHECK(oneD_centre == Catch::Approx(0));
-                    CHECK(oneD_weight == Catch::Approx(1));
-                    CHECK(gaussian::eval_exponential(centre, covariance, ray.origin + ray.direction * 0.8f) == Catch::Approx(oneD_weight * gaussian::eval_exponential(oneD_centre, oneD_variance, 0.8f)));
+                    CHECK(oneD_weight * gaussian::eval_normalised(oneD_centre, oneD_variance, 0.f) == Catch::Approx(gaussian::eval_normalised(centre, covariance, centre)));
+                    CHECK(gaussian::eval_normalised(centre, covariance, ray.origin + ray.direction * 0.8f) == Catch::Approx(oneD_weight * gaussian::eval_normalised(oneD_centre, oneD_variance, 0.8f)));
                 }
                 {
                     const auto direction = glm::normalize(rnd.normal3());
                     const auto ray = stroke::Ray<3, float> { centre - direction * 0.7f, direction };
                     const auto [oneD_weight, oneD_centre, oneD_variance] = gaussian::intersect_with_ray(centre, covariance, ray);
                     CHECK(oneD_centre == Catch::Approx(0.7));
-                    CHECK(gaussian::eval_exponential(centre, covariance, ray.origin + ray.direction * 0.5f) == Catch::Approx(oneD_weight * gaussian::eval_exponential(oneD_centre, oneD_variance, 0.5f)));
-                    CHECK(gaussian::eval_exponential(centre, covariance, ray.origin + ray.direction * 0.8f) == Catch::Approx(oneD_weight * gaussian::eval_exponential(oneD_centre, oneD_variance, 0.8f)));
-                    CHECK(gaussian::eval_exponential(centre, covariance, ray.origin + ray.direction * 1.3f) == Catch::Approx(oneD_weight * gaussian::eval_exponential(oneD_centre, oneD_variance, 1.3f)));
+                    CHECK(gaussian::eval_normalised(centre, covariance, ray.origin + ray.direction * 0.5f) == Catch::Approx(oneD_weight * gaussian::eval_normalised(oneD_centre, oneD_variance, 0.5f)));
+                    CHECK(gaussian::eval_normalised(centre, covariance, ray.origin + ray.direction * 0.8f) == Catch::Approx(oneD_weight * gaussian::eval_normalised(oneD_centre, oneD_variance, 0.8f)));
+                    CHECK(gaussian::eval_normalised(centre, covariance, ray.origin + ray.direction * 1.3f) == Catch::Approx(oneD_weight * gaussian::eval_normalised(oneD_centre, oneD_variance, 1.3f)));
+                    CHECK(0.4f * gaussian::eval_normalised(centre, covariance, ray.origin + ray.direction * 1.3f) == Catch::Approx(0.4f * oneD_weight * gaussian::eval_normalised(oneD_centre, oneD_variance, 1.3f)));
                 }
                 {
                     const auto direction = glm::normalize(rnd.normal3());
@@ -134,22 +146,22 @@ TEST_CASE("stroke gaussian")
     SECTION("integration")
     {
         // clang-format off
-        CHECK(gaussian::integrate<float>(   0.f,    1.f, { -10000.f,   10000.f }) == Catch::Approx(1.0f));
-        CHECK(gaussian::integrate<float>(   0.f,    1.f, {      0.f,   10000.f }) == Catch::Approx(0.5f));
-        CHECK(gaussian::integrate<float>(   0.f,    1.f, { -10000.f,       0.f }) == Catch::Approx(0.5f));
-        CHECK(gaussian::integrate<float>( 100.f,    1.f, { -10000.f,     100.f }) == Catch::Approx(0.5f));
-        CHECK(gaussian::integrate<float>(   0.f,    1.f, {   1000.f,   10000.f }) == Catch::Approx(0.0f));
-        CHECK(gaussian::integrate<float>(  12.f,    1.f, {     12.f,   10012.f }) == Catch::Approx(0.5f));
-        CHECK(gaussian::integrate<float>(   0.f, 1000.f, {      1.f, 1000000.f }) == Catch::Approx(0.5f).margin(0.02));
+        CHECK(gaussian::integrate_var<float>(   0.f,    1.f, { -10000.f,   10000.f }) == Catch::Approx(1.0f));
+        CHECK(gaussian::integrate_var<float>(   0.f,    1.f, {      0.f,   10000.f }) == Catch::Approx(0.5f));
+        CHECK(gaussian::integrate_var<float>(   0.f,    1.f, { -10000.f,       0.f }) == Catch::Approx(0.5f));
+        CHECK(gaussian::integrate_var<float>( 100.f,    1.f, { -10000.f,     100.f }) == Catch::Approx(0.5f));
+        CHECK(gaussian::integrate_var<float>(   0.f,    1.f, {   1000.f,   10000.f }) == Catch::Approx(0.0f));
+        CHECK(gaussian::integrate_var<float>(  12.f,    1.f, {     12.f,   10012.f }) == Catch::Approx(0.5f));
+        CHECK(gaussian::integrate_var<float>(   0.f, 1000.f, {      1.f, 1000000.f }) == Catch::Approx(0.5f).margin(0.02));
 
         // https://www.wolframalpha.com/input?i=integrate+PDF%5BNormalDistribution%5B7%2C+5%5D%2C+x%5D+from+2+to+5&lang=es
-        CHECK(gaussian::integrate<float>(   7.f, 5.f, {         2.f,       7.f }) == Catch::Approx(0.341345f));
-        CHECK(gaussian::integrate<float>(   7.f, 5.f, {         2.f,       5.f }) == Catch::Approx(0.185923f));
-        CHECK(gaussian::integrate<float>(  -3.f, 2.f, {        -1.f,       4.f }) == Catch::Approx(0.158423f));
+        CHECK(gaussian::integrate_SD<float>(   7.f, 5.f, {         2.f,       7.f }) == Catch::Approx(0.341345f));
+        CHECK(gaussian::integrate_SD<float>(   7.f, 5.f, {         2.f,       5.f }) == Catch::Approx(0.185923f));
+        CHECK(gaussian::integrate_SD<float>(  -3.f, 2.f, {        -1.f,       4.f }) == Catch::Approx(0.158423f));
 
-        CHECK(gaussian::integrate_inv_C<float>(   7.f, 1/5.f, {         2.f,       7.f }) == Catch::Approx(0.341345f));
-        CHECK(gaussian::integrate_inv_C<float>(   7.f, 1/5.f, {         2.f,       5.f }) == Catch::Approx(0.185923f));
-        CHECK(gaussian::integrate_inv_C<float>(  -3.f, 1/2.f, {        -1.f,       4.f }) == Catch::Approx(0.158423f));
+        CHECK(gaussian::integrate_inv_SD<float>(   7.f, 1/5.f, {         2.f,       7.f }) == Catch::Approx(0.341345f));
+        CHECK(gaussian::integrate_inv_SD<float>(   7.f, 1/5.f, {         2.f,       5.f }) == Catch::Approx(0.185923f));
+        CHECK(gaussian::integrate_inv_SD<float>(  -3.f, 1/2.f, {        -1.f,       4.f }) == Catch::Approx(0.158423f));
         // clang-format on
     }
 }
