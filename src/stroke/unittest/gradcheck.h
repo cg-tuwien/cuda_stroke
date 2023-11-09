@@ -22,6 +22,7 @@
 
 #include <whack/pretty_printer.h>
 
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <whack/Tensor.h>
 #include <whack/TensorView.h>
@@ -30,19 +31,6 @@
 #include "stroke/cuda_compat.h"
 
 namespace stroke {
-
-template <typename scalar_t, typename Function, typename GradientFunction>
-void check_gradient(Function fun, GradientFunction grad_fun, const std::vector<whack::Tensor<scalar_t, 1>>& test_input)
-{
-}
-
-template <typename scalar_t, typename Function, typename GradientFunction>
-void check_gradient(Function fun, GradientFunction grad_fun, const whack::Tensor<scalar_t, 1>& test_input)
-{
-    std::vector<whack::Tensor<scalar_t, 1>> input = { test_input };
-    assert(input.size() == 1);
-    check_gradient<scalar_t>(fun, grad_fun, input);
-}
 
 namespace gradcheck_internal {
     namespace detail {
@@ -155,7 +143,7 @@ namespace gradcheck_internal {
             detail::copy_A_to_B_at_row_i(input_grad, &J, i);
         }
 
-        // std::cout << "J: " << J << std::endl;
+        // std::cout << "analytical_jacobian: " << J << std::endl;
         return J;
     }
 
@@ -181,9 +169,30 @@ namespace gradcheck_internal {
             detail::set_jacobian_col_with<scalar_t>(J, i, out_with_plus_dx, out_with_minus_dx, dx);
         }
 
-        // std::cout << "J: " << J << std::endl;
+        // std::cout << "numerical_jacobian: " << J << std::endl;
         return J;
     }
 } // namespace gradcheck_internal
 
+template <typename scalar_t, typename Function, typename GradientFunction>
+void check_gradient(Function fun, GradientFunction grad_fun, const whack::Tensor<scalar_t, 1>& test_input, scalar_t dx = 0.0001)
+{
+    const auto analytical_jacobian = gradcheck_internal::analytical_jacobian<scalar_t>(fun, grad_fun, test_input).host_copy();
+    const auto numerical_jacobian = gradcheck_internal::numerical_jacobian<scalar_t>(fun, test_input, dx).host_copy();
+    REQUIRE(analytical_jacobian.numel() == numerical_jacobian.numel());
+    REQUIRE(analytical_jacobian.n_dimensions() == 2);
+    REQUIRE(analytical_jacobian.n_dimensions() == numerical_jacobian.n_dimensions());
+
+    for (size_t output_gradient_position = 0; output_gradient_position < analytical_jacobian.dimensions()[0]; ++output_gradient_position) {
+        for (size_t input_position = 0; input_position < analytical_jacobian.dimensions()[1]; ++input_position) {
+            if (analytical_jacobian(output_gradient_position, input_position) != Catch::Approx(numerical_jacobian(output_gradient_position, input_position)).epsilon(dx * 50)) {
+                // #include "stroke/unittest/gradcheck.h" must come first for pretty printers to work.
+                CAPTURE(analytical_jacobian);
+                CAPTURE(numerical_jacobian); // the jacobian is a copy on the host even if the computation was done on the device.
+                FAIL_CHECK("Analytical and numerical jacobian do not agree. Your analytical gradient is probably incorrect!");
+                return;
+            }
+        }
+    }
+}
 } // namespace stroke

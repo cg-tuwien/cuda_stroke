@@ -16,12 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *****************************************************************************/
 
+// must come first for pretty printers to work.
+#include "stroke/unittest/gradcheck.h"
+
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-#include "stroke/unittest/gradcheck.h"
+#include "stroke/grad/matrix_functions.h"
+#include "stroke/matrix_functions.h"
 #include "whack/Tensor.h"
 #include "whack/TensorView.h"
+#include "whack/tensor_operations.h"
 
 TEST_CASE("stroke gradcheck")
 {
@@ -57,22 +62,10 @@ TEST_CASE("stroke gradcheck")
     using namespace stroke;
     SECTION("api")
     {
-        // 1 input and output
-        {
-
-            const auto test_data_host = whack::make_tensor<float>(whack::Location::Host, 42);
-            check_gradient(identity_function, identity_grad_function, test_data_host);
-            const auto test_data_device = whack::make_tensor<float>(whack::Location::Device, 42);
-            check_gradient(identity_function, identity_grad_function, test_data_device);
-        }
-
-        // several inputs and outputs
-        {
-            const auto test_data_host = whack::make_tensor<float>(whack::Location::Host, 42);
-            check_gradient<float>(identity_function, identity_grad_function, { test_data_host, test_data_host, test_data_host });
-            auto test_data_device = whack::make_tensor<float>(whack::Location::Device, 42);
-            check_gradient<float>(identity_function, identity_grad_function, { test_data_device, test_data_device, test_data_device });
-        }
+        const auto test_data_host = whack::make_tensor<float>(whack::Location::Host, 42);
+        check_gradient(identity_function, identity_grad_function, test_data_host);
+        const auto test_data_device = whack::make_tensor<float>(whack::Location::Device, 42);
+        check_gradient(identity_function, identity_grad_function, test_data_device);
     }
 
     SECTION("analytical jacobian")
@@ -179,4 +172,82 @@ TEST_CASE("stroke gradcheck")
             CHECK(Jv(0, 1) == Catch::Approx(2).epsilon(dx));
         }
     }
+
+    SECTION("api test with real function (host only)")
+    {
+        const auto fun = [](const whack::Tensor<float, 1>& input) {
+            const auto mat = input.view<glm::mat3>(1)(0);
+            auto ret_tensor = whack::make_tensor<float>(input.location(), 1);
+            ret_tensor(0) = det(mat);
+            return ret_tensor;
+        };
+
+        const auto fun_grad = [](const whack::Tensor<float, 1>& input, const whack::Tensor<float, 1>& grad_output) {
+            const auto mat = input.view<glm::mat3>(1)(0);
+            const auto incoming_grad = grad_output(0);
+
+            auto grad_input = input;
+            grad_input.view<glm::mat3>(1)(0) = stroke::grad::det(mat, incoming_grad);
+
+            return grad_input;
+        };
+
+        const auto test_data_host = whack::make_tensor<float>(whack::Location::Host, { 3, 2, 1, 2, 4, 3, 0, 1, 2 }, 9);
+        check_gradient(fun, fun_grad, test_data_host);
+    }
+
+    SECTION("api test with real function (host and device)")
+    {
+        const auto fun = [](const whack::Tensor<float, 1>& input) {
+            const auto mat_v = input.view<glm::mat3>(1);
+            auto ret_tensor = whack::make_tensor<float>(input.location(), 1);
+            auto ret_v = ret_tensor.view();
+
+            whack::start_parallel(
+                input.location(), 1, 1, WHACK_KERNEL(=) {
+                    WHACK_UNUSED_KERNEL_PARAMS
+                    ret_v(0) = det(mat_v(0));
+                });
+
+            return ret_tensor;
+        };
+
+        const auto fun_grad = [](const whack::Tensor<float, 1>& input, const whack::Tensor<float, 1>& grad_output) {
+            const auto mat_v = input.view<glm::mat3>(1);
+            const auto incoming_grad_v = grad_output.view();
+
+            auto grad_input = input;
+            auto grad_input_v = grad_input.view<glm::mat3>(1);
+
+            whack::start_parallel(
+                input.location(), 1, 1, WHACK_KERNEL(=) {
+                    WHACK_UNUSED_KERNEL_PARAMS
+                    grad_input_v(0) = stroke::grad::det(mat_v(0), incoming_grad_v(0));
+                });
+
+            return grad_input;
+        };
+
+        const auto test_data = whack::make_tensor<float>(whack::Location::Host, { 3, 2, 1, 2, 4, 3, 0, 1, 2 }, 9);
+        static_assert(test_data.n_dimensions() == 1);
+        check_gradient(fun, fun_grad, test_data);
+        check_gradient(fun, fun_grad, test_data.device_copy());
+    }
+}
+
+TEST_CASE("stroke gradcheck (test for failure)", "[!shouldfail]")
+{
+    const auto identity_function = [](const auto& input) {
+        return input;
+    };
+    const auto zero_grad_function = [](const auto& input, const auto& grad_output) {
+        return whack::make_tensor<typename std::remove_reference_t<decltype(input)>::value_type>(input.location(), input.dimensions());
+    };
+
+    using namespace stroke;
+    // 1 input and output
+    const auto test_data_host = whack::make_tensor<float>(whack::Location::Host, 42);
+    check_gradient(identity_function, zero_grad_function, test_data_host);
+    const auto test_data_device = whack::make_tensor<float>(whack::Location::Device, 42);
+    check_gradient(identity_function, zero_grad_function, test_data_device);
 }
