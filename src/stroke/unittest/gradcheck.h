@@ -18,6 +18,7 @@
 
 #pragma once
 #include <iostream>
+#include <vector>
 
 #include <whack/pretty_printer.h>
 
@@ -88,6 +89,50 @@ namespace gradcheck_internal {
                     b_v(i, idx) = a_v(idx);
                 });
         }
+
+        template <typename scalar_t>
+        whack::Tensor<scalar_t, 1> copy_A_add_dx_at_i(const whack::Tensor<scalar_t, 1>& a, scalar_t dx, size_t i)
+        {
+            assert(i < a.numel());
+
+            auto b = a;
+
+            const auto n = a.numel();
+            auto b_v = b.view();
+
+            whack::start_parallel(
+                a.location(), 1, 1, WHACK_KERNEL(=) {
+                    WHACK_UNUSED(whack_threadIdx);
+                    WHACK_UNUSED(whack_blockIdx);
+                    WHACK_UNUSED(whack_blockDim);
+                    WHACK_UNUSED(whack_gridDim);
+                    b_v(i) = b_v(i) + dx;
+                });
+            return std::move(b);
+        }
+
+        template <typename scalar_t, typename IndexStoreType = unsigned int, typename IndexCalculateType = IndexStoreType>
+        void set_jacobian_col_with(whack::Tensor<scalar_t, 2u>& J, size_t col, const whack::Tensor<scalar_t, 1u>& out_with_plus_dx, const whack::Tensor<scalar_t, 1u>& out_with_minus_dx, scalar_t dx)
+        {
+            auto Jv = J.view();
+            const auto out_plus_v = out_with_plus_dx.view();
+            const auto out_minus_v = out_with_minus_dx.view();
+            assert(J.location() == out_with_plus_dx.location());
+            assert(J.location() == out_with_minus_dx.location());
+            assert(col < Jv.size(1));
+            assert(out_plus_v.size(0) == Jv.size(0));
+            assert(out_minus_v.size(0) == Jv.size(0));
+            const auto n = Jv.size(0);
+
+            whack::start_parallel(
+                J.location(),
+                whack::grid_dim_from_total_size(n, 256), 256, WHACK_KERNEL(=) {
+                    const unsigned idx = whack_blockIdx.x * whack_blockDim.x + whack_threadIdx.x;
+                    if (idx >= n)
+                        return;
+                    Jv(idx, col) = (out_plus_v(idx) - out_minus_v(idx)) / dx;
+                });
+        }
     } // namespace detail
 
     template <typename scalar_t, typename Function, typename GradientFunction>
@@ -95,9 +140,10 @@ namespace gradcheck_internal {
     {
         const auto location = input.location();
         const auto dummy_output = fun(input);
+        static_assert(dummy_output.n_dimensions() == 1);
 
-        const auto n_inputs = input.view().size(0);
-        const size_t n_outputs = dummy_output.view().size(0);
+        const auto n_inputs = input.numel();
+        const size_t n_outputs = dummy_output.numel();
 
         whack::Tensor<scalar_t, 2> J = whack::make_tensor<scalar_t>(location, n_outputs, n_inputs);
         whack::Tensor<scalar_t, 1> output_grad = whack::make_tensor<scalar_t>(location, n_outputs);
@@ -107,6 +153,32 @@ namespace gradcheck_internal {
             const auto input_grad = grad_fun(input, output_grad);
             // std::cout << "input_grad: " << input_grad << std::endl;
             detail::copy_A_to_B_at_row_i(input_grad, &J, i);
+        }
+
+        // std::cout << "J: " << J << std::endl;
+        return J;
+    }
+
+    template <typename scalar_t, typename Function>
+    whack::Tensor<scalar_t, 2> numerical_jacobian(Function fun, const whack::Tensor<scalar_t, 1>& input, scalar_t dx)
+    {
+        const auto location = input.location();
+        const auto dummy_output = fun(input);
+        static_assert(dummy_output.n_dimensions() == 1);
+
+        const auto n_inputs = input.numel();
+        const size_t n_outputs = dummy_output.numel();
+
+        whack::Tensor<scalar_t, 2> J = whack::make_tensor<scalar_t>(location, n_outputs, n_inputs);
+        whack::Tensor<scalar_t, 1> output_grad = whack::make_tensor<scalar_t>(location, n_outputs);
+        for (size_t i = 0; i < n_inputs; ++i) {
+            const auto input_plus_dx = detail::copy_A_add_dx_at_i<scalar_t>(input, dx / 2, i);
+            const auto input_minus_dx = detail::copy_A_add_dx_at_i<scalar_t>(input, -dx / 2, i);
+
+            const auto out_with_plus_dx = fun(input_plus_dx);
+            const auto out_with_minus_dx = fun(input_minus_dx);
+
+            detail::set_jacobian_col_with<scalar_t>(J, i, out_with_plus_dx, out_with_minus_dx, dx);
         }
 
         // std::cout << "J: " << J << std::endl;

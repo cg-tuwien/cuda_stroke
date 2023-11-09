@@ -75,7 +75,7 @@ TEST_CASE("stroke gradcheck")
         }
     }
 
-    SECTION("jakobian")
+    SECTION("analytical jacobian")
     {
         {
             auto test_data_host = whack::make_host_tensor<float>(1);
@@ -124,6 +124,59 @@ TEST_CASE("stroke gradcheck")
             CHECK(Jv.size<1>() == 2);
             CHECK(Jv(0, 0) == 3);
             CHECK(Jv(0, 1) == 2);
+        }
+    }
+
+    SECTION("numerical jacobian")
+    {
+        const auto dx = 0.001f;
+        {
+            auto test_data_host = whack::make_host_tensor<float>(1);
+            test_data_host.view()(0) = 2;
+            const auto J = gradcheck_internal::numerical_jacobian<float>(identity_function, test_data_host, dx);
+            const auto Jv = J.view();
+            CHECK(Jv.shape().size() == 2);
+            CHECK(Jv.size<0>() == 1);
+            CHECK(Jv.size<1>() == 1);
+            CHECK(Jv(0, 0) == Catch::Approx(1).epsilon(dx));
+        }
+        {
+            auto test_data_host = whack::make_host_tensor<float>(2);
+            test_data_host.view()(0) = 2;
+            test_data_host.view()(1) = 2;
+            const auto J = gradcheck_internal::numerical_jacobian<float>(identity_function, test_data_host, dx);
+            const auto Jv = J.view();
+            CHECK(Jv.shape().size() == 2);
+            CHECK(Jv.size<0>() == 2);
+            CHECK(Jv.size<1>() == 2);
+            CHECK(Jv(0, 0) == Catch::Approx(1).epsilon(dx));
+            CHECK(Jv(0, 1) == Catch::Approx(0).epsilon(dx));
+            CHECK(Jv(1, 0) == Catch::Approx(0).epsilon(dx));
+            CHECK(Jv(1, 1) == Catch::Approx(1).epsilon(dx));
+        }
+        {
+            auto test_data_host = whack::make_host_tensor<float>(2);
+            test_data_host.view()(0) = 2;
+            test_data_host.view()(1) = 2;
+            const auto J = gradcheck_internal::numerical_jacobian<float>(sum_function, test_data_host, dx);
+            const auto Jv = J.view();
+            CHECK(Jv.shape().size() == 2);
+            CHECK(Jv.size<0>() == 1);
+            CHECK(Jv.size<1>() == 2);
+            CHECK(Jv(0, 0) == Catch::Approx(1).epsilon(dx));
+            CHECK(Jv(0, 1) == Catch::Approx(1).epsilon(dx));
+        }
+        {
+            auto test_data_host = whack::make_host_tensor<float>(2);
+            test_data_host.view()(0) = 2;
+            test_data_host.view()(1) = 3;
+            const auto J = gradcheck_internal::numerical_jacobian<float>(mul_function, test_data_host, dx);
+            const auto Jv = J.view();
+            CHECK(Jv.shape().size() == 2);
+            CHECK(Jv.size<0>() == 1);
+            CHECK(Jv.size<1>() == 2);
+            CHECK(Jv(0, 0) == Catch::Approx(3).epsilon(dx));
+            CHECK(Jv(0, 1) == Catch::Approx(2).epsilon(dx));
         }
     }
 }
