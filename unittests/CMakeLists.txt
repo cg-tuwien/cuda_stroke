@@ -23,7 +23,7 @@ add_executable(stroke_unittests
     scalar_functions.cpp
     gradcheck.cu
     grad_gaussian.cu
-    grad_matrix.cu
+    grad_linalg.cu
 
 )
 

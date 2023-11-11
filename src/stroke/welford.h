@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "matrix.h"
+#include "linalg.h"
 
 #include "cuda_compat.h"
 

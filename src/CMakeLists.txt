@@ -30,20 +30,21 @@ else()
 endif()
 
 add_library(stroke INTERFACE
-    stroke/matrix.h
+    stroke/detail/symmetric_mat.h
     stroke/scalar_functions.h
-    stroke/matrix_functions.h
+    stroke/detail/linalg_functions.h
     stroke/pretty_printers.h
     stroke/algorithms.h
     stroke/cuda_compat.h
     stroke/gaussian.h
     stroke/ray.h
     stroke/welford.h
-    stroke/matrix_operators.h
+    stroke/detail/symmetric_mat_operators.h
     stroke/geometry.h
     stroke/utility.h
     stroke/unittest/gradcheck.h
-    stroke/grad/matrix_functions.h
+    stroke/grad/linalg.h
+    stroke/linalg.h
 )
 target_link_libraries(stroke INTERFACE glm::glm whack gcem)
 target_include_directories(stroke INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

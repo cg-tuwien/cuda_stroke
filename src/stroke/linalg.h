@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Stroke
+ * Alpine Terrain Renderer
  * Copyright (C) 2023 Adam Celarek
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,26 +18,6 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
-#include <whack/random/generators.h>
-
-#include "stroke/linalg.h"
-
-template <glm::length_t n_dims, typename scalar_t, typename Generator>
-STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> random_matrix(Generator* rnd)
-{
-    glm::mat<n_dims, n_dims, scalar_t> mat;
-    for (auto c = 0; c < n_dims; ++c) {
-        for (auto r = 0; r < n_dims; ++r) {
-            mat[c][r] = rnd->normal();
-        }
-    }
-    return mat;
-}
-
-template <glm::length_t n_dims, typename scalar_t, typename Generator>
-STROKE_DEVICES_INLINE stroke::Cov<n_dims, scalar_t> random_cov(Generator* rnd)
-{
-    const auto mat = random_matrix<n_dims, scalar_t>(rnd);
-    return stroke::Cov<n_dims, scalar_t>(mat * transpose(mat)) + stroke::Cov<n_dims, scalar_t>(0.05);
-}
+#include "detail/linalg_functions.h"
+#include "detail/symmetric_mat.h"
+#include "detail/symmetric_mat_operators.h"

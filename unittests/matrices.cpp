@@ -21,7 +21,6 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-#include "stroke/matrix.h"
 #include "test_helpers.h"
 
 TEST_CASE("stroke matrices")

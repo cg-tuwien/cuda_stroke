@@ -21,7 +21,7 @@
 #include <cuda/std/functional>
 #include <glm/glm.hpp>
 
-#include "algorithms.h"
+#include "stroke/algorithms.h"
 
 namespace stroke {
 template <glm::length_t n_dims, typename scalar_t>

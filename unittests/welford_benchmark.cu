@@ -26,7 +26,7 @@
 #include "whack/random/generators.h"
 #include "whack/random/state.h"
 
-#include "stroke/matrix_functions.h"
+#include "stroke/linalg.h"
 #include "stroke/welford.h"
 
 struct BenchmarkResults {

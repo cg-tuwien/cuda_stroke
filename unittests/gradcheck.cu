@@ -22,8 +22,8 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-#include "stroke/grad/matrix_functions.h"
-#include "stroke/matrix_functions.h"
+#include "stroke/grad/linalg.h"
+#include "stroke/linalg.h"
 #include "whack/Tensor.h"
 #include "whack/TensorView.h"
 #include "whack/tensor_operations.h"

@@ -22,10 +22,8 @@
 
 #include <glm/glm.hpp>
 
-#include "cuda_compat.h"
-#include "matrix_functions.h"
-#include "matrix_operators.h"
-#include "scalar_functions.h"
+#include "stroke/cuda_compat.h"
+#include "stroke/scalar_functions.h"
 
 namespace stroke {
 

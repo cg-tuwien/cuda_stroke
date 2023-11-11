@@ -22,7 +22,7 @@
 
 #include <glm/gtx/string_cast.hpp>
 
-#include "matrix.h"
+#include "linalg.h"
 
 template <glm::length_t n_dims, typename T>
 std::ostream& operator<<(std::ostream& os, const glm::vec<n_dims, T>& v)

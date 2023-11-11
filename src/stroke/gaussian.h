@@ -24,7 +24,7 @@
 
 #include "cuda_compat.h"
 #include "geometry.h"
-#include "matrix.h"
+#include "linalg.h"
 #include "ray.h"
 
 namespace stroke::gaussian {

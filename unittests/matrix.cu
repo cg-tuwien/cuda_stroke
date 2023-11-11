@@ -20,7 +20,6 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <nvToolsExt.h>
-#include <stroke/matrix.h>
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
 #include <whack/Tensor.h>

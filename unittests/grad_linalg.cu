@@ -20,7 +20,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "stroke/grad/matrix_functions.h"
+#include "stroke/grad/linalg.h"
 
 TEST_CASE("stroke linalg gradients")
 {
