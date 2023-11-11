@@ -24,6 +24,7 @@ add_executable(stroke_unittests
     gradcheck.cu
     grad_gaussian.cu
     grad_linalg.cu
+    grad_scalar_functions.cu
 
 )
 

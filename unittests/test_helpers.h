@@ -41,3 +41,22 @@ STROKE_DEVICES_INLINE stroke::Cov<n_dims, scalar_t> random_cov(Generator* rnd)
     const auto mat = random_matrix<n_dims, scalar_t>(rnd);
     return stroke::Cov<n_dims, scalar_t>(mat * transpose(mat)) + stroke::Cov<n_dims, scalar_t>(0.05);
 }
+
+template <glm::length_t n_dims, typename scalar_t, typename Generator>
+glm::mat<n_dims, n_dims, scalar_t> host_random_matrix(Generator* rnd)
+{
+    glm::mat<n_dims, n_dims, scalar_t> mat;
+    for (auto c = 0; c < n_dims; ++c) {
+        for (auto r = 0; r < n_dims; ++r) {
+            mat[c][r] = rnd->normal();
+        }
+    }
+    return mat;
+}
+
+template <glm::length_t n_dims, typename scalar_t, typename Generator>
+stroke::Cov<n_dims, scalar_t> host_random_cov(Generator* rnd)
+{
+    const auto mat = host_random_matrix<n_dims, scalar_t>(rnd);
+    return stroke::Cov<n_dims, scalar_t>(mat * transpose(mat)) + stroke::Cov<n_dims, scalar_t>(0.05);
+}

@@ -16,47 +16,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *****************************************************************************/
 
+#include "stroke/scalar_functions.h"
 #include "stroke/unittest/gradcheck.h"
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "stroke/grad/linalg.h"
-#include "stroke/linalg.h"
+#include "stroke/grad/scalar_functions.h"
 
-TEST_CASE("stroke linalg gradients")
+TEST_CASE("stroke scalar gradients")
 {
-    SECTION("dot")
+    SECTION("divide a by b")
     {
         const auto fun = [](const whack::Tensor<double, 1>& input) {
-            const auto [a, b] = stroke::extract<glm::dvec3, glm::dvec3>(input);
-            return stroke::pack_tensor<double>(dot(a, b));
+            const auto [a, b] = stroke::extract<double, double>(input);
+            return stroke::pack_tensor<double>(a / b);
         };
 
         const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
-            const auto [a, b] = stroke::extract<glm::dvec3, glm::dvec3>(input);
+            const auto [a, b] = stroke::extract<double, double>(input);
             const auto incoming_grad = stroke::extract<double>(grad_output);
-            const auto [grad_a, grad_b] = stroke::grad::dot(a, b, incoming_grad);
+            const auto [grad_a, grad_b] = stroke::grad::divide_a_by_b(a, b, incoming_grad);
             return stroke::pack_tensor<double>(grad_a, grad_b);
         };
 
-        const auto test_data_host = whack::make_tensor<double>(whack::Location::Host, { 3, 2, 1, 2, 4, 3 }, 6);
+        const auto test_data_host = whack::make_tensor<double>(whack::Location::Host, { 3, 2 }, 2);
         stroke::check_gradient(fun, fun_grad, test_data_host, 0.0000001);
     }
-
-    SECTION("det")
+    SECTION("sqrt")
     {
-        const auto fun = [](const whack::Tensor<float, 1>& input) {
-            const auto mat = stroke::extract<glm::mat3>(input);
-            return stroke::pack_tensor<float>(det(mat));
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto a = stroke::extract<double>(input);
+            return stroke::pack_tensor<double>(stroke::sqrt(a));
         };
 
-        const auto fun_grad = [](const whack::Tensor<float, 1>& input, const whack::Tensor<float, 1>& grad_output) {
-            const auto mat = stroke::extract<glm::mat3>(input);
-            const auto incoming_grad = stroke::extract<float>(grad_output);
-            return stroke::pack_tensor<float>(stroke::grad::det(mat, incoming_grad));
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto a = stroke::extract<double>(input);
+            const auto incoming_grad = stroke::extract<double>(grad_output);
+            const double grad_a = stroke::grad::sqrt(a, incoming_grad);
+            return stroke::pack_tensor<double>(grad_a);
         };
 
-        const auto test_data_host = whack::make_tensor<float>(whack::Location::Host, { 3, 2, 1, 2, 4, 3, 0, 1, 2 }, 9);
-        stroke::check_gradient(fun, fun_grad, test_data_host);
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(0.01), 0.0000001);
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(6.0), 0.0000001);
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(10.0), 0.0000001);
     }
 }

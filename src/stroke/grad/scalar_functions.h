@@ -18,6 +18,28 @@
 
 #pragma once
 
-#include "detail/linalg_functions.h"
-#include "detail/symmetric_mat.h"
-#include "detail/symmetric_mat_operators.h"
+#include <type_traits>
+
+#include "stroke/cuda_compat.h"
+#include "stroke/scalar_functions.h"
+#include "util.h"
+
+namespace stroke::grad {
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE TwoGrads<scalar_t, scalar_t> divide_a_by_b(const scalar_t& a, const scalar_t& b, const decltype(a / b)& incoming_grad)
+{
+    static_assert(std::is_floating_point_v<scalar_t>);
+    const auto a_grad = incoming_grad / b;
+    //    *b_grad = -incoming_grad * a / (b * b);
+    const auto b_grad = -a_grad * a / b; // same, but numerically more stable
+    return { a_grad, b_grad };
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t sqrt(const scalar_t& a, const scalar_t& incoming_grad)
+{
+    static_assert(std::is_floating_point_v<scalar_t>);
+    return incoming_grad / (2 * stroke::sqrt(a));
+}
+} // namespace stroke::grad

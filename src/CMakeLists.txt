@@ -45,6 +45,9 @@ add_library(stroke INTERFACE
     stroke/unittest/gradcheck.h
     stroke/grad/linalg.h
     stroke/linalg.h
+    stroke/grad/util.h
+    stroke/grad/scalar_functions.h
+    stroke/grad/gaussian.h
 )
 target_link_libraries(stroke INTERFACE glm::glm whack gcem)
 target_include_directories(stroke INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

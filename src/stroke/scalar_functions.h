@@ -30,6 +30,12 @@ STROKE_DEVICES_INLINE T sq(const T& v)
     return v * v;
 }
 
+template <typename T>
+STROKE_DEVICES_INLINE T cubed(const T& v)
+{
+    return v * v * v;
+}
+
 template <typename scalar_t>
 STROKE_DEVICES_INLINE int sign(scalar_t v)
 {

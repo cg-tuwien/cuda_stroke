@@ -38,8 +38,10 @@ T1 extract(const Tensor& t)
 {
     using scalar_t = typename Tensor::value_type;
     static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
-    assert(t.location() == whack::Location::Host);
-    assert(sizeof(T1) / sizeof(scalar_t) == t.numel());
+    REQUIRE(t.location() == whack::Location::Host);
+    CAPTURE(sizeof(T1));
+    CAPTURE(sizeof(scalar_t));
+    REQUIRE(sizeof(T1) / sizeof(scalar_t) == t.numel());
     return t.template view<T1>(1)(0);
 }
 
@@ -57,8 +59,11 @@ std::tuple<T1, T2> extract(const Tensor& t)
     static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
     static_assert(sizeof(T2) % sizeof(scalar_t) == 0);
 
-    assert(t.location() == whack::Location::Host);
-    assert((sizeof(T1) + sizeof(T2)) / sizeof(scalar_t) == t.numel());
+    REQUIRE(t.location() == whack::Location::Host);
+    CAPTURE(sizeof(T1));
+    CAPTURE(sizeof(T2));
+    CAPTURE(sizeof(scalar_t));
+    REQUIRE((sizeof(T1) + sizeof(T2)) / sizeof(scalar_t) == t.numel());
     const auto [t1, t2] = whack::split(t, sizeof(T1) / sizeof(scalar_t), sizeof(T2) / sizeof(scalar_t));
     return { extract<T1>(t1), extract<T2>(t2) };
 }
@@ -71,8 +76,12 @@ std::tuple<T1, T2, T3> extract(const Tensor& t)
     static_assert(sizeof(T2) % sizeof(scalar_t) == 0);
     static_assert(sizeof(T3) % sizeof(scalar_t) == 0);
 
-    assert(t.location() == whack::Location::Host);
-    assert((sizeof(T1) + sizeof(T2) + sizeof(T3)) / sizeof(scalar_t) == t.numel());
+    REQUIRE(t.location() == whack::Location::Host);
+    CAPTURE(sizeof(T1));
+    CAPTURE(sizeof(T2));
+    CAPTURE(sizeof(T3));
+    CAPTURE(sizeof(scalar_t));
+    REQUIRE((sizeof(T1) + sizeof(T2) + sizeof(T3)) / sizeof(scalar_t) == t.numel());
     const auto [t1, t2, t3] = whack::split(t, sizeof(T1) / sizeof(scalar_t), sizeof(T2) / sizeof(scalar_t), sizeof(T3) / sizeof(scalar_t));
     return { extract<T1>(t1), extract<T2>(t2), extract<T3>(t3) };
 }
@@ -86,8 +95,13 @@ std::tuple<T1, T2, T3, T4> extract(const Tensor& t)
     static_assert(sizeof(T3) % sizeof(scalar_t) == 0);
     static_assert(sizeof(T4) % sizeof(scalar_t) == 0);
 
-    assert(t.location() == whack::Location::Host);
-    assert((sizeof(T1) + sizeof(T2) + sizeof(T3) + sizeof(T4)) / sizeof(scalar_t) == t.numel());
+    REQUIRE(t.location() == whack::Location::Host);
+    CAPTURE(sizeof(T1));
+    CAPTURE(sizeof(T2));
+    CAPTURE(sizeof(T3));
+    CAPTURE(sizeof(T4));
+    CAPTURE(sizeof(scalar_t));
+    REQUIRE((sizeof(T1) + sizeof(T2) + sizeof(T3) + sizeof(T4)) / sizeof(scalar_t) == t.numel());
     const auto [t1, t2, t3, t4] = whack::split(t,
         sizeof(T1) / sizeof(scalar_t),
         sizeof(T2) / sizeof(scalar_t),
