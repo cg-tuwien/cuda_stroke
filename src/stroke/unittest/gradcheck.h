@@ -29,8 +29,87 @@
 #include <whack/kernel.h>
 
 #include "stroke/cuda_compat.h"
+#include "whack/tensor_operations.h"
 
 namespace stroke {
+
+template <typename T1, typename Tensor>
+T1 extract(const Tensor& t)
+{
+    using scalar_t = typename Tensor::value_type;
+    static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
+    assert(t.location() == whack::Location::Host);
+    assert(sizeof(T1) / sizeof(scalar_t) == t.numel());
+    return t.template view<T1>(1)(0);
+}
+
+/// this template definition is valid, but i don't see an easy way extract from the result of split.
+// template <typename T1, typename T2, typename... OtherTs, typename Tensor>
+// std::tuple<T1, T2, OtherTs...> extract(const Tensor& t)
+// {
+//     return {};
+// }
+
+template <typename T1, typename T2, typename Tensor>
+std::tuple<T1, T2> extract(const Tensor& t)
+{
+    using scalar_t = typename Tensor::value_type;
+    static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
+    static_assert(sizeof(T2) % sizeof(scalar_t) == 0);
+
+    assert(t.location() == whack::Location::Host);
+    assert((sizeof(T1) + sizeof(T2)) / sizeof(scalar_t) == t.numel());
+    const auto [t1, t2] = whack::split(t, sizeof(T1) / sizeof(scalar_t), sizeof(T2) / sizeof(scalar_t));
+    return { extract<T1>(t1), extract<T2>(t2) };
+}
+
+template <typename T1, typename T2, typename T3, typename Tensor>
+std::tuple<T1, T2, T3> extract(const Tensor& t)
+{
+    using scalar_t = typename Tensor::value_type;
+    static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
+    static_assert(sizeof(T2) % sizeof(scalar_t) == 0);
+    static_assert(sizeof(T3) % sizeof(scalar_t) == 0);
+
+    assert(t.location() == whack::Location::Host);
+    assert((sizeof(T1) + sizeof(T2) + sizeof(T3)) / sizeof(scalar_t) == t.numel());
+    const auto [t1, t2, t3] = whack::split(t, sizeof(T1) / sizeof(scalar_t), sizeof(T2) / sizeof(scalar_t), sizeof(T3) / sizeof(scalar_t));
+    return { extract<T1>(t1), extract<T2>(t2), extract<T3>(t3) };
+}
+
+template <typename T1, typename T2, typename T3, typename T4, typename Tensor>
+std::tuple<T1, T2, T3, T4> extract(const Tensor& t)
+{
+    using scalar_t = typename Tensor::value_type;
+    static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
+    static_assert(sizeof(T2) % sizeof(scalar_t) == 0);
+    static_assert(sizeof(T3) % sizeof(scalar_t) == 0);
+    static_assert(sizeof(T4) % sizeof(scalar_t) == 0);
+
+    assert(t.location() == whack::Location::Host);
+    assert((sizeof(T1) + sizeof(T2) + sizeof(T3) + sizeof(T4)) / sizeof(scalar_t) == t.numel());
+    const auto [t1, t2, t3, t4] = whack::split(t,
+        sizeof(T1) / sizeof(scalar_t),
+        sizeof(T2) / sizeof(scalar_t),
+        sizeof(T3) / sizeof(scalar_t),
+        sizeof(T4) / sizeof(scalar_t));
+    return { extract<T1>(t1), extract<T2>(t2), extract<T3>(t3), extract<T4>(t4) };
+}
+
+template <typename scalar_t, typename T1>
+whack::Tensor<scalar_t, 1> pack_tensor(const T1& v)
+{
+    static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
+    auto ret_tensor = whack::make_tensor<scalar_t>(whack::Location::Host, sizeof(T1) / sizeof(scalar_t));
+    ret_tensor.template view<T1>(1)(0) = v;
+    return ret_tensor;
+}
+
+template <typename scalar_t, typename T1, typename... OtherTs>
+whack::Tensor<scalar_t, 1> pack_tensor(const T1& v1, const OtherTs&... args)
+{
+    return whack::concat(pack_tensor<scalar_t>(v1), pack_tensor<scalar_t>(args)...);
+}
 
 namespace gradcheck_internal {
     namespace detail {

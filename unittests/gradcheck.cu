@@ -173,27 +173,125 @@ TEST_CASE("stroke gradcheck")
         }
     }
 
+    SECTION("pack tensor")
+    {
+        {
+            const auto t = stroke::pack_tensor<float>(glm::vec2(1, 2));
+            REQUIRE(t.numel() == 2);
+            REQUIRE(t.n_dimensions() == 1);
+            CHECK(t(0) == 1);
+            CHECK(t(1) == 2);
+        }
+
+        {
+            const auto t = stroke::pack_tensor<float>(glm::vec2(1, 2), glm::vec3(1, 2, 3));
+            REQUIRE(t.numel() == 5);
+            REQUIRE(t.n_dimensions() == 1);
+            CHECK(t(0) == 1);
+            CHECK(t(1) == 2);
+            CHECK(t(2) == 1);
+            CHECK(t(3) == 2);
+            CHECK(t(4) == 3);
+        }
+
+        {
+            const auto t = stroke::pack_tensor<float>(glm::vec2(1, 2), glm::vec3(1, 2, 3), 0.f);
+            REQUIRE(t.numel() == 6);
+            REQUIRE(t.n_dimensions() == 1);
+            CHECK(t(0) == 1);
+            CHECK(t(1) == 2);
+            CHECK(t(2) == 1);
+            CHECK(t(3) == 2);
+            CHECK(t(4) == 3);
+            CHECK(t(5) == 0);
+        }
+    }
+
+    SECTION("extract / unpack tensor")
+    {
+        {
+            const auto t = stroke::pack_tensor<float>(1.f, 2.f);
+            CAPTURE(t);
+            const auto m = stroke::extract<glm::vec2>(t);
+            CHECK(m.x == 1);
+            CHECK(m.y == 2);
+
+            const auto [v1, v2] = stroke::extract<float, float>(t);
+            CHECK(v1 == 1);
+            CHECK(v2 == 2);
+        }
+
+        {
+            const auto t = stroke::pack_tensor<float>(1.f, 2.f, 3.f, 4.f);
+            CAPTURE(t);
+            const auto [a1, a2] = stroke::extract<glm::vec2, glm::vec2>(t);
+            CHECK(a1.x == 1);
+            CHECK(a1.y == 2);
+            CHECK(a2.x == 3);
+            CHECK(a2.y == 4);
+
+            const auto [b1, b2, b3] = stroke::extract<float, glm::vec2, float>(t);
+            CHECK(b1 == 1);
+            CHECK(b2.x == 2);
+            CHECK(b2.y == 3);
+            CHECK(b3 == 4);
+
+            const auto [c1, c2, c3, c4] = stroke::extract<float, float, float, float>(t);
+            CHECK(c1 == 1);
+            CHECK(c2 == 2);
+            CHECK(c3 == 3);
+            CHECK(c4 == 4);
+        }
+
+        {
+            const auto t = stroke::pack_tensor<float>(0.f, glm::vec2(1, 2), glm::vec3(3, 4, 5), glm::vec4(6, 7, 8, 9));
+            CAPTURE(t);
+            const auto [a1, a2, a3, a4] = stroke::extract<float, glm::vec2, glm::vec3, glm::vec4>(t);
+            CHECK(a1 == 0.f);
+            CHECK(a2 == glm::vec2(1, 2));
+            CHECK(a3 == glm::vec3(3, 4, 5));
+            CHECK(a4 == glm::vec4(6, 7, 8, 9));
+
+            const auto [b1, b2, b3] = stroke::extract<glm::vec4, glm::vec2, glm::vec4>(t);
+            CHECK(b1 == glm::vec4(0, 1, 2, 3));
+            CHECK(b2 == glm::vec2(4, 5));
+            CHECK(b3 == glm::vec4(6, 7, 8, 9));
+        }
+    }
+
     SECTION("api test with real function (host only)")
     {
         const auto fun = [](const whack::Tensor<float, 1>& input) {
-            const auto mat = input.view<glm::mat3>(1)(0);
-            auto ret_tensor = whack::make_tensor<float>(input.location(), 1);
-            ret_tensor(0) = det(mat);
-            return ret_tensor;
+            const auto mat = stroke::extract<glm::mat3>(input);
+            return stroke::pack_tensor<float>(det(mat));
         };
 
         const auto fun_grad = [](const whack::Tensor<float, 1>& input, const whack::Tensor<float, 1>& grad_output) {
-            const auto mat = input.view<glm::mat3>(1)(0);
-            const auto incoming_grad = grad_output(0);
-
-            auto grad_input = input;
-            grad_input.view<glm::mat3>(1)(0) = stroke::grad::det(mat, incoming_grad);
-
-            return grad_input;
+            const auto mat = stroke::extract<glm::mat3>(input);
+            const auto incoming_grad = stroke::extract<float>(grad_output);
+            return stroke::pack_tensor<float>(stroke::grad::det(mat, incoming_grad));
         };
 
         const auto test_data_host = whack::make_tensor<float>(whack::Location::Host, { 3, 2, 1, 2, 4, 3, 0, 1, 2 }, 9);
         check_gradient(fun, fun_grad, test_data_host);
+    }
+
+    SECTION("api test with real function taking several params (host only)")
+    {
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto [a, b] = stroke::extract<glm::dvec3, glm::dvec3>(input);
+            return stroke::pack_tensor<double>(dot(a, b));
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto [a, b] = stroke::extract<glm::dvec3, glm::dvec3>(input);
+            const auto incoming_grad = stroke::extract<double>(grad_output);
+            const auto [grad_a, grad_b] = stroke::grad::dot(a, b, incoming_grad);
+            return stroke::pack_tensor<double>(grad_a, grad_b);
+        };
+
+        const auto test_data_host = whack::make_tensor<double>(whack::Location::Host, { 3, 2, 1, 2, 4, 3 }, 6);
+        check_gradient(fun, fun_grad, test_data_host, 0.0000001);
     }
 
     SECTION("api test with real function (host and device)")
@@ -235,7 +333,7 @@ TEST_CASE("stroke gradcheck")
     }
 }
 
-TEST_CASE("stroke gradcheck (test for failure)", "[!shouldfail]")
+TEST_CASE("stroke gradcheck (test for failure)", "[.][!shouldfail]") // hidden via [.] for now, because https://github.com/catchorg/Catch2/issues/2763
 {
     const auto identity_function = [](const auto& input) {
         return input;

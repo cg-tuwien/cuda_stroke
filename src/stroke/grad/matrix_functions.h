@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <cuda/std/tuple>
 #include <glm/glm.hpp>
 
 #include "stroke/cuda_compat.h"
@@ -67,6 +68,12 @@ STROKE_DEVICES_INLINE glm::mat<DIMS, DIMS, scalar_t> det(const glm::mat<DIMS, DI
 {
     assert(glm::determinant(cov) > 0);
     return cofactor(cov) * grad;
+}
+
+template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE cuda::std::tuple<glm::vec<n_dims, scalar_t>, glm::vec<n_dims, scalar_t>> dot(const glm::vec<n_dims, scalar_t>& a, const glm::vec<n_dims, scalar_t>& b, const scalar_t& incoming_grad)
+{
+    return { b * incoming_grad, a * incoming_grad };
 }
 
 } // namespace stroke::grad

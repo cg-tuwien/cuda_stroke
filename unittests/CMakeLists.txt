@@ -8,7 +8,7 @@ FetchContent_Declare(catch2
     SOURCE_DIR 		${CMAKE_SOURCE_DIR}/3rdparty/Catch2
 )
 FetchContent_MakeAvailable(catch2)
-find_package(CUDAToolkit)
+find_package(CUDAToolkit 12.0 REQUIRED)
 
 add_executable(stroke_unittests
     main.cpp
