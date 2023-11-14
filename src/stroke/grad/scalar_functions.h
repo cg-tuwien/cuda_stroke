@@ -27,7 +27,7 @@
 namespace stroke::grad {
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE TwoGrads<scalar_t, scalar_t> divide_a_by_b(const scalar_t& a, const scalar_t& b, const decltype(a / b)& incoming_grad)
+STROKE_DEVICES_INLINE TwoGrads<scalar_t, scalar_t> divide_a_by_b(scalar_t a, scalar_t b, decltype(a / b) incoming_grad)
 {
     static_assert(std::is_floating_point_v<scalar_t>);
     const auto a_grad = incoming_grad / b;
@@ -37,9 +37,18 @@ STROKE_DEVICES_INLINE TwoGrads<scalar_t, scalar_t> divide_a_by_b(const scalar_t&
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t sqrt(const scalar_t& a, const scalar_t& incoming_grad)
+STROKE_DEVICES_INLINE scalar_t sqrt(const scalar_t& a, scalar_t incoming_grad)
 {
     static_assert(std::is_floating_point_v<scalar_t>);
     return incoming_grad / (2 * stroke::sqrt(a));
 }
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t clamp(scalar_t v, scalar_t min, scalar_t max, scalar_t incoming_grad)
+{
+    if (v > min && v < max)
+        return incoming_grad;
+    return 0;
+}
+
 } // namespace stroke::grad

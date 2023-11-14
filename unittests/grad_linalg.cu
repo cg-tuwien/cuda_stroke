@@ -59,4 +59,72 @@ TEST_CASE("stroke linalg gradients")
         const auto test_data_host = whack::make_tensor<float>(whack::Location::Host, { 3, 2, 1, 2, 4, 3, 0, 1, 2 }, 9);
         stroke::check_gradient(fun, fun_grad, test_data_host);
     }
+    SECTION("length")
+    {
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto a = stroke::extract<glm::dvec3>(input);
+            return stroke::pack_tensor<double>(length(a));
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto a = stroke::extract<glm::dvec3>(input);
+            const auto incoming_grad = stroke::extract<double>(grad_output);
+            const auto grad_a = stroke::grad::length(a, incoming_grad);
+            return stroke::pack_tensor<double>(grad_a);
+        };
+
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(glm::dvec3(1, 2, 3)), 0.0000001);
+    }
+    SECTION("length with cache")
+    {
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto a = stroke::extract<glm::dvec3>(input);
+            return stroke::pack_tensor<double>(length(a));
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto a = stroke::extract<glm::dvec3>(input);
+            const auto incoming_grad = stroke::extract<double>(grad_output);
+            const auto grad_a = stroke::grad::length(a, incoming_grad, length(a));
+            return stroke::pack_tensor<double>(grad_a);
+        };
+
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(glm::dvec3(1, 2, 3)), 0.0000001);
+    }
+    SECTION("matmul")
+    {
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto [a, b] = stroke::extract<glm::dmat3, glm::dmat3>(input);
+            return stroke::pack_tensor<double>(a * b);
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto [a, b] = stroke::extract<glm::dmat3, glm::dmat3>(input);
+            const auto incoming_grad = stroke::extract<glm::dmat3>(grad_output);
+            const auto [grad_a, grad_b] = stroke::grad::matmul(a, b, incoming_grad);
+            return stroke::pack_tensor<double>(grad_a, grad_b);
+        };
+
+        const auto m1 = glm::dmat3(1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 3.1, 3.2, 3.3);
+        const auto m2 = glm::dmat3(11.1, 11.2, 11.3, 22.1, 22.2, 22.3, 33.1, 33.2, 33.3);
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(m1, m2), 0.0000001);
+    }
+    SECTION("matvecmul")
+    {
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto [a, b] = stroke::extract<glm::dmat3, glm::dvec3>(input);
+            return stroke::pack_tensor<double>(a * b);
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto [a, b] = stroke::extract<glm::dmat3, glm::dvec3>(input);
+            const auto incoming_grad = stroke::extract<glm::dvec3>(grad_output);
+            const auto [grad_a, grad_b] = stroke::grad::matvecmul(a, b, incoming_grad);
+            return stroke::pack_tensor<double>(grad_a, grad_b);
+        };
+
+        const auto m = glm::dmat3(1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 3.1, 3.2, 3.3);
+        const auto v = glm::dvec3(11.1, 11.2, 11.3);
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(m, v), 0.0000001);
+    }
 }

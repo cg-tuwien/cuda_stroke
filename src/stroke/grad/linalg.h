@@ -64,8 +64,8 @@ namespace {
     }
 } // namespace
 
-template <typename scalar_t, int DIMS>
-STROKE_DEVICES_INLINE glm::mat<DIMS, DIMS, scalar_t> det(const glm::mat<DIMS, DIMS, scalar_t>& cov, scalar_t grad)
+template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> det(const glm::mat<n_dims, n_dims, scalar_t>& cov, scalar_t grad)
 {
     assert(glm::determinant(cov) > 0);
     return cofactor(cov) * grad;
@@ -75,6 +75,34 @@ template <typename scalar_t, int n_dims>
 STROKE_DEVICES_INLINE TwoGrads<glm::vec<n_dims, scalar_t>, glm::vec<n_dims, scalar_t>> dot(const glm::vec<n_dims, scalar_t>& a, const glm::vec<n_dims, scalar_t>& b, const scalar_t& incoming_grad)
 {
     return { b * incoming_grad, a * incoming_grad };
+}
+
+template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE glm::vec<n_dims, scalar_t> length(const glm::vec<n_dims, scalar_t>& vec, scalar_t grad)
+{
+    const auto l = grad / length(vec);
+    return vec * l;
+}
+
+template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE glm::vec<n_dims, scalar_t> length(const glm::vec<n_dims, scalar_t>& vec, scalar_t grad, scalar_t cached_length)
+{
+    const auto l = grad / cached_length;
+    return vec * l;
+}
+
+template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE TwoGrads<glm::mat<n_dims, n_dims, scalar_t>, glm::mat<n_dims, n_dims, scalar_t>>
+matmul(const glm::mat<n_dims, n_dims, scalar_t>& a, const glm::mat<n_dims, n_dims, scalar_t>& b, glm::mat<n_dims, n_dims, scalar_t> grad)
+{
+    return { grad * transpose(b), transpose(a) * grad };
+}
+
+template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE TwoGrads<glm::mat<n_dims, n_dims, scalar_t>, glm::vec<n_dims, scalar_t>>
+matvecmul(const glm::mat<n_dims, n_dims, scalar_t>& a, const glm::vec<n_dims, scalar_t>& b, glm::vec<n_dims, scalar_t> grad)
+{
+    return { outerProduct(grad, b), transpose(a) * grad };
 }
 
 } // namespace stroke::grad
