@@ -62,4 +62,40 @@ struct TwoGrads {
     }
 };
 
+template <typename A1, typename A2, typename A3>
+struct ThreeGrads {
+    A1 m_left;
+    A2 m_middle;
+    A3 m_right;
+
+    STROKE_DEVICES_INLINE
+    void addTo(A1* left, A2* middle, A3* right)
+    {
+        if (left != nullptr)
+            cwise_ref_fun(&m_left, left, [](const auto& m_g, auto& g) { g += m_g; });
+        if (middle != nullptr)
+            cwise_ref_fun(&m_middle, middle, [](const auto& m_g, auto& g) { g += m_g; });
+        if (right != nullptr)
+            cwise_ref_fun(&m_right, right, [](const auto& m_g, auto& g) { g += m_g; });
+    }
+
+    STROKE_DEVICES_INLINE
+    A1 left() const
+    {
+        return m_left;
+    }
+
+    STROKE_DEVICES_INLINE
+    A2 middle() const
+    {
+        return m_middle;
+    }
+
+    STROKE_DEVICES_INLINE
+    A3 right() const
+    {
+        return m_right;
+    }
+};
+
 } // namespace stroke::grad
