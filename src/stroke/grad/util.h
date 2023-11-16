@@ -31,22 +31,22 @@ struct TwoGrads {
     STROKE_DEVICES_INLINE
     void addTo(A1* left, A2* right)
     {
-        cwise_ref_fun(&m_left, left, [](const auto& m_g, auto& g) { g += m_g; });
-        cwise_ref_fun(&m_right, right, [](const auto& m_g, auto& g) { g += m_g; });
+        *left += m_left;
+        *right += m_right;
     }
 
     STROKE_DEVICES_INLINE
     void addTo(A1* left, bool right)
     {
         assert(right == false);
-        cwise_ref_fun(&m_left, left, [](const auto& m_g, auto& g) { g += m_g; });
+        *left += m_left;
     }
 
     STROKE_DEVICES_INLINE
     void addTo(bool left, A2* right)
     {
         assert(left == false);
-        cwise_ref_fun(&m_right, right, [](const auto& m_g, auto& g) { g += m_g; });
+        *right += m_right;
     }
 
     STROKE_DEVICES_INLINE
@@ -72,11 +72,11 @@ struct ThreeGrads {
     void addTo(A1* left, A2* middle, A3* right)
     {
         if (left != nullptr)
-            cwise_ref_fun(&m_left, left, [](const auto& m_g, auto& g) { g += m_g; });
+            *left += m_left;
         if (middle != nullptr)
-            cwise_ref_fun(&m_middle, middle, [](const auto& m_g, auto& g) { g += m_g; });
+            *middle += m_middle;
         if (right != nullptr)
-            cwise_ref_fun(&m_right, right, [](const auto& m_g, auto& g) { g += m_g; });
+            *right += m_right;
     }
 
     STROKE_DEVICES_INLINE

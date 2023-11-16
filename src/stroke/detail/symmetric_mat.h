@@ -60,7 +60,7 @@ namespace detail {
         StorageArray m_data;
 
     public:
-        STROKE_DEVICES_INLINE SymmetricMatBase() = default;
+        SymmetricMatBase() = default;
         STROKE_DEVICES_INLINE SymmetricMatBase(const StorageArray& d)
             : m_data(d) {};
 
@@ -93,7 +93,7 @@ private:
 public:
     using StorageArray = typename Base::StorageArray;
 
-    STROKE_DEVICES_INLINE SymmetricMat() = default;
+    SymmetricMat() = default;
 
     /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
     STROKE_DEVICES_INLINE SymmetricMat(const StorageArray& data)
@@ -147,7 +147,7 @@ private:
 public:
     using StorageArray = typename Base::StorageArray;
 
-    STROKE_DEVICES_INLINE Cov2() = default;
+    Cov2() = default;
 
     /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
     STROKE_DEVICES_INLINE Cov2(const StorageArray& data)
@@ -190,17 +190,23 @@ private:
 public:
     using StorageArray = typename Base::StorageArray;
 
-    STROKE_DEVICES_INLINE SymmetricMat() = default;
+    SymmetricMat() = default;
 
     /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
     STROKE_DEVICES_INLINE SymmetricMat(const StorageArray& data)
         : Base(data)
     {
     }
+    // clang-format off
     STROKE_DEVICES_INLINE explicit SymmetricMat(const glm::mat<3, 3, scalar_t>& mat)
-        : Base(StorageArray({ mat[0][0], mat[0][1], mat[0][2], mat[1][1], mat[1][2], mat[2][2] }))
+        : Base(StorageArray({
+            mat[0][0], scalar_t(0.5) * (mat[0][1] + mat[1][0]), scalar_t(0.5) * (mat[0][2] + mat[2][0]),
+            mat[1][1], scalar_t(0.5) * (mat[1][2] + mat[2][1]),
+            mat[2][2]
+            }))
     {
     }
+    // clang-format on
     STROKE_DEVICES_INLINE explicit SymmetricMat(scalar_t d)
         : Base(StorageArray({ d, 0, 0, d, 0, d }))
     {
@@ -255,7 +261,7 @@ private:
 public:
     using StorageArray = typename Base::StorageArray;
 
-    STROKE_DEVICES_INLINE Cov3() = default;
+    Cov3() = default;
 
     /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
     STROKE_DEVICES_INLINE Cov3(const StorageArray& data)
@@ -290,5 +296,10 @@ public:
         return *this;
     }
 };
+
+using Cov2_f = Cov2<float>;
+using Cov2_d = Cov2<double>;
+using Cov3_f = Cov3<float>;
+using Cov3_d = Cov3<double>;
 
 } // namespace stroke

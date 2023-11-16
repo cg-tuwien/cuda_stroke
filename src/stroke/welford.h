@@ -34,7 +34,6 @@ struct WeightedMeanAndCov {
     vec_t v_mean = vec_t { 0 };
     mat_t C = mat_t { 0 };
 
-    STROKE_DEVICES_INLINE
     WeightedMeanAndCov() = default;
 
     STROKE_DEVICES_INLINE
@@ -77,7 +76,6 @@ struct WeightedMean {
     scalar_t w_sum = 0;
     T v_mean = T {};
 
-    STROKE_DEVICES_INLINE
     WeightedMean() = default;
 
     STROKE_DEVICES_INLINE

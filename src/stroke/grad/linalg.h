@@ -22,6 +22,7 @@
 #include <glm/glm.hpp>
 
 #include "stroke/cuda_compat.h"
+#include "stroke/linalg.h"
 #include "util.h"
 
 namespace stroke::grad {
@@ -64,6 +65,29 @@ namespace {
     }
 } // namespace
 
+template <typename scalar_t>
+STROKE_DEVICES_INLINE stroke::SymmetricMat<3, scalar_t> from_mat_gradient(const glm::mat<3, 3, scalar_t>& g)
+{
+    constexpr auto half = scalar_t(1.0);
+    return {
+        g[0][0], half * (g[0][1] + g[1][0]), half * (g[0][2] + g[2][0]),
+        g[1][1], half * (g[1][2] + g[2][1]),
+        g[2][2]
+    };
+}
+template <typename scalar_t>
+STROKE_DEVICES_INLINE glm::mat<3, 3, scalar_t> from_symmetric_gradient(const stroke::SymmetricMat<3, scalar_t>& g)
+{
+    constexpr auto half = scalar_t(0.5);
+    // clang-format off
+    return {
+        g[0],           half * g[1],    half * g[2],
+        half * g[1],           g[3],    half * g[4],
+        half * g[2],    half * g[4],           g[5]
+    };
+    // clang-format on
+}
+
 template <typename scalar_t, int n_dims>
 STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> det(const glm::mat<n_dims, n_dims, scalar_t>& cov, scalar_t grad)
 {
@@ -72,7 +96,7 @@ STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> det(const glm::mat<n_di
 }
 
 template <typename scalar_t, int n_dims>
-STROKE_DEVICES_INLINE TwoGrads<glm::vec<n_dims, scalar_t>, glm::vec<n_dims, scalar_t>> dot(const glm::vec<n_dims, scalar_t>& a, const glm::vec<n_dims, scalar_t>& b, const scalar_t& incoming_grad)
+STROKE_DEVICES_INLINE TwoGrads<glm::vec<n_dims, scalar_t>, glm::vec<n_dims, scalar_t>> dot(const glm::vec<n_dims, scalar_t>& a, const glm::vec<n_dims, scalar_t>& b, scalar_t incoming_grad)
 {
     return { b * incoming_grad, a * incoming_grad };
 }
@@ -93,16 +117,56 @@ STROKE_DEVICES_INLINE glm::vec<n_dims, scalar_t> length(const glm::vec<n_dims, s
 
 template <typename scalar_t, int n_dims>
 STROKE_DEVICES_INLINE TwoGrads<glm::mat<n_dims, n_dims, scalar_t>, glm::mat<n_dims, n_dims, scalar_t>>
-matmul(const glm::mat<n_dims, n_dims, scalar_t>& a, const glm::mat<n_dims, n_dims, scalar_t>& b, glm::mat<n_dims, n_dims, scalar_t> grad)
+matmul(const glm::mat<n_dims, n_dims, scalar_t>& a, const glm::mat<n_dims, n_dims, scalar_t>& b, const glm::mat<n_dims, n_dims, scalar_t>& grad)
 {
     return { grad * transpose(b), transpose(a) * grad };
 }
 
 template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE TwoGrads<stroke::SymmetricMat<n_dims, scalar_t>, glm::mat<n_dims, n_dims, scalar_t>>
+matmul(const stroke::SymmetricMat<n_dims, scalar_t>& a, const glm::mat<n_dims, n_dims, scalar_t>& b, const glm::mat<n_dims, n_dims, scalar_t>& grad)
+{
+    using mat_t = glm::mat<n_dims, n_dims, scalar_t>;
+    return { from_mat_gradient(grad * transpose(b)), mat_t(a) * grad };
+}
+
+template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE TwoGrads<glm::mat<n_dims, n_dims, scalar_t>, stroke::SymmetricMat<n_dims, scalar_t>>
+matmul(const glm::mat<n_dims, n_dims, scalar_t>& a, const stroke::SymmetricMat<n_dims, scalar_t>& b, const glm::mat<n_dims, n_dims, scalar_t>& grad)
+{
+    using mat_t = glm::mat<n_dims, n_dims, scalar_t>;
+    return { grad * mat_t(b), from_mat_gradient(transpose(a) * grad) };
+}
+
+template <typename scalar_t, int n_dims>
 STROKE_DEVICES_INLINE TwoGrads<glm::mat<n_dims, n_dims, scalar_t>, glm::vec<n_dims, scalar_t>>
-matvecmul(const glm::mat<n_dims, n_dims, scalar_t>& a, const glm::vec<n_dims, scalar_t>& b, glm::vec<n_dims, scalar_t> grad)
+matvecmul(const glm::mat<n_dims, n_dims, scalar_t>& a, const glm::vec<n_dims, scalar_t>& b, const glm::vec<n_dims, scalar_t>& grad)
 {
     return { outerProduct(grad, b), transpose(a) * grad };
+}
+
+template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE TwoGrads<SymmetricMat<n_dims, scalar_t>, glm::mat<n_dims, n_dims, scalar_t>>
+affine_transform(const SymmetricMat<n_dims, scalar_t>& S, const glm::mat<n_dims, n_dims, scalar_t>& M, const stroke::SymmetricMat<n_dims, scalar_t>& grad)
+{
+    using mat_t = glm::mat<3, 3, scalar_t>;
+    const auto MS = M * glm::mat<3, 3, scalar_t>(S);
+    const auto Mt = transpose(M);
+    // return MS * Mt;
+    const auto [grad_MS, grad_Mt] = stroke::grad::matmul(MS, Mt, from_symmetric_gradient(grad));
+
+    // const auto MS = M * glm::mat<3, 3, scalar_t>(S);
+    const auto [grad_M, grad_S] = stroke::grad::matmul(M, S, grad_MS);
+
+    return { grad_S, (grad_M + transpose(grad_Mt)) };
+    //    return {
+    //        M[0][0] * (S[0] * M[0][0] + S[1] * M[1][0] + S[2] * M[2][0]) + M[1][0] * (S[1] * M[0][0] + S[3] * M[1][0] + S[4] * M[2][0]) + M[2][0] * (S[2] * M[0][0] + S[4] * M[1][0] + S[5] * M[2][0]),
+    //        M[0][0] * (S[0] * M[0][1] + S[1] * M[1][1] + S[2] * M[2][1]) + M[1][0] * (S[1] * M[0][1] + S[3] * M[1][1] + S[4] * M[2][1]) + M[2][0] * (S[2] * M[0][1] + S[4] * M[1][1] + S[5] * M[2][1]),
+    //        M[0][0] * (S[0] * M[0][2] + S[1] * M[1][2] + S[2] * M[2][2]) + M[1][0] * (S[1] * M[0][2] + S[3] * M[1][2] + S[4] * M[2][2]) + M[2][0] * (S[2] * M[0][2] + S[4] * M[1][2] + S[5] * M[2][2]),
+    //        M[0][1] * (S[0] * M[0][1] + S[1] * M[1][1] + S[2] * M[2][1]) + M[1][1] * (S[1] * M[0][1] + S[3] * M[1][1] + S[4] * M[2][1]) + M[2][1] * (S[2] * M[0][1] + S[4] * M[1][1] + S[5] * M[2][1]),
+    //        M[0][1] * (S[0] * M[0][2] + S[1] * M[1][2] + S[2] * M[2][2]) + M[1][1] * (S[1] * M[0][2] + S[3] * M[1][2] + S[4] * M[2][2]) + M[2][1] * (S[2] * M[0][2] + S[4] * M[1][2] + S[5] * M[2][2]),
+    //        M[0][2] * (S[0] * M[0][2] + S[1] * M[1][2] + S[2] * M[2][2]) + M[1][2] * (S[1] * M[0][2] + S[3] * M[1][2] + S[4] * M[2][2]) + M[2][2] * (S[2] * M[0][2] + S[4] * M[1][2] + S[5] * M[2][2])
+    //    };
 }
 
 } // namespace stroke::grad
