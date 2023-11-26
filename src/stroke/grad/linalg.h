@@ -89,10 +89,9 @@ STROKE_DEVICES_INLINE glm::mat<3, 3, scalar_t> from_symmetric_gradient(const str
 }
 
 template <typename scalar_t, int n_dims>
-STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> det(const glm::mat<n_dims, n_dims, scalar_t>& cov, scalar_t grad)
+STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> det(const glm::mat<n_dims, n_dims, scalar_t>& mat, scalar_t grad)
 {
-    assert(glm::determinant(cov) > 0);
-    return cofactor(cov) * grad;
+    return cofactor(mat) * grad;
 }
 
 template <typename scalar_t, int n_dims>
