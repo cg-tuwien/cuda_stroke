@@ -24,7 +24,7 @@
 namespace stroke::grad {
 
 template <typename A1, typename A2>
-struct TwoGrads {
+struct [[nodiscard]] TwoGrads {
     A1 m_left;
     A2 m_right;
 
@@ -63,7 +63,7 @@ struct TwoGrads {
 };
 
 template <typename A1, typename A2, typename A3>
-struct ThreeGrads {
+struct [[nodiscard]] ThreeGrads {
     A1 m_left;
     A2 m_middle;
     A3 m_right;

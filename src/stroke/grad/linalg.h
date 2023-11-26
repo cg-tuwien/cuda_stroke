@@ -149,23 +149,15 @@ STROKE_DEVICES_INLINE TwoGrads<SymmetricMat<n_dims, scalar_t>, glm::mat<n_dims, 
 affine_transform(const SymmetricMat<n_dims, scalar_t>& S, const glm::mat<n_dims, n_dims, scalar_t>& M, const stroke::SymmetricMat<n_dims, scalar_t>& grad)
 {
     using mat_t = glm::mat<3, 3, scalar_t>;
-    const auto MS = M * glm::mat<3, 3, scalar_t>(S);
+    const auto MS = M * mat_t(S);
     const auto Mt = transpose(M);
     // return MS * Mt;
     const auto [grad_MS, grad_Mt] = stroke::grad::matmul(MS, Mt, from_symmetric_gradient(grad));
 
-    // const auto MS = M * glm::mat<3, 3, scalar_t>(S);
+    // const auto MS = M * mat_t(S);
     const auto [grad_M, grad_S] = stroke::grad::matmul(M, S, grad_MS);
 
     return { grad_S, (grad_M + transpose(grad_Mt)) };
-    //    return {
-    //        M[0][0] * (S[0] * M[0][0] + S[1] * M[1][0] + S[2] * M[2][0]) + M[1][0] * (S[1] * M[0][0] + S[3] * M[1][0] + S[4] * M[2][0]) + M[2][0] * (S[2] * M[0][0] + S[4] * M[1][0] + S[5] * M[2][0]),
-    //        M[0][0] * (S[0] * M[0][1] + S[1] * M[1][1] + S[2] * M[2][1]) + M[1][0] * (S[1] * M[0][1] + S[3] * M[1][1] + S[4] * M[2][1]) + M[2][0] * (S[2] * M[0][1] + S[4] * M[1][1] + S[5] * M[2][1]),
-    //        M[0][0] * (S[0] * M[0][2] + S[1] * M[1][2] + S[2] * M[2][2]) + M[1][0] * (S[1] * M[0][2] + S[3] * M[1][2] + S[4] * M[2][2]) + M[2][0] * (S[2] * M[0][2] + S[4] * M[1][2] + S[5] * M[2][2]),
-    //        M[0][1] * (S[0] * M[0][1] + S[1] * M[1][1] + S[2] * M[2][1]) + M[1][1] * (S[1] * M[0][1] + S[3] * M[1][1] + S[4] * M[2][1]) + M[2][1] * (S[2] * M[0][1] + S[4] * M[1][1] + S[5] * M[2][1]),
-    //        M[0][1] * (S[0] * M[0][2] + S[1] * M[1][2] + S[2] * M[2][2]) + M[1][1] * (S[1] * M[0][2] + S[3] * M[1][2] + S[4] * M[2][2]) + M[2][1] * (S[2] * M[0][2] + S[4] * M[1][2] + S[5] * M[2][2]),
-    //        M[0][2] * (S[0] * M[0][2] + S[1] * M[1][2] + S[2] * M[2][2]) + M[1][2] * (S[1] * M[0][2] + S[3] * M[1][2] + S[4] * M[2][2]) + M[2][2] * (S[2] * M[0][2] + S[4] * M[1][2] + S[5] * M[2][2])
-    //    };
 }
 
 } // namespace stroke::grad
