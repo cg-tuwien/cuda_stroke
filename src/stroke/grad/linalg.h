@@ -160,4 +160,33 @@ affine_transform(const SymmetricMat<n_dims, scalar_t>& S, const glm::mat<n_dims,
     return { grad_S, (grad_M + transpose(grad_Mt)) };
 }
 
+template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> inverse_cached(const glm::mat<n_dims, n_dims, scalar_t>& inverse_mat, const glm::mat<n_dims, n_dims, scalar_t>& grad)
+{
+    // from https://people.maths.ox.ac.uk/gilesm/files/AD2008.pdf
+    const auto ti = transpose(inverse_mat);
+    return -ti * grad * ti;
+}
+
+template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> inverse(const glm::mat<n_dims, n_dims, scalar_t>& mat, const glm::mat<n_dims, n_dims, scalar_t>& grad)
+{
+    return inverse_cached(inverse(mat), grad);
+}
+
+template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE stroke::SymmetricMat<n_dims, scalar_t> inverse_cached(const stroke::SymmetricMat<n_dims, scalar_t>& inverse_mat, const stroke::SymmetricMat<n_dims, scalar_t>& grad)
+{
+    // from https://people.maths.ox.ac.uk/gilesm/files/AD2008.pdf
+    // ignoring the transpose since we are symmetric
+    const auto i = to_glm(inverse_mat);
+    return -from_mat_gradient(i * from_symmetric_gradient(grad) * i);
+}
+
+template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE stroke::SymmetricMat<n_dims, scalar_t> inverse(const stroke::SymmetricMat<n_dims, scalar_t>& mat, const stroke::SymmetricMat<n_dims, scalar_t>& grad)
+{
+    return inverse_cached(inverse(mat), grad);
+}
+
 } // namespace stroke::grad

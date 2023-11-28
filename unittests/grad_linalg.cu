@@ -218,4 +218,72 @@ TEST_CASE("stroke linalg gradients")
         const auto m2 = glm::dmat3(11.1, 11.2, 11.3, 22.1, 22.2, 22.3, 33.1, 33.2, 33.3);
         stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(m1, m2), 0.0000001);
     }
+
+    SECTION("inverse glm")
+    {
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto mat = stroke::extract<glm::dmat3>(input);
+            return stroke::pack_tensor<double>(inverse(mat));
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto mat = stroke::extract<glm::dmat3>(input);
+            const auto incoming_grad = stroke::extract<glm::dmat3>(grad_output);
+            return stroke::pack_tensor<double>(stroke::grad::inverse(mat, incoming_grad));
+        };
+
+        const auto test_data_host = whack::make_tensor<double>(whack::Location::Host, { 3, 2, 1, 2, 4, 3, 0, 1, 2 }, 9);
+        stroke::check_gradient(fun, fun_grad, test_data_host);
+    }
+
+    SECTION("inverse cached glm")
+    {
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto mat = stroke::extract<glm::dmat3>(input);
+            return stroke::pack_tensor<double>(inverse(mat));
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto mat = stroke::extract<glm::dmat3>(input);
+            const auto incoming_grad = stroke::extract<glm::dmat3>(grad_output);
+            return stroke::pack_tensor<double>(stroke::grad::inverse_cached(inverse(mat), incoming_grad));
+        };
+
+        const auto test_data_host = whack::make_tensor<double>(whack::Location::Host, { 3, 2, 1, 2, 4, 3, 0, 1, 2 }, 9);
+        stroke::check_gradient(fun, fun_grad, test_data_host);
+    }
+
+    SECTION("inverse symmetric")
+    {
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto mat = stroke::extract<stroke::Cov3_d>(input);
+            return stroke::pack_tensor<double>(inverse(mat));
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto mat = stroke::extract<stroke::Cov3_d>(input);
+            const auto incoming_grad = stroke::extract<stroke::Cov3_d>(grad_output);
+            return stroke::pack_tensor<double>(stroke::grad::inverse(mat, incoming_grad));
+        };
+
+        const auto test_data_host = whack::make_tensor<double>(whack::Location::Host, { 3, 2, 1, 2, 4, 3 }, 6);
+        stroke::check_gradient(fun, fun_grad, test_data_host);
+    }
+
+    SECTION("inverse cached symmetric")
+    {
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto mat = stroke::extract<stroke::Cov3_d>(input);
+            return stroke::pack_tensor<double>(inverse(mat));
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto mat = stroke::extract<stroke::Cov3_d>(input);
+            const auto incoming_grad = stroke::extract<stroke::Cov3_d>(grad_output);
+            return stroke::pack_tensor<double>(stroke::grad::inverse_cached(inverse(mat), incoming_grad));
+        };
+
+        const auto test_data_host = whack::make_tensor<double>(whack::Location::Host, { 3, 2, 1, 2, 4, 3 }, 6);
+        stroke::check_gradient(fun, fun_grad, test_data_host);
+    }
 }
