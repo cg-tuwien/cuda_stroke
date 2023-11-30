@@ -66,7 +66,7 @@ namespace {
 } // namespace
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE stroke::SymmetricMat<3, scalar_t> from_mat_gradient(const glm::mat<3, 3, scalar_t>& g)
+STROKE_DEVICES_INLINE stroke::SymmetricMat<3, scalar_t> to_symmetric_gradient(const glm::mat<3, 3, scalar_t>& g)
 {
     constexpr auto half = scalar_t(1.0);
     return {
@@ -77,7 +77,7 @@ STROKE_DEVICES_INLINE stroke::SymmetricMat<3, scalar_t> from_mat_gradient(const 
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE stroke::SymmetricMat<2, scalar_t> from_mat_gradient(const glm::mat<2, 2, scalar_t>& g)
+STROKE_DEVICES_INLINE stroke::SymmetricMat<2, scalar_t> to_symmetric_gradient(const glm::mat<2, 2, scalar_t>& g)
 {
     constexpr auto half = scalar_t(1.0);
     return {
@@ -87,7 +87,7 @@ STROKE_DEVICES_INLINE stroke::SymmetricMat<2, scalar_t> from_mat_gradient(const 
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE glm::mat<3, 3, scalar_t> from_symmetric_gradient(const stroke::SymmetricMat<3, scalar_t>& g)
+STROKE_DEVICES_INLINE glm::mat<3, 3, scalar_t> to_mat_gradient(const stroke::SymmetricMat<3, scalar_t>& g)
 {
     constexpr auto half = scalar_t(0.5);
     // clang-format off
@@ -137,7 +137,7 @@ STROKE_DEVICES_INLINE TwoGrads<stroke::SymmetricMat<n_dims, scalar_t>, glm::mat<
 matmul(const stroke::SymmetricMat<n_dims, scalar_t>& a, const glm::mat<n_dims, n_dims, scalar_t>& b, const glm::mat<n_dims, n_dims, scalar_t>& grad)
 {
     using mat_t = glm::mat<n_dims, n_dims, scalar_t>;
-    return { from_mat_gradient(grad * transpose(b)), mat_t(a) * grad };
+    return { to_symmetric_gradient(grad * transpose(b)), mat_t(a) * grad };
 }
 
 template <typename scalar_t, int n_dims>
@@ -145,7 +145,7 @@ STROKE_DEVICES_INLINE TwoGrads<glm::mat<n_dims, n_dims, scalar_t>, stroke::Symme
 matmul(const glm::mat<n_dims, n_dims, scalar_t>& a, const stroke::SymmetricMat<n_dims, scalar_t>& b, const glm::mat<n_dims, n_dims, scalar_t>& grad)
 {
     using mat_t = glm::mat<n_dims, n_dims, scalar_t>;
-    return { grad * mat_t(b), from_mat_gradient(transpose(a) * grad) };
+    return { grad * mat_t(b), to_symmetric_gradient(transpose(a) * grad) };
 }
 
 template <typename scalar_t, int n_dims>
@@ -163,7 +163,7 @@ affine_transform(const SymmetricMat<n_dims, scalar_t>& S, const glm::mat<n_dims,
     const auto MS = M * mat_t(S);
     const auto Mt = transpose(M);
     // return MS * Mt;
-    const auto [grad_MS, grad_Mt] = stroke::grad::matmul(MS, Mt, from_symmetric_gradient(grad));
+    const auto [grad_MS, grad_Mt] = stroke::grad::matmul(MS, Mt, to_mat_gradient(grad));
 
     // const auto MS = M * mat_t(S);
     const auto [grad_M, grad_S] = stroke::grad::matmul(M, S, grad_MS);
@@ -191,7 +191,7 @@ STROKE_DEVICES_INLINE stroke::SymmetricMat<n_dims, scalar_t> inverse_cached(cons
     // from https://people.maths.ox.ac.uk/gilesm/files/AD2008.pdf
     // ignoring the transpose since we are symmetric
     const auto i = to_glm(inverse_mat);
-    return -from_mat_gradient(i * from_symmetric_gradient(grad) * i);
+    return -to_symmetric_gradient(i * to_mat_gradient(grad) * i);
 }
 
 template <typename scalar_t, int n_dims>

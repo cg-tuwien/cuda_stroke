@@ -138,7 +138,7 @@ TEST_CASE("stroke linalg gradients")
         const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
             const auto a = stroke::extract<stroke::Cov3<double>>(input);
             const auto incoming_grad = stroke::extract<glm::dmat3>(grad_output);
-            const auto grad_a = stroke::grad::from_mat_gradient(incoming_grad);
+            const auto grad_a = stroke::grad::to_symmetric_gradient(incoming_grad);
             return stroke::pack_tensor<double>(grad_a);
         };
 
@@ -156,7 +156,7 @@ TEST_CASE("stroke linalg gradients")
         const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
             const auto a = stroke::extract<glm::dmat3>(input);
             const auto incoming_grad = stroke::extract<stroke::Cov3_d>(grad_output);
-            const auto grad_a = stroke::grad::from_symmetric_gradient(incoming_grad);
+            const auto grad_a = stroke::grad::to_mat_gradient(incoming_grad);
             return stroke::pack_tensor<double>(grad_a);
         };
 
