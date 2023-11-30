@@ -197,6 +197,12 @@ TEST_CASE("stroke matrices")
             CHECK(!stroke::isnan(C));
             C[1] = 0 / 0.0;
             CHECK(stroke::isnan(C));
+
+            auto A_p = A;
+            A_p += B;
+            auto glmA_p = glmA;
+            glmA_p += glmB;
+            CHECK(to_glm(A_p) == glmA_p);
         };
         check(stroke::Cov2(4.f, 2.f, 3.f), stroke::Cov2(1.3f, 0.8f, 2.3f));
         check(stroke::Cov2(2.f, 1.5f, 4.f), stroke::Cov2(1.8f, 0.8f, 2.3f));
