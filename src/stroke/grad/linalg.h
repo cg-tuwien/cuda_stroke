@@ -75,6 +75,17 @@ STROKE_DEVICES_INLINE stroke::SymmetricMat<3, scalar_t> from_mat_gradient(const 
         g[2][2]
     };
 }
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE stroke::SymmetricMat<2, scalar_t> from_mat_gradient(const glm::mat<2, 2, scalar_t>& g)
+{
+    constexpr auto half = scalar_t(1.0);
+    return {
+        g[0][0], half * (g[0][1] + g[1][0]),
+        g[1][1]
+    };
+}
+
 template <typename scalar_t>
 STROKE_DEVICES_INLINE glm::mat<3, 3, scalar_t> from_symmetric_gradient(const stroke::SymmetricMat<3, scalar_t>& g)
 {
