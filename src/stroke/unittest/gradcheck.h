@@ -268,7 +268,7 @@ namespace gradcheck_internal {
 } // namespace gradcheck_internal
 
 template <typename scalar_t, typename Function, typename GradientFunction>
-void check_gradient(Function fun, GradientFunction grad_fun, const whack::Tensor<scalar_t, 1>& test_input, scalar_t dx = 0.0001)
+void check_gradient(Function fun, GradientFunction grad_fun, const whack::Tensor<scalar_t, 1>& test_input, scalar_t dx = 0.0001, scalar_t allowed_error_factor = 50)
 {
     const auto analytical_jacobian = gradcheck_internal::analytical_jacobian<scalar_t>(fun, grad_fun, test_input).host_copy();
     const auto numerical_jacobian = gradcheck_internal::numerical_jacobian<scalar_t>(fun, test_input, dx).host_copy();
@@ -278,7 +278,7 @@ void check_gradient(Function fun, GradientFunction grad_fun, const whack::Tensor
 
     for (size_t output_gradient_position = 0; output_gradient_position < analytical_jacobian.dimensions()[0]; ++output_gradient_position) {
         for (size_t input_position = 0; input_position < analytical_jacobian.dimensions()[1]; ++input_position) {
-            if (analytical_jacobian(output_gradient_position, input_position) != Catch::Approx(numerical_jacobian(output_gradient_position, input_position)).epsilon(dx * 50)) {
+            if (analytical_jacobian(output_gradient_position, input_position) != Catch::Approx(numerical_jacobian(output_gradient_position, input_position)).epsilon(dx * allowed_error_factor)) {
                 // #include "stroke/unittest/gradcheck.h" must come first for pretty printers to work.
                 CAPTURE(analytical_jacobian);
                 CAPTURE(numerical_jacobian); // the jacobian is a copy on the host even if the computation was done on the device.
