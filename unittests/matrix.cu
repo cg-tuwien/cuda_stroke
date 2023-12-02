@@ -38,8 +38,10 @@ void symmetric_matrices_work_for_shared_data()
             WHACK_UNUSED(whack_threadIdx);
             WHACK_UNUSED(whack_blockIdx);
 
-            __shared__ stroke::Cov2<float> test_1[2];
-            __shared__ stroke::Cov3<float> test_2[2];
+            __shared__ stroke::Cov2_f test_1[2];
+            __shared__ stroke::Cov3_f test_2[2];
+            test_1[0][0] = test_2[0][0];
+            test_2[0][0] = test_1[0][0];
         });
 }
 
