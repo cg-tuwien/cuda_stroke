@@ -72,10 +72,9 @@ namespace {
 template <typename scalar_t>
 STROKE_DEVICES_INLINE stroke::SymmetricMat<3, scalar_t> to_symmetric_gradient(const glm::mat<3, 3, scalar_t>& g)
 {
-    constexpr auto half = scalar_t(1.0);
     return {
-        g[0][0], half * (g[0][1] + g[1][0]), half * (g[0][2] + g[2][0]),
-        g[1][1], half * (g[1][2] + g[2][1]),
+        g[0][0], g[0][1] + g[1][0], g[0][2] + g[2][0],
+        g[1][1], g[1][2] + g[2][1],
         g[2][2]
     };
 }
@@ -83,9 +82,8 @@ STROKE_DEVICES_INLINE stroke::SymmetricMat<3, scalar_t> to_symmetric_gradient(co
 template <typename scalar_t>
 STROKE_DEVICES_INLINE stroke::SymmetricMat<2, scalar_t> to_symmetric_gradient(const glm::mat<2, 2, scalar_t>& g)
 {
-    constexpr auto half = scalar_t(1.0);
     return {
-        g[0][0], half * (g[0][1] + g[1][0]),
+        g[0][0], g[0][1] + g[1][0],
         g[1][1]
     };
 }
@@ -99,6 +97,18 @@ STROKE_DEVICES_INLINE glm::mat<3, 3, scalar_t> to_mat_gradient(const stroke::Sym
         g[0],           half * g[1],    half * g[2],
         half * g[1],           g[3],    half * g[4],
         half * g[2],    half * g[4],           g[5]
+    };
+    // clang-format on
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE glm::mat<2, 2, scalar_t> to_mat_gradient(const stroke::SymmetricMat<2, scalar_t>& g)
+{
+    constexpr auto half = scalar_t(0.5);
+    // clang-format off
+    return {
+        g[0],           half * g[1],
+        half * g[1],           g[2]
     };
     // clang-format on
 }
