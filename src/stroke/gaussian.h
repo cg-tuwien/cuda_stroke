@@ -76,11 +76,18 @@ STROKE_DEVICES_INLINE scalar_t eval_exponential(const scalar_t& centre, const sc
 
 template <typename scalar_t,
     std::enable_if_t<std::is_floating_point<scalar_t>::value, bool> = true>
-STROKE_DEVICES_INLINE scalar_t norm_factor(const scalar_t& variance)
+STROKE_DEVICES_INLINE scalar_t integrate_exponential(const scalar_t& variance)
 {
     constexpr auto factor = scalar_t(gcem::sqrt(2 * glm::pi<double>()));
     static_assert(factor > 0); // make sure factor is consteval
-    return 1 / (sqrt(variance) * factor);
+    return sqrt(variance) * factor;
+}
+
+template <typename scalar_t,
+    std::enable_if_t<std::is_floating_point<scalar_t>::value, bool> = true>
+STROKE_DEVICES_INLINE scalar_t norm_factor(const scalar_t& variance)
+{
+    return 1 / integrate_exponential(variance);
 }
 
 template <typename scalar_t,
@@ -93,10 +100,16 @@ STROKE_DEVICES_INLINE scalar_t norm_factor_inv_C(const scalar_t& variance)
 }
 
 template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t norm_factor(const Cov<n_dims, scalar_t>& covariance)
+STROKE_DEVICES_INLINE scalar_t integrate_exponential(const Cov<n_dims, scalar_t>& covariance)
 {
     constexpr auto factor = scalar_t(gcem::pow(2 * glm::pi<double>(), double(n_dims)));
-    return 1 / sqrt(factor * det(covariance));
+    return sqrt(factor * stroke::max(det(covariance), scalar_t(0)));
+}
+
+template <glm::length_t n_dims, typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t norm_factor(const Cov<n_dims, scalar_t>& covariance)
+{
+    return 1 / integrate_exponential(covariance);
 }
 
 template <glm::length_t n_dims, typename scalar_t>

@@ -79,22 +79,38 @@ TEST_CASE("stroke gaussian")
         }
     }
 
+    SECTION("integrate exponential factor")
+    {
+        const auto two_pi = 2 * glm::pi<float>();
+        // 1d
+        CHECK(gaussian::integrate_exponential(1.f) == Catch::Approx(sqrt(2 * glm::pi<float>())));
+        CHECK(gaussian::integrate_exponential(4.f) == Catch::Approx(2 * sqrt(2 * glm::pi<float>())));
+
+        // 2d
+        CHECK(gaussian::integrate_exponential(Cov2(1.f)) == Catch::Approx(sqrt(two_pi * two_pi)));
+        CHECK(gaussian::integrate_exponential(Cov2(4.f)) == Catch::Approx(sqrt(two_pi * two_pi * 16)));
+
+        // 3d
+        CHECK(gaussian::integrate_exponential(Cov3(1.f)) == Catch::Approx(sqrt(two_pi * two_pi * two_pi)));
+        CHECK(gaussian::integrate_exponential(Cov3(4.f)) == Catch::Approx(sqrt(two_pi * two_pi * two_pi * 4 * 4 * 4)));
+    }
+
     SECTION("normalisation factor")
     {
         const auto two_pi = 2 * glm::pi<float>();
         // 1d
-        CHECK(gaussian::norm_factor(1.f) == Catch::Approx(1 / sqrt(2 * glm::pi<float>())));
-        CHECK(gaussian::norm_factor(4.f) == Catch::Approx(0.5f / sqrt(2 * glm::pi<float>())));
+        CHECK(gaussian::norm_factor(1.f) == Catch::Approx(1 / gaussian::integrate_exponential(1.f)));
+        CHECK(gaussian::norm_factor(4.f) == Catch::Approx(1 / gaussian::integrate_exponential(4.f)));
         CHECK(gaussian::norm_factor(2.3f) == Catch::Approx(gaussian::norm_factor_inv_C(1 / 2.3)));
 
         // 2d
-        CHECK(gaussian::norm_factor(Cov2(1.f)) == Catch::Approx(1 / sqrt(two_pi * two_pi)));
-        CHECK(gaussian::norm_factor(Cov2(4.f)) == Catch::Approx(1 / sqrt(two_pi * two_pi * 16)));
+        CHECK(gaussian::norm_factor(Cov2(1.f)) == Catch::Approx(1 / gaussian::integrate_exponential(Cov2(1.f))));
+        CHECK(gaussian::norm_factor(Cov2(4.f)) == Catch::Approx(1 / gaussian::integrate_exponential(Cov2(4.f))));
         CHECK(gaussian::norm_factor(Cov2(3.4, 1.2, 2.3)) == Catch::Approx(gaussian::norm_factor_inv_C(inverse(Cov2(3.4, 1.2, 2.3)))));
 
         // 3d
-        CHECK(gaussian::norm_factor(Cov3(1.f)) == Catch::Approx(1 / sqrt(two_pi * two_pi * two_pi)));
-        CHECK(gaussian::norm_factor(Cov3(4.f)) == Catch::Approx(1 / sqrt(two_pi * two_pi * two_pi * 4 * 4 * 4)));
+        CHECK(gaussian::norm_factor(Cov3(1.f)) == Catch::Approx(1 / gaussian::integrate_exponential(Cov3(1.f))));
+        CHECK(gaussian::norm_factor(Cov3(4.f)) == Catch::Approx(1 / gaussian::integrate_exponential(Cov3(4.f))));
         CHECK(gaussian::norm_factor(Cov3(3.4, 1.2, 1.3, 4.2, 1.0, 3.6)) == Catch::Approx(gaussian::norm_factor_inv_C(inverse(Cov3(3.4, 1.2, 1.3, 4.2, 1.0, 3.6)))));
     }
 
