@@ -46,7 +46,28 @@ void check_norm_factor()
     };
 
     for (int i = 0; i < 10; ++i) {
-        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(host_random_cov<n_dims, double>(&rnd)), 0.0000001);
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(stroke::host_random_cov<n_dims, double>(&rnd)), 0.0000001);
+    }
+}
+
+template <uint n_dims>
+void check_integrate_exponential()
+{
+    whack::random::HostGenerator<float> rnd;
+    const auto fun = [](const whack::Tensor<double, 1>& input) {
+        const auto cov = stroke::extract<stroke::Cov<n_dims, double>>(input);
+        return stroke::pack_tensor<double>(stroke::gaussian::integrate_exponential(cov));
+    };
+
+    const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+        const auto cov = stroke::extract<stroke::Cov<n_dims, double>>(input);
+        const auto incoming_grad = stroke::extract<double>(grad_output);
+        const auto grad_a = stroke::grad::gaussian::integrate_exponential(cov, incoming_grad);
+        return stroke::pack_tensor<double>(grad_a);
+    };
+
+    for (int i = 0; i < 10; ++i) {
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(stroke::host_random_cov<n_dims, double>(&rnd)), 0.0000001);
     }
 }
 } // namespace
@@ -57,5 +78,10 @@ TEST_CASE("stroke gaussian gradients")
     {
         check_norm_factor<2>();
         check_norm_factor<3>();
+    }
+    SECTION("integrate_exponential")
+    {
+        check_integrate_exponential<2>();
+        check_integrate_exponential<3>();
     }
 }

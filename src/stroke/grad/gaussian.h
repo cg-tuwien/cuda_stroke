@@ -47,4 +47,23 @@ STROKE_DEVICES_INLINE Cov<n_dims, scalar_t> norm_factor(const Cov<n_dims, scalar
     return to_symmetric_gradient(grad_cov);
 }
 
+template <glm::length_t n_dims, typename scalar_t>
+STROKE_DEVICES_INLINE Cov<n_dims, scalar_t> integrate_exponential(const Cov<n_dims, scalar_t>& covariance, scalar_t incoming_grad)
+{
+
+    constexpr auto factor = scalar_t(gcem::pow(2 * glm::pi<double>(), double(n_dims)));
+
+    const auto detcov = det(covariance);
+    if (detcov <= 0)
+        return {}; // handling gradient of max function
+
+    const auto bounded_detcov = stroke::max(detcov, scalar_t(0));
+
+    // return sqrt(factor * bounded_detcov);
+    const auto grad_detcov = stroke::grad::sqrt(factor * bounded_detcov, incoming_grad) * factor;
+
+    const auto grad_cov = stroke::grad::det(to_glm(covariance), grad_detcov);
+    return to_symmetric_gradient(grad_cov);
+}
+
 } // namespace stroke::grad::gaussian
