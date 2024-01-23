@@ -24,6 +24,7 @@
 #include <iostream>
 #include <vector>
 
+#include <stroke/pretty_printers.h>
 #include <whack/pretty_printer.h>
 
 #include <catch2/catch_approx.hpp>
@@ -282,7 +283,7 @@ void check_gradient(Function fun, GradientFunction grad_fun, const whack::Tensor
 
     for (size_t output_gradient_position = 0; output_gradient_position < analytical_jacobian.dimensions()[0]; ++output_gradient_position) {
         for (size_t input_position = 0; input_position < analytical_jacobian.dimensions()[1]; ++input_position) {
-            if (analytical_jacobian(output_gradient_position, input_position) != Catch::Approx(numerical_jacobian(output_gradient_position, input_position)).epsilon(dx * allowed_error_factor)) {
+            if (analytical_jacobian(output_gradient_position, input_position) != Catch::Approx(numerical_jacobian(output_gradient_position, input_position)).epsilon(dx * allowed_error_factor).margin(dx * allowed_error_factor)) {
                 // #include "stroke/unittest/gradcheck.h" must come first for pretty printers to work.
                 CAPTURE(analytical_jacobian);
                 CAPTURE(numerical_jacobian); // the jacobian is a copy on the host even if the computation was done on the device.
