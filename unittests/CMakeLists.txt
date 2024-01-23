@@ -18,13 +18,13 @@ add_executable(stroke_unittests
     gaussian.cpp
     welford.cpp
     welford_benchmark.cu
-    test_helpers.h
     matrix.cu
     scalar_functions.cpp
     gradcheck.cu
     grad_gaussian.cu
     grad_linalg.cu
     grad_scalar_functions.cu
+    grad_quaternions.cu
 
 )
 

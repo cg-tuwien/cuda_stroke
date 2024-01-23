@@ -48,7 +48,9 @@ add_library(stroke INTERFACE
     stroke/grad/util.h
     stroke/grad/scalar_functions.h
     stroke/grad/gaussian.h
+    stroke/grad/quaternions.h
     stroke/unittest/random_entity.h
 )
 target_link_libraries(stroke INTERFACE glm::glm whack gcem)
 target_include_directories(stroke INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(stroke INTERFACE GLM_ENABLE_EXPERIMENTAL)
