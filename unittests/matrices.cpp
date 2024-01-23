@@ -24,8 +24,7 @@
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
-
-#include "test_helpers.h"
+#include <stroke/unittest/random_entity.h>
 
 TEST_CASE("stroke matrices")
 {
@@ -257,8 +256,8 @@ TEST_CASE("stroke matrices")
             }
         };
         for (int i = 0; i < 10; ++i) {
-            check(random_cov<2, float>(&rng), random_matrix<2, float>(&rng));
-            check(random_cov<3, float>(&rng), random_matrix<3, float>(&rng));
+            check(stroke::random_cov<2, float>(&rng), stroke::random_matrix<2, float>(&rng));
+            check(stroke::random_cov<3, float>(&rng), stroke::random_matrix<3, float>(&rng));
         }
     }
 }

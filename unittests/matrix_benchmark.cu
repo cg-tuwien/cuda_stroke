@@ -25,13 +25,12 @@
 #include <catch2/catch_test_macros.hpp>
 #include <nvToolsExt.h>
 #include <stroke/linalg.h>
+#include <stroke/unittest/random_entity.h>
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
 #include <whack/Tensor.h>
 #include <whack/kernel.h>
 #include <whack/random/generators.h>
-
-#include "test_helpers.h"
 
 struct BenchmarkResults {
     float mean;
@@ -64,10 +63,10 @@ void run_matrix_benchmarks()
                     return;
 
                 auto rng = whack::random::KernelGenerator(index, 0);
-                auto R1 = glm::mat3(random_cov<3, float>(&rng));
-                auto R2 = glm::mat3(random_cov<3, float>(&rng));
-                auto R3 = glm::mat3(random_cov<3, float>(&rng));
-                auto M = random_matrix<3, float>(&rng);
+                auto R1 = glm::mat3(stroke::random_cov<3, float>(&rng));
+                auto R2 = glm::mat3(stroke::random_cov<3, float>(&rng));
+                auto R3 = glm::mat3(stroke::random_cov<3, float>(&rng));
+                auto M = stroke::random_matrix<3, float>(&rng);
                 for (int i = 0; i < n_multiplications; ++i) {
                     R1 += (M * R1 * transpose(M)) / float(n_multiplications);
                     R2 += (M * R2 * transpose(M)) / float(n_multiplications);
@@ -92,10 +91,10 @@ void run_matrix_benchmarks()
                     return;
 
                 auto rng = whack::random::KernelGenerator(index, 0);
-                auto R1 = random_cov<3, float>(&rng);
-                auto R2 = random_cov<3, float>(&rng);
-                auto R3 = random_cov<3, float>(&rng);
-                auto M = random_matrix<3, float>(&rng);
+                auto R1 = stroke::random_cov<3, float>(&rng);
+                auto R2 = stroke::random_cov<3, float>(&rng);
+                auto R3 = stroke::random_cov<3, float>(&rng);
+                auto M = stroke::random_matrix<3, float>(&rng);
                 for (int i = 0; i < n_multiplications; ++i) {
                     R1 += affine_transform(R1, M) / float(n_multiplications);
                     R2 += affine_transform(R2, M) / float(n_multiplications);

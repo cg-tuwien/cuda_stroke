@@ -1,5 +1,5 @@
 /****************************************************************************
- *  Copyright (C) 2023 Adam Celarek (github.com/adam-ce, github.com/cg-tuwien)
+ *  Copyright (C) 2024 Adam Celarek (github.com/adam-ce, github.com/cg-tuwien)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -22,11 +22,12 @@
 
 #pragma once
 
+#include <glm/ext/scalar_constants.hpp>
 #include <glm/glm.hpp>
+#include <stroke/linalg.h>
 #include <whack/random/generators.h>
 
-#include "stroke/linalg.h"
-
+namespace stroke {
 template <glm::length_t n_dims, typename scalar_t, typename Generator>
 STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> random_matrix(Generator* rnd)
 {
@@ -64,3 +65,11 @@ stroke::Cov<n_dims, scalar_t> host_random_cov(Generator* rnd)
     const auto mat = host_random_matrix<n_dims, scalar_t>(rnd);
     return stroke::Cov<n_dims, scalar_t>(mat * transpose(mat)) + stroke::Cov<n_dims, scalar_t>(0.05);
 }
+
+template <typename scalar_t, typename Generator>
+glm::qua<scalar_t> host_random_quaternion(Generator* rnd)
+{
+    return glm::qua<scalar_t>(rnd->uniform3() * (scalar_t(2) * glm::pi<scalar_t>()));
+}
+
+} // namespace stroke

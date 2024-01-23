@@ -23,12 +23,10 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <glm/ext/scalar_constants.hpp>
+#include <stroke/gaussian.h>
+#include <stroke/ray.h>
+#include <stroke/unittest/random_entity.h>
 #include <whack/random/generators.h>
-
-#include "stroke/gaussian.h"
-#include "stroke/ray.h"
-
-#include "test_helpers.h"
 
 TEST_CASE("stroke gaussian")
 {

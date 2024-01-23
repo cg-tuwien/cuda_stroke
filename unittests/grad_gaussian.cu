@@ -20,14 +20,13 @@
  *  THE SOFTWARE.
  ****************************************************************************/
 
-#include "stroke/unittest/gradcheck.h"
+#include <stroke/unittest/gradcheck.h>
 
 #include <catch2/catch_test_macros.hpp>
-
-#include "stroke/gaussian.h"
-#include "stroke/grad/gaussian.h"
-#include "stroke/linalg.h"
-#include "test_helpers.h"
+#include <stroke/gaussian.h>
+#include <stroke/grad/gaussian.h>
+#include <stroke/linalg.h>
+#include <stroke/unittest/random_entity.h>
 
 namespace {
 template <uint n_dims>

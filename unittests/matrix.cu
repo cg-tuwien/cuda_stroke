@@ -24,13 +24,12 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <nvToolsExt.h>
+#include <stroke/unittest/random_entity.h>
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
 #include <whack/Tensor.h>
 #include <whack/kernel.h>
 #include <whack/random/generators.h>
-
-#include "test_helpers.h"
 
 namespace {
 void symmetric_matrices_work_for_shared_data()
