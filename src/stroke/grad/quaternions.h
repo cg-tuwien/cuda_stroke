@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "stroke/cuda_compat.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -29,7 +30,7 @@
 namespace stroke::grad {
 
 template <typename scalar_t>
-glm::qua<scalar_t> toMat3(const glm::qua<scalar_t>& quat, const glm::mat<3, 3, scalar_t>& incoming_grad)
+STROKE_DEVICES_INLINE glm::qua<scalar_t> toMat3(const glm::qua<scalar_t>& quat, const glm::mat<3, 3, scalar_t>& incoming_grad)
 {
     scalar_t qxx(quat.x * quat.x);
     scalar_t qyy(quat.y * quat.y);
