@@ -33,21 +33,21 @@ struct [[nodiscard]] TwoGrads {
     A2 m_right;
 
     STROKE_DEVICES_INLINE
-    void addTo(A1* left, A2* right)
+    void addTo(A1* left, A2* right) const
     {
         *left += m_left;
         *right += m_right;
     }
 
     STROKE_DEVICES_INLINE
-    void addTo(A1* left, bool right)
+    void addTo(A1* left, bool right) const
     {
         assert(right == false);
         *left += m_left;
     }
 
     STROKE_DEVICES_INLINE
-    void addTo(bool left, A2* right)
+    void addTo(bool left, A2* right) const
     {
         assert(left == false);
         *right += m_right;
@@ -73,7 +73,7 @@ struct [[nodiscard]] ThreeGrads {
     A3 m_right;
 
     STROKE_DEVICES_INLINE
-    void addTo(A1* left, A2* middle, A3* right)
+    void addTo(A1* left, A2* middle, A3* right) const
     {
         if (left != nullptr)
             *left += m_left;
@@ -109,7 +109,7 @@ struct [[nodiscard]] FourGrads {
     A3 m_third;
     A4 m_fourth;
 
-    STROKE_DEVICES_INLINE void addTo(A1* first, A2* second, A3* third, A4* fourth)
+    STROKE_DEVICES_INLINE void addTo(A1* first, A2* second, A3* third, A4* fourth) const
     {
         if (first != nullptr)
             *first += m_first;
