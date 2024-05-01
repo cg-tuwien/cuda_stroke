@@ -174,6 +174,12 @@ STROKE_DEVICES_INLINE scalar_t sum(const glm::vec<3, scalar_t>& v)
 }
 
 template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t sum(const glm::vec<4, scalar_t>& v)
+{
+    return v[0] + v[1] + v[2] + v[3];
+}
+
+template <typename scalar_t>
 STROKE_DEVICES_INLINE scalar_t sum(const glm::mat<2, 2, scalar_t>& m)
 {
     return sum(m[0]) + sum(m[1]);
