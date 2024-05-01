@@ -194,7 +194,7 @@ STROKE_DEVICES_INLINE scalar_t cdf_var(const scalar_t& centre, const scalar_t& v
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t integrate_inv_SD(const scalar_t& centre, const scalar_t& inv_standard_deviation, const geometry::Aabb<1, scalar_t>& box)
+STROKE_DEVICES_INLINE scalar_t integrate_normalised_inv_SD(const scalar_t& centre, const scalar_t& inv_standard_deviation, const geometry::Aabb<1, scalar_t>& box)
 {
     //	constexpr scalar_t inv_sqrt2 = 1 / gcem::sqrt(scalar_t(2));
     //	const auto scaling = inv_sqrt2 * inv_variance;
@@ -209,7 +209,7 @@ STROKE_DEVICES_INLINE scalar_t integrate_inv_SD(const scalar_t& centre, const sc
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t integrate_SD(const scalar_t& centre, const scalar_t& standard_deviation, const geometry::Aabb<1, scalar_t>& box)
+STROKE_DEVICES_INLINE scalar_t integrate_normalised_SD(const scalar_t& centre, const scalar_t& standard_deviation, const geometry::Aabb<1, scalar_t>& box)
 {
     constexpr scalar_t sqrt2 = gcem::sqrt(scalar_t(2));
     const auto scaling = 1 / (standard_deviation * sqrt2);
@@ -220,9 +220,9 @@ STROKE_DEVICES_INLINE scalar_t integrate_SD(const scalar_t& centre, const scalar
 }
 
 template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t integrate_var(const scalar_t& centre, const scalar_t& standard_deviation, const geometry::Aabb<1, scalar_t>& box)
+STROKE_DEVICES_INLINE scalar_t integrate_normalised_var(const scalar_t& centre, const scalar_t& standard_deviation, const geometry::Aabb<1, scalar_t>& box)
 {
-    return integrate_SD(centre, stroke::sqrt(standard_deviation), box);
+    return integrate_normalised_SD(centre, stroke::sqrt(standard_deviation), box);
 }
 
 } // namespace stroke::gaussian

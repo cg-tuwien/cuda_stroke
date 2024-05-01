@@ -164,22 +164,22 @@ TEST_CASE("stroke gaussian")
     SECTION("integration")
     {
         // clang-format off
-        CHECK(gaussian::integrate_var<float>(   0.f,    1.f, { -10000.f,   10000.f }) == Catch::Approx(1.0f));
-        CHECK(gaussian::integrate_var<float>(   0.f,    1.f, {      0.f,   10000.f }) == Catch::Approx(0.5f));
-        CHECK(gaussian::integrate_var<float>(   0.f,    1.f, { -10000.f,       0.f }) == Catch::Approx(0.5f));
-        CHECK(gaussian::integrate_var<float>( 100.f,    1.f, { -10000.f,     100.f }) == Catch::Approx(0.5f));
-        CHECK(gaussian::integrate_var<float>(   0.f,    1.f, {   1000.f,   10000.f }) == Catch::Approx(0.0f));
-        CHECK(gaussian::integrate_var<float>(  12.f,    1.f, {     12.f,   10012.f }) == Catch::Approx(0.5f));
-        CHECK(gaussian::integrate_var<float>(   0.f, 1000.f, {      1.f, 1000000.f }) == Catch::Approx(0.5f).margin(0.02));
+        CHECK(gaussian::integrate_normalised_var<float>(   0.f,    1.f, { -10000.f,   10000.f }) == Catch::Approx(1.0f));
+        CHECK(gaussian::integrate_normalised_var<float>(   0.f,    1.f, {      0.f,   10000.f }) == Catch::Approx(0.5f));
+        CHECK(gaussian::integrate_normalised_var<float>(   0.f,    1.f, { -10000.f,       0.f }) == Catch::Approx(0.5f));
+        CHECK(gaussian::integrate_normalised_var<float>( 100.f,    1.f, { -10000.f,     100.f }) == Catch::Approx(0.5f));
+        CHECK(gaussian::integrate_normalised_var<float>(   0.f,    1.f, {   1000.f,   10000.f }) == Catch::Approx(0.0f));
+        CHECK(gaussian::integrate_normalised_var<float>(  12.f,    1.f, {     12.f,   10012.f }) == Catch::Approx(0.5f));
+        CHECK(gaussian::integrate_normalised_var<float>(   0.f, 1000.f, {      1.f, 1000000.f }) == Catch::Approx(0.5f).margin(0.02));
 
         // https://www.wolframalpha.com/input?i=integrate+PDF%5BNormalDistribution%5B7%2C+5%5D%2C+x%5D+from+2+to+5&lang=es
-        CHECK(gaussian::integrate_SD<float>(   7.f, 5.f, {         2.f,       7.f }) == Catch::Approx(0.341345f));
-        CHECK(gaussian::integrate_SD<float>(   7.f, 5.f, {         2.f,       5.f }) == Catch::Approx(0.185923f));
-        CHECK(gaussian::integrate_SD<float>(  -3.f, 2.f, {        -1.f,       4.f }) == Catch::Approx(0.158423f));
+        CHECK(gaussian::integrate_normalised_SD<float>(   7.f, 5.f, {         2.f,       7.f }) == Catch::Approx(0.341345f));
+        CHECK(gaussian::integrate_normalised_SD<float>(   7.f, 5.f, {         2.f,       5.f }) == Catch::Approx(0.185923f));
+        CHECK(gaussian::integrate_normalised_SD<float>(  -3.f, 2.f, {        -1.f,       4.f }) == Catch::Approx(0.158423f));
 
-        CHECK(gaussian::integrate_inv_SD<float>(   7.f, 1/5.f, {         2.f,       7.f }) == Catch::Approx(0.341345f));
-        CHECK(gaussian::integrate_inv_SD<float>(   7.f, 1/5.f, {         2.f,       5.f }) == Catch::Approx(0.185923f));
-        CHECK(gaussian::integrate_inv_SD<float>(  -3.f, 1/2.f, {        -1.f,       4.f }) == Catch::Approx(0.158423f));
+        CHECK(gaussian::integrate_normalised_inv_SD<float>(   7.f, 1/5.f, {         2.f,       7.f }) == Catch::Approx(0.341345f));
+        CHECK(gaussian::integrate_normalised_inv_SD<float>(   7.f, 1/5.f, {         2.f,       5.f }) == Catch::Approx(0.185923f));
+        CHECK(gaussian::integrate_normalised_inv_SD<float>(  -3.f, 1/2.f, {        -1.f,       4.f }) == Catch::Approx(0.158423f));
         // clang-format on
     }
 }
