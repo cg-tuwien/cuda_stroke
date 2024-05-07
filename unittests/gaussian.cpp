@@ -180,6 +180,10 @@ TEST_CASE("stroke gaussian")
         CHECK(gaussian::integrate_normalised_inv_SD<float>(   7.f, 1/5.f, {         2.f,       7.f }) == Catch::Approx(0.341345f));
         CHECK(gaussian::integrate_normalised_inv_SD<float>(   7.f, 1/5.f, {         2.f,       5.f }) == Catch::Approx(0.185923f));
         CHECK(gaussian::integrate_normalised_inv_SD<float>(  -3.f, 1/2.f, {        -1.f,       4.f }) == Catch::Approx(0.158423f));
+
+        CHECK(gaussian::cdf_inv_SD<float>(   7.f, 1/5.f,    7.f) == Catch::Approx(0.5f));
+        CHECK(gaussian::cdf_inv_SD<float>(   7.f, 1/5.f,    5.f) == Catch::Approx(0.344578f));
+        CHECK(gaussian::cdf_inv_SD<float>(  -3.f, 1/2.f,    0.f) == Catch::Approx(0.933193f));
         // clang-format on
     }
 }
