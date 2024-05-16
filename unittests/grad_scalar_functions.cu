@@ -64,6 +64,23 @@ TEST_CASE("stroke scalar gradients")
         stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(6.0), 0.0000001);
         stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(10.0), 0.0000001);
     }
+    SECTION("erf")
+    {
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto a = stroke::extract<double>(input);
+            return stroke::pack_tensor<double>(stroke::erf(a));
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto a = stroke::extract<double>(input);
+            const auto incoming_grad = stroke::extract<double>(grad_output);
+            const double grad_a = stroke::grad::erf(a, incoming_grad);
+            return stroke::pack_tensor<double>(grad_a);
+        };
+        for (auto i = -2.; i < 2.; i += 0.2) {
+            stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(i), 0.0000001);
+        }
+    }
     SECTION("clamp")
     {
         const auto fun = [](const whack::Tensor<double, 1>& input) {

@@ -22,8 +22,10 @@
 
 #pragma once
 
+#include <gcem.hpp>
 #include <type_traits>
 
+#include "glm/ext/scalar_constants.hpp"
 #include "stroke/cuda_compat.h"
 #include "stroke/scalar_functions.h"
 #include "util.h"
@@ -45,6 +47,15 @@ STROKE_DEVICES_INLINE scalar_t sqrt(const scalar_t& a, scalar_t incoming_grad)
 {
     static_assert(std::is_floating_point_v<scalar_t>);
     return incoming_grad / (2 * stroke::sqrt(a));
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t erf(const scalar_t& a, scalar_t incoming_grad)
+{
+    static_assert(std::is_floating_point_v<scalar_t>);
+    // https://en.wikipedia.org/wiki/Error_function
+    constexpr scalar_t const_factor = 2 / gcem::sqrt(glm::pi<double>());
+    return incoming_grad * const_factor * stroke::exp(-sq(a));
 }
 
 template <typename scalar_t>

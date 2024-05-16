@@ -175,6 +175,32 @@ TEST_CASE("stroke gaussian gradients")
         }
     }
 
+    SECTION("cdf_inv_SD")
+    {
+        using scalar_t = double;
+        whack::random::HostGenerator<scalar_t> rnd;
+
+        for (int i = 0; i < 20; ++i) {
+            const auto fun = [](const whack::Tensor<scalar_t, 1>& input) {
+                const auto [p, inv_sd, t] = stroke::extract<scalar_t, scalar_t, scalar_t>(input);
+                const auto val = stroke::gaussian::cdf_inv_SD<scalar_t>(p, inv_sd, t);
+                return stroke::pack_tensor<scalar_t>(val);
+            };
+
+            const auto fun_grad = [](const whack::Tensor<scalar_t, 1>& input, const whack::Tensor<scalar_t, 1>& grad_output) {
+                const auto [p, inv_sd, t] = stroke::extract<scalar_t, scalar_t, scalar_t>(input);
+                const auto grad_incoming = stroke::extract<scalar_t>(grad_output);
+
+                const auto grad_outgoing = stroke::grad::gaussian::cdf_inv_SD<scalar_t>(p, inv_sd, t, grad_incoming);
+
+                return stroke::pack_tensor<scalar_t>(grad_outgoing);
+            };
+
+            const auto test_data = stroke::pack_tensor<scalar_t>(rnd.normal(), 1. / (rnd.uniform() + 0.000001), rnd.normal() * 2);
+            stroke::check_gradient(fun, fun_grad, test_data, scalar_t(0.000001));
+        }
+    }
+
     SECTION("intersect_with_ray_inv_C")
     {
         using scalar_t = double;

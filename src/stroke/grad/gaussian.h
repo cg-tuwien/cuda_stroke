@@ -88,6 +88,22 @@ STROKE_DEVICES_INLINE Cov<n_dims, scalar_t> integrate_exponential(const Cov<n_di
     return to_symmetric_gradient(grad_cov);
 }
 
+template <typename scalar_t>
+STROKE_DEVICES_INLINE ThreeGrads<scalar_t, scalar_t, scalar_t>
+cdf_inv_SD(const scalar_t& centre, const scalar_t& inv_SD, const scalar_t& x, scalar_t incoming_grad)
+{
+    constexpr scalar_t inv_sqrt2 = 1 / gcem::sqrt(scalar_t(2));
+
+    const auto scaling = inv_sqrt2 * inv_SD;
+    const auto q = (x - centre) * scaling;
+    // return scalar_t(0.5) * (1 + stroke::erf(q));
+    const auto grd_q = stroke::grad::erf(q, incoming_grad * scalar_t(0.5));
+    const auto grd_x_m_centre = grd_q * scaling;
+    const auto grd_scaling = grd_q * (x - centre);
+
+    return { -grd_x_m_centre, grd_scaling * inv_sqrt2, grd_x_m_centre };
+}
+
 template <glm::length_t n_dims, typename scalar_t>
 STROKE_DEVICES_INLINE ThreeGrads<glm::vec<n_dims, scalar_t>, Cov<n_dims, scalar_t>, glm::vec<n_dims, scalar_t>>
 eval_exponential_inv_C(const glm::vec<n_dims, scalar_t>& centre, const Cov<n_dims, scalar_t>& inversed_covariance, const glm::vec<n_dims, scalar_t>& point, scalar_t incoming_grad)
