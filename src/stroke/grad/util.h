@@ -29,7 +29,7 @@ namespace stroke::grad {
 
 template <typename A1, typename A2>
 struct [[nodiscard]] TwoGrads {
-    A1 m_left;
+    A1 m_left; // todo: these are structs. left()/right() and the prefix m_ can be removed.
     A2 m_right;
 
     STROKE_DEVICES_INLINE
@@ -54,13 +54,13 @@ struct [[nodiscard]] TwoGrads {
     }
 
     STROKE_DEVICES_INLINE
-    A1 left() const
+    const A1& left() const
     {
         return m_left;
     }
 
     STROKE_DEVICES_INLINE
-    A2 right() const
+    const A2& right() const
     {
         return m_right;
     }
@@ -84,19 +84,19 @@ struct [[nodiscard]] ThreeGrads {
     }
 
     STROKE_DEVICES_INLINE
-    A1 left() const
+    const A1& left() const
     {
         return m_left;
     }
 
     STROKE_DEVICES_INLINE
-    A2 middle() const
+    const A2& middle() const
     {
         return m_middle;
     }
 
     STROKE_DEVICES_INLINE
-    A3 right() const
+    const A3& right() const
     {
         return m_right;
     }
@@ -121,22 +121,22 @@ struct [[nodiscard]] FourGrads {
             *fourth += m_fourth;
     }
 
-    STROKE_DEVICES_INLINE A1 first() const
+    STROKE_DEVICES_INLINE const A1& first() const
     {
         return m_first;
     }
 
-    STROKE_DEVICES_INLINE A2 second() const
+    STROKE_DEVICES_INLINE const A2& second() const
     {
         return m_second;
     }
 
-    STROKE_DEVICES_INLINE A3 third() const
+    STROKE_DEVICES_INLINE const A3& third() const
     {
         return m_third;
     }
 
-    STROKE_DEVICES_INLINE A4 fourth() const
+    STROKE_DEVICES_INLINE const A4& fourth() const
     {
         return m_fourth;
     }

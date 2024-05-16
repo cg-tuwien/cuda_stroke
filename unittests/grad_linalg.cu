@@ -132,6 +132,25 @@ TEST_CASE("stroke linalg gradients")
         stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(m, v), 0.0000001);
     }
 
+    SECTION("matvecmul with cov")
+    {
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto [a, b] = stroke::extract<stroke::Cov3_d, glm::dvec3>(input);
+            return stroke::pack_tensor<double>(a * b);
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto [a, b] = stroke::extract<stroke::Cov3_d, glm::dvec3>(input);
+            const auto incoming_grad = stroke::extract<glm::dvec3>(grad_output);
+            const auto [grad_a, grad_b] = stroke::grad::matvecmul(a, b, incoming_grad);
+            return stroke::pack_tensor<double>(grad_a, grad_b);
+        };
+
+        const auto m = stroke::Cov3_d(1.1, 1.2, 1.3, 2.2, 2.3, 3.3);
+        const auto v = glm::dvec3(11.1, 11.2, 11.3);
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(m, v), 0.0000001);
+    }
+
     SECTION("cov3 -> mat3")
     {
         const auto fun = [](const whack::Tensor<double, 1>& input) {

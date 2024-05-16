@@ -170,6 +170,13 @@ matvecmul(const glm::mat<n_dims, n_dims, scalar_t>& a, const glm::vec<n_dims, sc
 }
 
 template <typename scalar_t, int n_dims>
+STROKE_DEVICES_INLINE TwoGrads<stroke::Cov<n_dims, scalar_t>, glm::vec<n_dims, scalar_t>>
+matvecmul(const stroke::Cov<n_dims, scalar_t>& a, const glm::vec<n_dims, scalar_t>& b, const glm::vec<n_dims, scalar_t>& grad)
+{
+    return { grad::to_symmetric_gradient(outerProduct(grad, b)), a * grad };
+}
+
+template <typename scalar_t, int n_dims>
 STROKE_DEVICES_INLINE TwoGrads<SymmetricMat<n_dims, scalar_t>, glm::mat<n_dims, n_dims, scalar_t>>
 affine_transform(const SymmetricMat<n_dims, scalar_t>& S, const glm::mat<n_dims, n_dims, scalar_t>& M, const stroke::SymmetricMat<n_dims, scalar_t>& grad)
 {

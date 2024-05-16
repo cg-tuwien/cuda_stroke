@@ -92,11 +92,11 @@ STROKE_DEVICES_INLINE scalar_t norm_factor(const scalar_t& variance)
 
 template <typename scalar_t,
     std::enable_if_t<std::is_floating_point<scalar_t>::value, bool> = true>
-STROKE_DEVICES_INLINE scalar_t norm_factor_inv_C(const scalar_t& variance)
+STROKE_DEVICES_INLINE scalar_t norm_factor_inv_C(const scalar_t& inversed_variance)
 {
     constexpr auto factor = scalar_t(1 / gcem::sqrt(2 * glm::pi<double>()));
     static_assert(factor > 0); // make sure factor is consteval
-    return sqrt(variance) * factor;
+    return sqrt(inversed_variance) * factor;
 }
 
 template <glm::length_t n_dims, typename scalar_t>
