@@ -139,6 +139,16 @@ STROKE_DEVICES_INLINE glm::vec<n_dims, scalar_t> length(const glm::vec<n_dims, s
     return vec * l;
 }
 
+template <typename scalar_t>
+STROKE_DEVICES_INLINE TwoGrads<glm::vec<3, scalar_t>, scalar_t> divide_a_by_b(const glm::vec<3, scalar_t>& a, scalar_t b, const glm::vec<3, scalar_t>& incoming_grad)
+{
+    static_assert(std::is_floating_point_v<scalar_t>);
+    const auto a_grad = incoming_grad / b;
+    //    *b_grad = sum(-incoming_grad * a / (b * b));
+    const auto b_grad = sum(-a_grad * a / b); // same, but numerically more stable
+    return { a_grad, b_grad };
+}
+
 template <typename scalar_t, int n_dims>
 STROKE_DEVICES_INLINE TwoGrads<glm::mat<n_dims, n_dims, scalar_t>, glm::mat<n_dims, n_dims, scalar_t>>
 matmul(const glm::mat<n_dims, n_dims, scalar_t>& a, const glm::mat<n_dims, n_dims, scalar_t>& b, const glm::mat<n_dims, n_dims, scalar_t>& grad)

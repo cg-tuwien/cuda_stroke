@@ -95,6 +95,21 @@ TEST_CASE("stroke linalg gradients")
 
         stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(glm::dvec3(1, 2, 3)), 0.0000001);
     }
+    SECTION("divide_a_by_b vec and scalar")
+    {
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto [a, b] = stroke::extract<glm::dvec3, double>(input);
+            return stroke::pack_tensor<double>(a / b);
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto [a, b] = stroke::extract<glm::dvec3, double>(input);
+            const auto incoming_grad = stroke::extract<glm::dvec3>(grad_output);
+            return stroke::pack_tensor<double>(stroke::grad::divide_a_by_b(a, b, incoming_grad));
+        };
+
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(glm::dvec3(1, 2, 3), 1.235), 0.0000001);
+    }
     SECTION("matmul")
     {
         const auto fun = [](const whack::Tensor<double, 1>& input) {

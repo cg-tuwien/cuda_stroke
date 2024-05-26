@@ -148,7 +148,7 @@ intersect_with_ray_inv_C(const glm::vec<3, scalar_t>& centre, const SymmetricMat
     const auto inversed_variance = dot(ray.direction, Cxd);
     grad::ThreeGrads<glm::vec<3, scalar_t>, SymmetricMat<3, scalar_t>, Ray<3, scalar_t>> grads = {};
     if (inversed_variance <= 0.001f)
-        grads;
+        return grads;
     const auto variance = 1 / inversed_variance;
     const auto centr_m_orig = centre - ray.origin;
     const auto dot_cxd_cntr = dot(Cxd, centr_m_orig);
