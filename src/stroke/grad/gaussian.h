@@ -69,6 +69,16 @@ STROKE_DEVICES_INLINE scalar_t norm_factor_inv_C(const scalar_t& inversed_varian
     return grd_sqrt / (2 * stroke::sqrt(inversed_variance));
 }
 
+template <typename scalar_t,
+    std::enable_if_t<std::is_floating_point<scalar_t>::value, bool> = true>
+STROKE_DEVICES_INLINE scalar_t integrate_exponential(const scalar_t& variance, scalar_t incoming_grad)
+{
+    constexpr auto factor = scalar_t(gcem::sqrt(2 * glm::pi<double>()));
+    static_assert(factor > 0); // make sure factor is consteval
+    // return sqrt(variance) * factor;
+    return sqrt(variance, factor * incoming_grad);
+}
+
 template <glm::length_t n_dims, typename scalar_t>
 STROKE_DEVICES_INLINE Cov<n_dims, scalar_t> integrate_exponential(const Cov<n_dims, scalar_t>& covariance, scalar_t incoming_grad)
 {
@@ -155,23 +165,19 @@ intersect_with_ray_inv_C(const glm::vec<3, scalar_t>& centre, const SymmetricMat
     const auto position = dot_cxd_cntr * variance;
 
     const auto t_pos = ray.origin + position * ray.direction;
-    const auto norm_fct = stroke::gaussian::norm_factor_inv_C(inversed_variance);
-    const auto norm_fct_inv = 1 / norm_fct;
+    const auto exp_int = stroke::gaussian::integrate_exponential(variance);
     const auto eval_n = stroke::gaussian::eval_normalised_inv_C(centre, inversed_covariance, t_pos);
-    // const auto weight = norm_fct_inv * eval_n;
-    const auto grd_norm_fct_inv = incoming_grad.weight * eval_n;
-    const auto grd_eval_n = incoming_grad.weight * norm_fct_inv;
+    const auto grd_exp_int = incoming_grad.weight * eval_n;
+    const auto grd_eval_n = incoming_grad.weight * exp_int;
     glm::vec<3, scalar_t> grd_t_pos = {};
     stroke::grad::gaussian::eval_normalised_inv_C(centre, inversed_covariance, t_pos, grd_eval_n).addTo(&grads.m_left, &grads.m_middle, &grd_t_pos);
     grads.m_right.origin = grd_t_pos;
     grads.m_right.direction = position * grd_t_pos;
     const auto grd_position = dot(grd_t_pos, ray.direction) + incoming_grad.centre;
     const auto grd_dot_cxd_cntr = grd_position * variance;
-    const auto grd_variance = grd_position * dot_cxd_cntr + incoming_grad.C;
+    const auto grd_variance = grd_position * dot_cxd_cntr + incoming_grad.C + stroke::grad::gaussian::integrate_exponential(variance, grd_exp_int);
 
-    const auto grd_norm_fct = stroke::grad::divide_a_by_b<scalar_t>(1, norm_fct, grd_norm_fct_inv).m_right;
-    auto grd_inversed_variance = stroke::grad::gaussian::norm_factor_inv_C(inversed_variance, grd_norm_fct);
-    grd_inversed_variance += stroke::grad::divide_a_by_b<scalar_t>(1, inversed_variance, grd_variance).m_right;
+    const auto grd_inversed_variance = stroke::grad::divide_a_by_b<scalar_t>(1, inversed_variance, grd_variance).m_right;
     glm::vec<3, scalar_t> grd_Cxd = {};
     stroke::grad::dot(ray.direction, Cxd, grd_inversed_variance).addTo(&grads.m_right.direction, &grd_Cxd);
     glm::vec<3, scalar_t> grd_centr_m_orig = {};

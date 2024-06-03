@@ -161,14 +161,15 @@ STROKE_DEVICES_INLINE ParamsWithWeight<1, scalar_t> intersect_with_ray_inv_C(con
 
     // probably more optimised, no benchmark
     const auto Cxd = inversed_covariance * ray.direction;
-    const auto dot_dir_cxd = dot(ray.direction, Cxd);
-    if (dot_dir_cxd <= 0.001f)
+    const auto inv_variance = dot(ray.direction, Cxd);
+    if (inv_variance <= 0.001f)
         return { 0, 0, 1 };
-    const auto variance = 1 / dot_dir_cxd;
+    const auto variance = 1 / inv_variance;
     const auto position = dot(Cxd, (centre - ray.origin)) * variance;
 
     //    const auto weight = (1 / norm_factor_inv_C(dot_dir_cxd)) * norm_factor_inv_C(inversed_covariance) * eval_exponential_inv_C(centre, inversed_covariance, ray.origin + position * ray.direction);
-    const auto weight = (1 / norm_factor_inv_C(dot_dir_cxd)) * eval_normalised_inv_C(centre, inversed_covariance, ray.origin + position * ray.direction);
+    // const auto weight = (1 / norm_factor_inv_C(inv_variance)) * eval_normalised_inv_C(centre, inversed_covariance, ray.origin + position * ray.direction);
+    const auto weight = integrate_exponential(variance) * eval_normalised_inv_C(centre, inversed_covariance, ray.origin + position * ray.direction);
     //    const auto weight = eval_exponential_inv_C(centre, inversed_covariance, ray.origin + position * ray.direction);
 
     return { weight, position, variance };
