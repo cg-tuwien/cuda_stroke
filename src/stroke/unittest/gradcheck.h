@@ -115,6 +115,34 @@ std::tuple<T1, T2, T3, T4> extract(const Tensor& t)
     return { extract<T1>(t1), extract<T2>(t2), extract<T3>(t3), extract<T4>(t4) };
 }
 
+
+template <typename T1, typename T2, typename T3, typename T4, typename T5, typename Tensor>
+std::tuple<T1, T2, T3, T4, T5> extract(const Tensor& t)
+{
+    using scalar_t = typename Tensor::value_type;
+    static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
+    static_assert(sizeof(T2) % sizeof(scalar_t) == 0);
+    static_assert(sizeof(T3) % sizeof(scalar_t) == 0);
+    static_assert(sizeof(T4) % sizeof(scalar_t) == 0);
+    static_assert(sizeof(T5) % sizeof(scalar_t) == 0);
+
+    REQUIRE(t.location() == whack::Location::Host);
+    CAPTURE(sizeof(T1));
+    CAPTURE(sizeof(T2));
+    CAPTURE(sizeof(T3));
+    CAPTURE(sizeof(T4));
+    CAPTURE(sizeof(T5));
+    CAPTURE(sizeof(scalar_t));
+    REQUIRE((sizeof(T1) + sizeof(T2) + sizeof(T3) + sizeof(T4) + sizeof(T5)) / sizeof(scalar_t) == t.numel());
+    const auto [t1, t2, t3, t4, t5] = whack::split(t,
+        sizeof(T1) / sizeof(scalar_t),
+        sizeof(T2) / sizeof(scalar_t),
+        sizeof(T3) / sizeof(scalar_t),
+        sizeof(T4) / sizeof(scalar_t),
+        sizeof(T5) / sizeof(scalar_t));
+    return { extract<T1>(t1), extract<T2>(t2), extract<T3>(t3), extract<T4>(t4), extract<T5>(t5) };
+}
+
 template <typename scalar_t, typename T1>
 whack::Tensor<scalar_t, 1> pack_tensor(const T1& v)
 {
