@@ -208,6 +208,15 @@ __forceinline__ __device__ double erf(double x)
     return ::erf(x);
 }
 
+__forceinline__ __device__ float ceil(float x)
+{
+    return ::ceilf(x);
+}
+__forceinline__ __device__ double ceil(double x)
+{
+    return ::ceil(x);
+}
+
 #else // __CUDA_ARCH__
 // host versions, won't be called from device code.
 // the __device__ annotations are put here only to remove warnings in qt creator (warning beeing, that host functions can't be called)
@@ -281,6 +290,12 @@ template <typename scalar_t>
 STROKE_DEVICES_INLINE scalar_t erf(scalar_t x)
 {
     return std::erf(x);
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t ceil(scalar_t x)
+{
+    return std::ceil(x);
 }
 
 #endif
