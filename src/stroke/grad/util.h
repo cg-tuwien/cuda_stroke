@@ -142,4 +142,27 @@ struct [[nodiscard]] FourGrads {
     }
 };
 
+template <typename A1, typename A2, typename A3, typename A4, typename A5>
+struct [[nodiscard]] FiveGrads {
+    A1 m_first;
+    A2 m_second;
+    A3 m_third;
+    A4 m_fourth;
+    A5 m_fifth;
+
+    STROKE_DEVICES_INLINE void addTo(A1* first, A2* second, A3* third, A4* fourth, A5* fifth) const
+    {
+        if (first != nullptr)
+            *first += m_first;
+        if (second != nullptr)
+            *second += m_second;
+        if (third != nullptr)
+            *third += m_third;
+        if (fourth != nullptr)
+            *fourth += m_fourth;
+        if (fifth != nullptr)
+            *fifth += m_fifth;
+    }
+};
+
 } // namespace stroke::grad
