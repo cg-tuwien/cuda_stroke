@@ -26,6 +26,9 @@
 #include <cassert>
 
 namespace stroke::grad {
+enum class Ignore {
+    Grad
+};
 
 template <typename A1, typename A2>
 struct [[nodiscard]] TwoGrads {
@@ -40,16 +43,16 @@ struct [[nodiscard]] TwoGrads {
     }
 
     STROKE_DEVICES_INLINE
-    void addTo(A1* left, bool right) const
+    void addTo(A1* left, Ignore right) const
     {
-        assert(right == false);
+        assert(right == Ignore::Grad);
         *left += m_left;
     }
 
     STROKE_DEVICES_INLINE
-    void addTo(bool left, A2* right) const
+    void addTo(Ignore left, A2* right) const
     {
-        assert(left == false);
+        assert(left == Ignore::Grad);
         *right += m_right;
     }
 
