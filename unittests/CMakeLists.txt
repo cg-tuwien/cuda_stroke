@@ -30,3 +30,4 @@ add_executable(stroke_unittests
 
 target_link_libraries(stroke_unittests PUBLIC Catch2::Catch2WithMain CUDA::nvToolsExt stroke)
 target_compile_options(stroke_unittests PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo>)
+install(TARGETS stroke_unittests)

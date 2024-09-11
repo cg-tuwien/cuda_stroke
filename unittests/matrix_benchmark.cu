@@ -23,7 +23,7 @@
 #include <catch2/benchmark/catch_benchmark.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
-#include <nvToolsExt.h>
+#include <nvtx3/nvToolsExt.h>
 #include <stroke/linalg.h>
 #include <stroke/unittest/random_entity.h>
 #include <thrust/device_vector.h>
