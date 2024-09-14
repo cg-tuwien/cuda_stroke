@@ -22,11 +22,12 @@
 
 #pragma once
 
-#include <ostream>
-
+#include <glm/glm.hpp>
+#include <glm/gtc/epsilon.hpp>
 #include <glm/gtx/string_cast.hpp>
-
-#include "linalg.h"
+#include <ostream>
+#include <sstream>
+#include <stroke/detail/symmetric_mat.h>
 
 template <glm::length_t n_dims, typename T>
 std::ostream& operator<<(std::ostream& os, const glm::vec<n_dims, T>& v)
@@ -55,3 +56,36 @@ std::ostream& operator<<(std::ostream& os, const stroke::Cov3<T>& m)
     os << "Cov3((" << m[0] << ", " << m[1] << ", " << m[2] << "), (" << m[1] << ", " << m[3] << ", " << m[4] << "), (" << m[2] << ", " << m[4] << ", " << m[5] << "))";
     return os;
 }
+
+// must go below the stream operators (and i don't know why, but printing glm values stops working if this is above)
+#include <catch2/matchers/catch_matchers.hpp>
+
+template <glm::length_t N, typename scalar>
+class VecMatcher : public Catch::Matchers::MatcherBase<glm::vec<N, scalar>> {
+    using Vec = glm::vec<N, scalar>;
+    Vec expected;
+    scalar epsilon;
+
+public:
+    VecMatcher(const Vec& expected, scalar epsilon = 1e-5)
+        : expected(expected)
+        , epsilon(epsilon)
+    {
+    }
+
+    // Perform the fuzzy comparison
+    bool match(const Vec& actual) const override
+    {
+        return glm::all(glm::epsilonEqual(expected, actual, epsilon));
+    }
+
+    // Produce a detailed message when the test fails
+    std::string describe() const override
+    {
+        std::ostringstream ss;
+        ss << "is approximately equal to ("
+           << expected.x << ", " << expected.y << ", " << expected.z
+           << ") with epsilon = " << epsilon;
+        return ss.str();
+    }
+};
