@@ -83,9 +83,7 @@ public:
     std::string describe() const override
     {
         std::ostringstream ss;
-        ss << "is approximately equal to ("
-           << expected.x << ", " << expected.y << ", " << expected.z
-           << ") with epsilon = " << epsilon;
+        ss << "is approximately equal to (" << expected << ") with epsilon = " << epsilon;
         return ss.str();
     }
 };
