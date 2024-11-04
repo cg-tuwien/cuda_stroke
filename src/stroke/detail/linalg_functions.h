@@ -145,6 +145,24 @@ STROKE_DEVICES_INLINE SymmetricMat<3, scalar_t> inverse(const SymmetricMat<3, sc
     return (scalar_t(1) / det(m)) * SymmetricMat<3, scalar_t>(i11, i12, i13, i22, i23, i33);
 }
 
+template <int DIMS, typename scalar_t>
+STROKE_DEVICES_INLINE bool isnan(const glm::vec<DIMS, scalar_t>& x)
+{
+    bool nan = false;
+    for (unsigned i = 0; i < DIMS; ++i)
+        nan = nan || isnan(x[i]);
+    return nan;
+}
+
+template <int DIMS, typename scalar_t>
+STROKE_DEVICES_INLINE bool isnan(const glm::mat<DIMS, DIMS, scalar_t>& x)
+{
+    bool nan = false;
+    for (unsigned i = 0; i < DIMS; ++i)
+        nan = nan || isnan(x[i]);
+    return nan;
+}
+
 } // namespace stroke
 
 namespace glm {
