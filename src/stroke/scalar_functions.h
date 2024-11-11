@@ -168,6 +168,14 @@ __forceinline__ __device__ double abs(double x)
 {
     return ::fabs(x);
 }
+__forceinline__ __device__ double floor(float x)
+{
+    return ::floorf(x);
+}
+__forceinline__ __device__ double floor(double x)
+{
+    return ::floor(x);
+}
 
 __forceinline__ __device__ float acos(float x)
 {
@@ -260,6 +268,12 @@ template <typename scalar_t>
 STROKE_DEVICES_INLINE scalar_t abs(scalar_t x)
 {
     return std::abs(x);
+}
+
+template <typename scalar_t>
+STROKE_DEVICES_INLINE scalar_t floor(scalar_t x)
+{
+    return std::floor(x);
 }
 
 template <typename scalar_t>
