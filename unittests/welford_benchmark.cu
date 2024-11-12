@@ -47,6 +47,11 @@ void run_matrix_benchmarks()
     constexpr auto n_blocks = (n_welfords + n_threads_per_block - 1) / n_threads_per_block;
     constexpr auto location = whack::Location::Device;
 
+    int deviceCount = 0;
+    cudaError_t error = cudaGetDeviceCount(&deviceCount);
+    REQUIRE(error == cudaSuccess);
+    REQUIRE(deviceCount > 0);
+
     auto s = whack::random::make_state(location, n_welfords);
     auto s_view = s.view();
 

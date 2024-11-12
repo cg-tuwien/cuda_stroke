@@ -46,6 +46,11 @@ void run_matrix_benchmarks()
     constexpr auto n_blocks = (n_matrices + n_threads_per_block - 1) / n_threads_per_block;
     constexpr auto location = whack::Location::Device;
 
+    int deviceCount = 0;
+    cudaError_t error = cudaGetDeviceCount(&deviceCount);
+    REQUIRE(error == cudaSuccess);
+    REQUIRE(deviceCount > 0);
+
     auto r = whack::make_tensor<glm::mat3>(whack::Location::Device, n_matrices);
     auto r_v = r.view();
 
@@ -77,9 +82,9 @@ void run_matrix_benchmarks()
         nvtxRangeEnd(nvtx_range);
     };
 
-    BENCHMARK("affine transform spoke")
+    BENCHMARK("affine transform stroke")
     {
-        const auto nvtx_range = nvtxRangeStart("affine_transform_spoke");
+        const auto nvtx_range = nvtxRangeStart("affine_transform_stroke");
         whack::start_parallel(
             location, n_blocks, n_threads_per_block, WHACK_KERNEL(=) {
                 WHACK_UNUSED(whack_gridDim);

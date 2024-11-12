@@ -68,6 +68,12 @@ TEST_CASE("stroke gradcheck")
     {
         const auto test_data_host = whack::make_tensor<float>(whack::Location::Host, 42);
         check_gradient(identity_function, identity_grad_function, test_data_host);
+
+        int deviceCount = 0;
+        cudaError_t error = cudaGetDeviceCount(&deviceCount);
+        REQUIRE(error == cudaSuccess);
+        REQUIRE(deviceCount > 0);
+
         const auto test_data_device = whack::make_tensor<float>(whack::Location::Device, 42);
         check_gradient(identity_function, identity_grad_function, test_data_device);
     }
@@ -333,6 +339,11 @@ TEST_CASE("stroke gradcheck")
         const auto test_data = whack::make_tensor<float>(whack::Location::Host, { 3, 2, 1, 2, 4, 3, 0, 1, 2 }, 9);
         static_assert(test_data.n_dimensions() == 1);
         check_gradient(fun, fun_grad, test_data);
+
+        int deviceCount = 0;
+        cudaError_t error = cudaGetDeviceCount(&deviceCount);
+        REQUIRE(error == cudaSuccess);
+        REQUIRE(deviceCount > 0);
         check_gradient(fun, fun_grad, test_data.device_copy());
     }
 }
@@ -350,6 +361,11 @@ TEST_CASE("stroke gradcheck (test for failure)", "[.][!shouldfail]") // hidden v
     // 1 input and output
     const auto test_data_host = whack::make_tensor<float>(whack::Location::Host, 42);
     check_gradient(identity_function, zero_grad_function, test_data_host);
+
+    int deviceCount = 0;
+    cudaError_t error = cudaGetDeviceCount(&deviceCount);
+    REQUIRE(error == cudaSuccess);
+    REQUIRE(deviceCount > 0);
     const auto test_data_device = whack::make_tensor<float>(whack::Location::Device, 42);
     check_gradient(identity_function, zero_grad_function, test_data_device);
 }

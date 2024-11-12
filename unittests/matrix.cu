@@ -34,6 +34,11 @@
 namespace {
 void symmetric_matrices_work_for_shared_data()
 {
+    int deviceCount = 0;
+    cudaError_t error = cudaGetDeviceCount(&deviceCount);
+    REQUIRE(error == cudaSuccess);
+    REQUIRE(deviceCount > 0);
+
     whack::start_parallel(
         whack::Location::Device, 1, 1, WHACK_DEVICE_KERNEL(=) {
             WHACK_UNUSED(whack_gridDim);
