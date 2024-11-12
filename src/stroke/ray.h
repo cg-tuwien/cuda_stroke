@@ -25,10 +25,10 @@
 
 namespace stroke {
 
-template <glm::length_t n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename Scalar>
 struct Ray {
-    glm::vec<n_dims, scalar_t> origin;
-    glm::vec<n_dims, scalar_t> direction;
+    glm::vec<n_dims, Scalar> origin;
+    glm::vec<n_dims, Scalar> direction;
 };
 
 } // namespace stroke

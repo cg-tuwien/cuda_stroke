@@ -40,8 +40,8 @@ STROKE_DEVICES_INLINE T cubed(const T& v)
     return v * v * v;
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE int sign(scalar_t v)
+template <typename Scalar>
+STROKE_DEVICES_INLINE int sign(Scalar v)
 {
     return v >= 0 ? 1 : -1;
 }
@@ -228,62 +228,62 @@ __forceinline__ __device__ double ceil(double x)
 #else // __CUDA_ARCH__
 // host versions, won't be called from device code.
 // the __device__ annotations are put here only to remove warnings in qt creator (warning beeing, that host functions can't be called)
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t max(scalar_t a, scalar_t b)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar max(Scalar a, Scalar b)
 {
     return std::max(a, b);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t min(scalar_t a, scalar_t b)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar min(Scalar a, Scalar b)
 {
     return std::min(a, b);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t exp(scalar_t x)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar exp(Scalar x)
 {
     return std::exp(x);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t pow(scalar_t x, scalar_t y)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar pow(Scalar x, Scalar y)
 {
     return std::pow(x, y);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t log(scalar_t x)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar log(Scalar x)
 {
     return std::log(x);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t sqrt(scalar_t x)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar sqrt(Scalar x)
 {
     return std::sqrt(x);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t abs(scalar_t x)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar abs(Scalar x)
 {
     return std::abs(x);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t floor(scalar_t x)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar floor(Scalar x)
 {
     return std::floor(x);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t acos(scalar_t x)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar acos(Scalar x)
 {
     return std::acos(x);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t cos(scalar_t x)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar cos(Scalar x)
 {
     return std::cos(x);
 }
@@ -300,22 +300,22 @@ STROKE_DEVICES_INLINE bool isinf(T x)
     return std::isinf(x);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t erf(scalar_t x)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar erf(Scalar x)
 {
     return std::erf(x);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t ceil(scalar_t x)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar ceil(Scalar x)
 {
     return std::ceil(x);
 }
 
 #endif
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t clamp(scalar_t v, scalar_t min, scalar_t max)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar clamp(Scalar v, Scalar min, Scalar max)
 {
     return stroke::max(min, stroke::min(max, v));
 }

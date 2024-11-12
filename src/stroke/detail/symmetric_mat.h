@@ -31,18 +31,18 @@
 
 namespace stroke {
 
-template <glm::length_t n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename Scalar>
 struct SymmetricMat {
 };
 
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> to_glm(const SymmetricMat<n_dims, scalar_t>& m)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, Scalar> to_glm(const SymmetricMat<n_dims, Scalar>& m)
 {
-    return glm::mat<n_dims, n_dims, scalar_t>(m);
+    return glm::mat<n_dims, n_dims, Scalar>(m);
 }
 
-template <glm::length_t n_dims, typename scalar_t>
-using Cov = SymmetricMat<n_dims, scalar_t>;
+template <glm::length_t n_dims, typename Scalar>
+using Cov = SymmetricMat<n_dims, Scalar>;
 
 namespace detail {
     constexpr glm::length_t n_elements_of_symmetric_matrix(glm::length_t n_dims)
@@ -55,10 +55,10 @@ namespace detail {
     static_assert(n_elements_of_symmetric_matrix(2) == 3);
     static_assert(n_elements_of_symmetric_matrix(3) == 6);
 
-    template <glm::length_t n_dims, typename scalar_t>
+    template <glm::length_t n_dims, typename Scalar>
     struct SymmetricMatBase {
-        using StorageArray = whack::Array<scalar_t, detail::n_elements_of_symmetric_matrix(n_dims)>;
-        static_assert(sizeof(StorageArray) == sizeof(scalar_t) * detail::n_elements_of_symmetric_matrix(n_dims));
+        using StorageArray = whack::Array<Scalar, detail::n_elements_of_symmetric_matrix(n_dims)>;
+        static_assert(sizeof(StorageArray) == sizeof(Scalar) * detail::n_elements_of_symmetric_matrix(n_dims));
 
     protected:
         StorageArray m_data;
@@ -68,11 +68,11 @@ namespace detail {
         STROKE_DEVICES_INLINE SymmetricMatBase(const StorageArray& d)
             : m_data(d) {};
 
-        STROKE_DEVICES_INLINE scalar_t& operator[](uint32_t i)
+        STROKE_DEVICES_INLINE Scalar& operator[](uint32_t i)
         {
             return m_data[i];
         }
-        STROKE_DEVICES_INLINE const scalar_t& operator[](uint32_t i) const
+        STROKE_DEVICES_INLINE const Scalar& operator[](uint32_t i) const
         {
             return m_data[i];
         }
@@ -89,50 +89,50 @@ namespace detail {
     };
 } // namespace detail
 
-template <typename scalar_t>
-struct SymmetricMat<2, scalar_t> : public detail::SymmetricMatBase<2, scalar_t> {
+template <typename Scalar>
+struct SymmetricMat<2, Scalar> : public detail::SymmetricMatBase<2, Scalar> {
 private:
-    using Base = detail::SymmetricMatBase<2, scalar_t>;
+    using Base = detail::SymmetricMatBase<2, Scalar>;
 
 public:
     using StorageArray = typename Base::StorageArray;
 
     SymmetricMat() = default;
 
-    /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
+    /// this constructor requires an explicit typename for Scalar, otherwise we'll generate a symmetric matrix of StorageArrays
     STROKE_DEVICES_INLINE SymmetricMat(const StorageArray& data)
         : Base(data)
     {
     }
-    STROKE_DEVICES_INLINE explicit SymmetricMat(const glm::mat<2, 2, scalar_t>& mat)
+    STROKE_DEVICES_INLINE explicit SymmetricMat(const glm::mat<2, 2, Scalar>& mat)
         : Base(StorageArray({ mat[0][0], mat[0][1], mat[1][1] }))
     {
     }
-    STROKE_DEVICES_INLINE explicit SymmetricMat(scalar_t d)
+    STROKE_DEVICES_INLINE explicit SymmetricMat(Scalar d)
         : Base(StorageArray({ d, 0, d }))
     {
     }
-    STROKE_DEVICES_INLINE SymmetricMat(scalar_t m_00, scalar_t m_01, scalar_t m_11)
+    STROKE_DEVICES_INLINE SymmetricMat(Scalar m_00, Scalar m_01, Scalar m_11)
         : Base(StorageArray({ m_00, m_01, m_11 }))
     {
     }
-    template <typename other_scalar_t>
-    STROKE_DEVICES_INLINE explicit SymmetricMat(const SymmetricMat<2, other_scalar_t>& other)
-        : Base({ scalar_t(other.data()[0]), scalar_t(other.data()[1]), scalar_t(other.data()[2]) })
+    template <typename other_Scalar>
+    STROKE_DEVICES_INLINE explicit SymmetricMat(const SymmetricMat<2, other_Scalar>& other)
+        : Base({ Scalar(other.data()[0]), Scalar(other.data()[1]), Scalar(other.data()[2]) })
     {
     }
 
-    STROKE_DEVICES_INLINE scalar_t& operator()(unsigned row, unsigned col)
-    {
-        return Base::data()[row + col];
-    }
-
-    STROKE_DEVICES_INLINE const scalar_t& operator()(unsigned row, unsigned col) const
+    STROKE_DEVICES_INLINE Scalar& operator()(unsigned row, unsigned col)
     {
         return Base::data()[row + col];
     }
 
-    STROKE_DEVICES_INLINE explicit operator glm::mat<2, 2, scalar_t>() const
+    STROKE_DEVICES_INLINE const Scalar& operator()(unsigned row, unsigned col) const
+    {
+        return Base::data()[row + col];
+    }
+
+    STROKE_DEVICES_INLINE explicit operator glm::mat<2, 2, Scalar>() const
     {
         return {
             Base::data()[0], Base::data()[1],
@@ -143,83 +143,83 @@ public:
 static_assert(sizeof(SymmetricMat<2, float>) == 3 * 4);
 static_assert(sizeof(SymmetricMat<2, double>) == 3 * 8);
 
-template <typename scalar_t>
-struct Cov2 : public SymmetricMat<2, scalar_t> {
+template <typename Scalar>
+struct Cov2 : public SymmetricMat<2, Scalar> {
 private:
-    using Base = SymmetricMat<2, scalar_t>;
+    using Base = SymmetricMat<2, Scalar>;
 
 public:
     using StorageArray = typename Base::StorageArray;
 
     Cov2() = default;
 
-    /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
+    /// this constructor requires an explicit typename for Scalar, otherwise we'll generate a symmetric matrix of StorageArrays
     STROKE_DEVICES_INLINE Cov2(const StorageArray& data)
         : Base(data)
     {
     }
-    STROKE_DEVICES_INLINE explicit Cov2(const glm::mat<2, 2, scalar_t>& mat)
+    STROKE_DEVICES_INLINE explicit Cov2(const glm::mat<2, 2, Scalar>& mat)
         : Base(mat)
     {
     }
-    STROKE_DEVICES_INLINE explicit Cov2(scalar_t d)
+    STROKE_DEVICES_INLINE explicit Cov2(Scalar d)
         : Base(d)
     {
     }
-    STROKE_DEVICES_INLINE Cov2(const Cov<2, scalar_t>& other)
+    STROKE_DEVICES_INLINE Cov2(const Cov<2, Scalar>& other)
         : Base(other.data())
     {
     }
-    STROKE_DEVICES_INLINE Cov2(scalar_t m_00, scalar_t m_01, scalar_t m_11)
+    STROKE_DEVICES_INLINE Cov2(Scalar m_00, Scalar m_01, Scalar m_11)
         : Base(m_00, m_01, m_11)
     {
     }
-    template <typename other_scalar_t>
-    STROKE_DEVICES_INLINE explicit Cov2(const Cov2<other_scalar_t>& other)
-        : Base(scalar_t(other.data()[0]), scalar_t(other.data()[1]), scalar_t(other.data()[2]))
+    template <typename other_Scalar>
+    STROKE_DEVICES_INLINE explicit Cov2(const Cov2<other_Scalar>& other)
+        : Base(Scalar(other.data()[0]), Scalar(other.data()[1]), Scalar(other.data()[2]))
     {
     }
-    STROKE_DEVICES_INLINE Cov2& operator=(const Cov<2, scalar_t>& other)
+    STROKE_DEVICES_INLINE Cov2& operator=(const Cov<2, Scalar>& other)
     {
         Base::operator=(other);
         return *this;
     }
 };
 
-template <typename scalar_t>
-struct SymmetricMat<3, scalar_t> : public detail::SymmetricMatBase<3, scalar_t> {
+template <typename Scalar>
+struct SymmetricMat<3, Scalar> : public detail::SymmetricMatBase<3, Scalar> {
 private:
-    using Base = detail::SymmetricMatBase<3, scalar_t>;
+    using Base = detail::SymmetricMatBase<3, Scalar>;
 
 public:
     using StorageArray = typename Base::StorageArray;
 
     SymmetricMat() = default;
 
-    /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
+    /// this constructor requires an explicit typename for Scalar, otherwise we'll generate a symmetric matrix of StorageArrays
     STROKE_DEVICES_INLINE SymmetricMat(const StorageArray& data)
         : Base(data)
     {
     }
     // clang-format off
-    STROKE_DEVICES_INLINE explicit SymmetricMat(const glm::mat<3, 3, scalar_t>& mat)
+    STROKE_DEVICES_INLINE explicit SymmetricMat(const glm::mat<3, 3, Scalar>& mat)
         : Base(StorageArray({
-            mat[0][0], scalar_t(0.5) * (mat[0][1] + mat[1][0]), scalar_t(0.5) * (mat[0][2] + mat[2][0]),
-            mat[1][1], scalar_t(0.5) * (mat[1][2] + mat[2][1]),
+            mat[0][0], Scalar(0.5) * (mat[0][1] + mat[1][0]), Scalar(0.5) * (mat[0][2] + mat[2][0]),
+            mat[1][1], Scalar(0.5) * (mat[1][2] + mat[2][1]),
             mat[2][2]
             }))
     {
     }
     // clang-format on
-    STROKE_DEVICES_INLINE explicit SymmetricMat(scalar_t d)
+    STROKE_DEVICES_INLINE explicit SymmetricMat(Scalar d)
         : Base(StorageArray({ d, 0, 0, d, 0, d }))
     {
     }
-    STROKE_DEVICES_INLINE SymmetricMat(scalar_t m_00, scalar_t m_01, scalar_t m_02, scalar_t m_11, scalar_t m_12, scalar_t m_22)
+    STROKE_DEVICES_INLINE SymmetricMat(Scalar m_00, Scalar m_01, Scalar m_02, Scalar m_11, Scalar m_12, Scalar m_22)
         : Base(StorageArray({ m_00, m_01, m_02, m_11, m_12, m_22 }))
     {
     }
-    STROKE_DEVICES_INLINE scalar_t& operator()(unsigned row, unsigned col)
+    STROKE_DEVICES_INLINE Scalar& operator()(unsigned row, unsigned col)
     {
         // https://godbolt.org/z/hhr595aj5
         const auto min = stroke::min(row, col);
@@ -228,13 +228,13 @@ public:
             return Base::data()[5];
         return Base::data()[2 * min + max];
     }
-    template <typename other_scalar_t>
-    STROKE_DEVICES_INLINE explicit SymmetricMat(const SymmetricMat<3, other_scalar_t>& other)
-        : Base({ scalar_t(other.data()[0]), scalar_t(other.data()[1]), scalar_t(other.data()[2]), scalar_t(other.data()[3]), scalar_t(other.data()[4]), scalar_t(other.data()[5]) })
+    template <typename other_Scalar>
+    STROKE_DEVICES_INLINE explicit SymmetricMat(const SymmetricMat<3, other_Scalar>& other)
+        : Base({ Scalar(other.data()[0]), Scalar(other.data()[1]), Scalar(other.data()[2]), Scalar(other.data()[3]), Scalar(other.data()[4]), Scalar(other.data()[5]) })
     {
     }
 
-    STROKE_DEVICES_INLINE const scalar_t& operator()(unsigned row, unsigned col) const
+    STROKE_DEVICES_INLINE const Scalar& operator()(unsigned row, unsigned col) const
     {
         // https://godbolt.org/z/hhr595aj5
         const auto min = std::min(row, col);
@@ -244,7 +244,7 @@ public:
         return Base::data()[2 * min + max];
     }
 
-    STROKE_DEVICES_INLINE explicit operator glm::mat<3, 3, scalar_t>() const
+    STROKE_DEVICES_INLINE explicit operator glm::mat<3, 3, Scalar>() const
     {
         const auto& m = Base::data();
         return {
@@ -257,43 +257,43 @@ public:
 static_assert(sizeof(SymmetricMat<3, float>) == 6 * 4);
 static_assert(sizeof(SymmetricMat<3, double>) == 6 * 8);
 
-template <typename scalar_t>
-struct Cov3 : public SymmetricMat<3, scalar_t> {
+template <typename Scalar>
+struct Cov3 : public SymmetricMat<3, Scalar> {
 private:
-    using Base = SymmetricMat<3, scalar_t>;
+    using Base = SymmetricMat<3, Scalar>;
 
 public:
     using StorageArray = typename Base::StorageArray;
 
     Cov3() = default;
 
-    /// this constructor requires an explicit typename for scalar_t, otherwise we'll generate a symmetric matrix of StorageArrays
+    /// this constructor requires an explicit typename for Scalar, otherwise we'll generate a symmetric matrix of StorageArrays
     STROKE_DEVICES_INLINE Cov3(const StorageArray& data)
         : Base(data)
     {
     }
-    STROKE_DEVICES_INLINE explicit Cov3(const glm::mat<3, 3, scalar_t>& mat)
+    STROKE_DEVICES_INLINE explicit Cov3(const glm::mat<3, 3, Scalar>& mat)
         : Base(mat)
     {
     }
-    STROKE_DEVICES_INLINE explicit Cov3(scalar_t d)
+    STROKE_DEVICES_INLINE explicit Cov3(Scalar d)
         : Base(d)
     {
     }
-    STROKE_DEVICES_INLINE Cov3(scalar_t m_00, scalar_t m_01, scalar_t m_02, scalar_t m_11, scalar_t m_12, scalar_t m_22)
+    STROKE_DEVICES_INLINE Cov3(Scalar m_00, Scalar m_01, Scalar m_02, Scalar m_11, Scalar m_12, Scalar m_22)
         : Base(m_00, m_01, m_02, m_11, m_12, m_22)
     {
     }
-    STROKE_DEVICES_INLINE Cov3(const Cov<3, scalar_t>& other)
+    STROKE_DEVICES_INLINE Cov3(const Cov<3, Scalar>& other)
         : Base(other.data())
     {
     }
-    template <typename other_scalar_t>
-    STROKE_DEVICES_INLINE explicit Cov3(const Cov<3, other_scalar_t>& other)
-        : Base(scalar_t(other.data()[0]), scalar_t(other.data()[1]), scalar_t(other.data()[2]), scalar_t(other.data()[3]), scalar_t(other.data()[4]), scalar_t(other.data()[5]))
+    template <typename other_Scalar>
+    STROKE_DEVICES_INLINE explicit Cov3(const Cov<3, other_Scalar>& other)
+        : Base(Scalar(other.data()[0]), Scalar(other.data()[1]), Scalar(other.data()[2]), Scalar(other.data()[3]), Scalar(other.data()[4]), Scalar(other.data()[5]))
     {
     }
-    STROKE_DEVICES_INLINE Cov3& operator=(const Cov<3, scalar_t>& other)
+    STROKE_DEVICES_INLINE Cov3& operator=(const Cov<3, Scalar>& other)
     {
 
         Base::operator=(other);

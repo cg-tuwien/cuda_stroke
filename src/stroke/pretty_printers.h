@@ -60,14 +60,14 @@ std::ostream& operator<<(std::ostream& os, const stroke::Cov3<T>& m)
 // must go below the stream operators (and i don't know why, but printing glm values stops working if this is above)
 #include <catch2/matchers/catch_matchers.hpp>
 
-template <glm::length_t N, typename scalar>
-class VecMatcher : public Catch::Matchers::MatcherBase<glm::vec<N, scalar>> {
-    using Vec = glm::vec<N, scalar>;
+template <glm::length_t N, typename Scalar>
+class VecMatcher : public Catch::Matchers::MatcherBase<glm::vec<N, Scalar>> {
+    using Vec = glm::vec<N, Scalar>;
     Vec expected;
-    scalar epsilon;
+    Scalar epsilon;
 
 public:
-    VecMatcher(const Vec& expected, scalar epsilon = 1e-5)
+    VecMatcher(const Vec& expected, Scalar epsilon = 1e-5)
         : expected(expected)
         , epsilon(epsilon)
     {

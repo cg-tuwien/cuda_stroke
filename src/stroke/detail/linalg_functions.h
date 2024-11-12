@@ -29,14 +29,14 @@
 #include "stroke/scalar_functions.h"
 
 namespace stroke {
-template <glm::length_t n_dims, typename scalar_t>
+template <glm::length_t n_dims, typename Scalar>
 struct SymmetricMat;
 
 // binary functions
 
 /// computes M * S * transpose(M)
-template <typename scalar_t>
-STROKE_DEVICES_INLINE SymmetricMat<2, scalar_t> affine_transform(const SymmetricMat<2, scalar_t>& S, const glm::mat<2, 2, scalar_t>& M)
+template <typename Scalar>
+STROKE_DEVICES_INLINE SymmetricMat<2, Scalar> affine_transform(const SymmetricMat<2, Scalar>& S, const glm::mat<2, 2, Scalar>& M)
 {
     return {
         M[0][0] * (S[0] * M[0][0] + S[1] * M[1][0]) + M[1][0] * (S[1] * M[0][0] + S[2] * M[1][0]),
@@ -45,12 +45,12 @@ STROKE_DEVICES_INLINE SymmetricMat<2, scalar_t> affine_transform(const Symmetric
     };
 }
 /// computes M * S * transpose(M)
-template <typename scalar_t>
-STROKE_DEVICES_INLINE SymmetricMat<3, scalar_t> affine_transform(const SymmetricMat<3, scalar_t>& S, const glm::mat<3, 3, scalar_t>& M)
+template <typename Scalar>
+STROKE_DEVICES_INLINE SymmetricMat<3, Scalar> affine_transform(const SymmetricMat<3, Scalar>& S, const glm::mat<3, 3, Scalar>& M)
 {
-    const auto MS = M * glm::mat<3, 3, scalar_t>(S);
+    const auto MS = M * glm::mat<3, 3, Scalar>(S);
     const auto Mt = transpose(M);
-    return SymmetricMat<3, scalar_t> { MS * Mt };
+    return SymmetricMat<3, Scalar> { MS * Mt };
     //    return {
     //        M[0][0] * (S[0] * M[0][0] + S[1] * M[1][0] + S[2] * M[2][0]) + M[1][0] * (S[1] * M[0][0] + S[3] * M[1][0] + S[4] * M[2][0]) + M[2][0] * (S[2] * M[0][0] + S[4] * M[1][0] + S[5] * M[2][0]),
     //        M[0][0] * (S[0] * M[0][1] + S[1] * M[1][1] + S[2] * M[2][1]) + M[1][0] * (S[1] * M[0][1] + S[3] * M[1][1] + S[4] * M[2][1]) + M[2][0] * (S[2] * M[0][1] + S[4] * M[1][1] + S[5] * M[2][1]),
@@ -61,80 +61,80 @@ STROKE_DEVICES_INLINE SymmetricMat<3, scalar_t> affine_transform(const Symmetric
     //    };
 }
 
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> matrixCompMult(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE SymmetricMat<n_dims, Scalar> matrixCompMult(const SymmetricMat<n_dims, Scalar>& a, const SymmetricMat<n_dims, Scalar>& b)
 {
-    return { cwise_fun(a.data(), b.data(), cuda::std::multiplies<scalar_t> {}) };
+    return { cwise_fun(a.data(), b.data(), cuda::std::multiplies<Scalar> {}) };
 }
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE SymmetricMat<n_dims, scalar_t> cwise_mul(const SymmetricMat<n_dims, scalar_t>& a, const SymmetricMat<n_dims, scalar_t>& b)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE SymmetricMat<n_dims, Scalar> cwise_mul(const SymmetricMat<n_dims, Scalar>& a, const SymmetricMat<n_dims, Scalar>& b)
 {
     return matrixCompMult(a, b);
 }
 
 // unary functions
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t determinant(const SymmetricMat<3, scalar_t>& m)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar determinant(const SymmetricMat<3, Scalar>& m)
 {
     return m[0] * m[3] * m[5] + 2 * m[1] * m[2] * m[4] - m[0] * m[4] * m[4] - m[3] * m[2] * m[2] - m[5] * m[1] * m[1];
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t determinant(const SymmetricMat<2, scalar_t>& m)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar determinant(const SymmetricMat<2, Scalar>& m)
 {
     return m[0] * m[2] - sq(m[1]);
 }
 
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t det(const SymmetricMat<n_dims, scalar_t>& m)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE Scalar det(const SymmetricMat<n_dims, Scalar>& m)
 {
     return determinant(m);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t sum(const SymmetricMat<2, scalar_t>& m)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar sum(const SymmetricMat<2, Scalar>& m)
 {
     return m[0] + 2 * m[1] + m[2];
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t sum(const SymmetricMat<3, scalar_t>& m)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar sum(const SymmetricMat<3, Scalar>& m)
 {
     return m[0] + 2 * m[1] + 2 * m[2] + m[3] + 2 * m[4] + m[5];
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE glm::vec<2, scalar_t> diagonal(const SymmetricMat<2, scalar_t>& m)
+template <typename Scalar>
+STROKE_DEVICES_INLINE glm::vec<2, Scalar> diagonal(const SymmetricMat<2, Scalar>& m)
 {
     return { m[0], m[2] };
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE glm::vec<3, scalar_t> diagonal(const SymmetricMat<3, scalar_t>& m)
+template <typename Scalar>
+STROKE_DEVICES_INLINE glm::vec<3, Scalar> diagonal(const SymmetricMat<3, Scalar>& m)
 {
     return { m[0], m[3], m[5] };
 }
 
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE bool isnan(const SymmetricMat<n_dims, scalar_t>& m)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE bool isnan(const SymmetricMat<n_dims, Scalar>& m)
 {
-    return reduce(m.data(), false, [](bool boolean, const scalar_t& v) { return boolean || isnan(v); });
+    return reduce(m.data(), false, [](bool boolean, const Scalar& v) { return boolean || isnan(v); });
 }
 
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t trace(const SymmetricMat<n_dims, scalar_t>& m)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE Scalar trace(const SymmetricMat<n_dims, Scalar>& m)
 {
     return sum(diagonal(m));
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE SymmetricMat<2, scalar_t> inverse(const SymmetricMat<2, scalar_t>& m)
+template <typename Scalar>
+STROKE_DEVICES_INLINE SymmetricMat<2, Scalar> inverse(const SymmetricMat<2, Scalar>& m)
 {
-    return (scalar_t(1) / det(m)) * SymmetricMat<2, scalar_t>(m[2], -m[1], m[0]);
+    return (Scalar(1) / det(m)) * SymmetricMat<2, Scalar>(m[2], -m[1], m[0]);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE SymmetricMat<3, scalar_t> inverse(const SymmetricMat<3, scalar_t>& m)
+template <typename Scalar>
+STROKE_DEVICES_INLINE SymmetricMat<3, Scalar> inverse(const SymmetricMat<3, Scalar>& m)
 {
     const auto i11 = m[3] * m[5] - m[4] * m[4];
     const auto i12 = m[2] * m[4] - m[1] * m[5];
@@ -142,11 +142,11 @@ STROKE_DEVICES_INLINE SymmetricMat<3, scalar_t> inverse(const SymmetricMat<3, sc
     const auto i22 = m[0] * m[5] - m[2] * m[2];
     const auto i23 = m[1] * m[2] - m[0] * m[4];
     const auto i33 = m[0] * m[3] - m[1] * m[1];
-    return (scalar_t(1) / det(m)) * SymmetricMat<3, scalar_t>(i11, i12, i13, i22, i23, i33);
+    return (Scalar(1) / det(m)) * SymmetricMat<3, Scalar>(i11, i12, i13, i22, i23, i33);
 }
 
-template <int DIMS, typename scalar_t>
-STROKE_DEVICES_INLINE bool isnan(const glm::vec<DIMS, scalar_t>& x)
+template <int DIMS, typename Scalar>
+STROKE_DEVICES_INLINE bool isnan(const glm::vec<DIMS, Scalar>& x)
 {
     bool nan = false;
     for (unsigned i = 0; i < DIMS; ++i)
@@ -154,8 +154,8 @@ STROKE_DEVICES_INLINE bool isnan(const glm::vec<DIMS, scalar_t>& x)
     return nan;
 }
 
-template <int DIMS, typename scalar_t>
-STROKE_DEVICES_INLINE bool isnan(const glm::mat<DIMS, DIMS, scalar_t>& x)
+template <int DIMS, typename Scalar>
+STROKE_DEVICES_INLINE bool isnan(const glm::mat<DIMS, DIMS, Scalar>& x)
 {
     bool nan = false;
     for (unsigned i = 0; i < DIMS; ++i)
@@ -167,59 +167,59 @@ STROKE_DEVICES_INLINE bool isnan(const glm::mat<DIMS, DIMS, scalar_t>& x)
 
 namespace glm {
 // convenience functions for the glm namespace
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t det(const mat<n_dims, n_dims, scalar_t>& m)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE Scalar det(const mat<n_dims, n_dims, Scalar>& m)
 {
     return determinant(m);
 }
 
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> cwise_mul(const glm::mat<n_dims, n_dims, scalar_t>& m1, const glm::mat<n_dims, n_dims, scalar_t>& m2)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, Scalar> cwise_mul(const glm::mat<n_dims, n_dims, Scalar>& m1, const glm::mat<n_dims, n_dims, Scalar>& m2)
 {
     return matrixCompMult(m1, m2);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t sum(const glm::vec<2, scalar_t>& v)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar sum(const glm::vec<2, Scalar>& v)
 {
     return v[0] + v[1];
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t sum(const glm::vec<3, scalar_t>& v)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar sum(const glm::vec<3, Scalar>& v)
 {
     return v[0] + v[1] + v[2];
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t sum(const glm::vec<4, scalar_t>& v)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar sum(const glm::vec<4, Scalar>& v)
 {
     return v[0] + v[1] + v[2] + v[3];
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t sum(const glm::mat<2, 2, scalar_t>& m)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar sum(const glm::mat<2, 2, Scalar>& m)
 {
     return sum(m[0]) + sum(m[1]);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t sum(const glm::mat<3, 3, scalar_t>& m)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar sum(const glm::mat<3, 3, Scalar>& m)
 {
     return sum(m[0]) + sum(m[1]) + sum(m[2]);
 }
 
-template <int DIMS, typename scalar_t>
-STROKE_DEVICES_INLINE glm::vec<DIMS, scalar_t> diagonal(const glm::mat<DIMS, DIMS, scalar_t>& x)
+template <int DIMS, typename Scalar>
+STROKE_DEVICES_INLINE glm::vec<DIMS, Scalar> diagonal(const glm::mat<DIMS, DIMS, Scalar>& x)
 {
-    glm::vec<DIMS, scalar_t> d;
+    glm::vec<DIMS, Scalar> d;
     for (unsigned i = 0; i < DIMS; ++i)
         d[i] = x[i][i];
     return d;
 }
 
-template <int DIMS, typename scalar_t>
-STROKE_DEVICES_INLINE bool isnan(const glm::vec<DIMS, scalar_t>& x)
+template <int DIMS, typename Scalar>
+STROKE_DEVICES_INLINE bool isnan(const glm::vec<DIMS, Scalar>& x)
 {
     bool nan = false;
     for (unsigned i = 0; i < DIMS; ++i)
@@ -227,8 +227,8 @@ STROKE_DEVICES_INLINE bool isnan(const glm::vec<DIMS, scalar_t>& x)
     return nan;
 }
 
-template <int DIMS, typename scalar_t>
-STROKE_DEVICES_INLINE bool isnan(const glm::mat<DIMS, DIMS, scalar_t>& x)
+template <int DIMS, typename Scalar>
+STROKE_DEVICES_INLINE bool isnan(const glm::mat<DIMS, DIMS, Scalar>& x)
 {
     bool nan = false;
     for (unsigned i = 0; i < DIMS; ++i)
@@ -236,8 +236,8 @@ STROKE_DEVICES_INLINE bool isnan(const glm::mat<DIMS, DIMS, scalar_t>& x)
     return nan;
 }
 
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t trace(const glm::mat<n_dims, n_dims, scalar_t>& m)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE Scalar trace(const glm::mat<n_dims, n_dims, Scalar>& m)
 {
     return sum(diagonal(m));
 }

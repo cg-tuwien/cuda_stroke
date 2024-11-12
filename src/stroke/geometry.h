@@ -30,33 +30,33 @@
 
 namespace stroke::geometry {
 
-template <glm::length_t n_dims, class scalar_t>
+template <glm::length_t n_dims, class Scalar>
 class Aabb {
-    using Vec = glm::vec<n_dims, scalar_t>;
+    using Vec = glm::vec<n_dims, Scalar>;
 
 public:
     Vec min = {};
     Vec max = {};
-    [[nodiscard]] STROKE_DEVICES_INLINE glm::vec<n_dims, scalar_t> size() const { return max - min; }
+    [[nodiscard]] STROKE_DEVICES_INLINE glm::vec<n_dims, Scalar> size() const { return max - min; }
     [[nodiscard]] STROKE_DEVICES_INLINE bool contains(const Vec& point) const
     {
         return glm::all(glm::lessThanEqual(min, point)) && glm::all(glm::greaterThan(max, point));
     }
-    [[nodiscard]] STROKE_DEVICES_INLINE glm::vec<n_dims, scalar_t> centre() const { return (min + max) * scalar_t(0.5); }
+    [[nodiscard]] STROKE_DEVICES_INLINE glm::vec<n_dims, Scalar> centre() const { return (min + max) * Scalar(0.5); }
 };
 
-template <class scalar_t>
-class Aabb<1, scalar_t> {
+template <class Scalar>
+class Aabb<1, Scalar> {
 public:
-    scalar_t min = {};
-    scalar_t max = {};
+    Scalar min = {};
+    Scalar max = {};
 
-    [[nodiscard]] STROKE_DEVICES_INLINE scalar_t size() const { return max - min; }
-    [[nodiscard]] STROKE_DEVICES_INLINE bool contains(const scalar_t& point) const
+    [[nodiscard]] STROKE_DEVICES_INLINE Scalar size() const { return max - min; }
+    [[nodiscard]] STROKE_DEVICES_INLINE bool contains(const Scalar& point) const
     {
         return point > min && point < max;
     }
-    [[nodiscard]] STROKE_DEVICES_INLINE scalar_t centre() const { return (min + max) * scalar_t(0.5); }
+    [[nodiscard]] STROKE_DEVICES_INLINE Scalar centre() const { return (min + max) * Scalar(0.5); }
 };
 
 using Aabb1d = Aabb<1, double>;

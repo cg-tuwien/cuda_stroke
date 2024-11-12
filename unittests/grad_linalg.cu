@@ -316,23 +316,23 @@ TEST_CASE("stroke linalg gradients")
 
     SECTION("inverse symmetric")
     {
-        using scalar_t = double;
-        whack::random::HostGenerator<scalar_t> rnd;
-        const auto fun = [](const whack::Tensor<scalar_t, 1>& input) {
+        using Scalar = double;
+        whack::random::HostGenerator<Scalar> rnd;
+        const auto fun = [](const whack::Tensor<Scalar, 1>& input) {
             const auto mat = stroke::extract<stroke::Cov3_d>(input);
-            return stroke::pack_tensor<scalar_t>(inverse(mat));
+            return stroke::pack_tensor<Scalar>(inverse(mat));
         };
 
-        const auto fun_grad = [](const whack::Tensor<scalar_t, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+        const auto fun_grad = [](const whack::Tensor<Scalar, 1>& input, const whack::Tensor<double, 1>& grad_output) {
             const auto mat = stroke::extract<stroke::Cov3_d>(input);
             const auto incoming_grad = stroke::extract<stroke::Cov3_d>(grad_output);
-            return stroke::pack_tensor<scalar_t>(stroke::grad::inverse(mat, incoming_grad));
+            return stroke::pack_tensor<Scalar>(stroke::grad::inverse(mat, incoming_grad));
         };
 
-        const auto test_data_host = whack::make_tensor<scalar_t>(whack::Location::Host, { 3, 2, 1, 2, 4, 3 }, 6);
+        const auto test_data_host = whack::make_tensor<Scalar>(whack::Location::Host, { 3, 2, 1, 2, 4, 3 }, 6);
         stroke::check_gradient(fun, fun_grad, test_data_host);
         for (auto i = 0u; i < 100; ++i) {
-            stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<scalar_t>(stroke::host_random_cov<3, scalar_t>(&rnd)));
+            stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<Scalar>(stroke::host_random_cov<3, Scalar>(&rnd)));
         }
     }
 

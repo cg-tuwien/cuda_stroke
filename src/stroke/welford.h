@@ -29,25 +29,25 @@
 namespace stroke::welford {
 
 /// warning: without bessel correction. bessel is impossible according to https://stats.stackexchange.com/questions/47325/bias-correction-in-weighted-variance (see 2nd answer)
-template <int N_DIMS, typename scalar_t>
+template <int N_DIMS, typename Scalar>
 struct WeightedMeanAndCov {
-    using vec_t = glm::vec<N_DIMS, scalar_t>;
-    //    using mat_t = glm::mat<N_DIMS, N_DIMS, scalar_t>;
-    using mat_t = Cov<N_DIMS, scalar_t>;
-    scalar_t w_sum = 0;
+    using vec_t = glm::vec<N_DIMS, Scalar>;
+    //    using mat_t = glm::mat<N_DIMS, N_DIMS, Scalar>;
+    using mat_t = Cov<N_DIMS, Scalar>;
+    Scalar w_sum = 0;
     vec_t v_mean = vec_t { 0 };
     mat_t C = mat_t { 0 };
 
     WeightedMeanAndCov() = default;
 
     STROKE_DEVICES_INLINE
-    void addValue(scalar_t w, const vec_t& v)
+    void addValue(Scalar w, const vec_t& v)
     {
         w_sum += w;
-        if (w == scalar_t(0.0))
+        if (w == Scalar(0.0))
             return;
         const auto delta1 = (v - v_mean);
-        v_mean += scalar_t(w / w_sum) * delta1;
+        v_mean += Scalar(w / w_sum) * delta1;
         const auto delta2 = (v - v_mean);
 
         C += mat_t(w * glm::outerProduct(delta1, delta2));
@@ -55,7 +55,7 @@ struct WeightedMeanAndCov {
     }
 
     STROKE_DEVICES_INLINE
-    scalar_t weightSum() const
+    Scalar weightSum() const
     {
         return w_sum;
     }
@@ -69,27 +69,27 @@ struct WeightedMeanAndCov {
     STROKE_DEVICES_INLINE
     mat_t cov_matrix() const
     {
-        if (w_sum == scalar_t(0.0))
+        if (w_sum == Scalar(0.0))
             return mat_t(1);
         return C / w_sum;
     }
 };
 
-template <typename scalar_t, typename T>
+template <typename Scalar, typename T>
 struct WeightedMean {
-    scalar_t w_sum = 0;
+    Scalar w_sum = 0;
     T v_mean = T {};
 
     WeightedMean() = default;
 
     STROKE_DEVICES_INLINE
-    void addValue(scalar_t w, const T& v)
+    void addValue(Scalar w, const T& v)
     {
         w_sum += w;
-        if (w == scalar_t(0.0))
+        if (w == Scalar(0.0))
             return;
         const auto delta1 = v - v_mean;
-        v_mean += scalar_t(w / w_sum) * delta1; // this scalar_t cast makes the compiler happy, when compiling unit tests with autodiff.
+        v_mean += Scalar(w / w_sum) * delta1; // this Scalar cast makes the compiler happy, when compiling unit tests with autodiff.
     }
 
     STROKE_DEVICES_INLINE

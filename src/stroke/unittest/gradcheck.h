@@ -41,12 +41,12 @@ namespace stroke {
 template <typename T1, typename Tensor>
 T1 extract(const Tensor& t)
 {
-    using scalar_t = typename Tensor::value_type;
-    static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
+    using Scalar = typename Tensor::value_type;
+    static_assert(sizeof(T1) % sizeof(Scalar) == 0);
     REQUIRE(t.location() == whack::Location::Host);
     CAPTURE(sizeof(T1));
-    CAPTURE(sizeof(scalar_t));
-    REQUIRE(sizeof(T1) / sizeof(scalar_t) == t.numel());
+    CAPTURE(sizeof(Scalar));
+    REQUIRE(sizeof(T1) / sizeof(Scalar) == t.numel());
     return t.template view<T1>(1)(0);
 }
 
@@ -60,58 +60,58 @@ T1 extract(const Tensor& t)
 template <typename T1, typename T2, typename Tensor>
 std::tuple<T1, T2> extract(const Tensor& t)
 {
-    using scalar_t = typename Tensor::value_type;
-    static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
-    static_assert(sizeof(T2) % sizeof(scalar_t) == 0);
+    using Scalar = typename Tensor::value_type;
+    static_assert(sizeof(T1) % sizeof(Scalar) == 0);
+    static_assert(sizeof(T2) % sizeof(Scalar) == 0);
 
     REQUIRE(t.location() == whack::Location::Host);
     CAPTURE(sizeof(T1));
     CAPTURE(sizeof(T2));
-    CAPTURE(sizeof(scalar_t));
-    REQUIRE((sizeof(T1) + sizeof(T2)) / sizeof(scalar_t) == t.numel());
-    const auto [t1, t2] = whack::split(t, sizeof(T1) / sizeof(scalar_t), sizeof(T2) / sizeof(scalar_t));
+    CAPTURE(sizeof(Scalar));
+    REQUIRE((sizeof(T1) + sizeof(T2)) / sizeof(Scalar) == t.numel());
+    const auto [t1, t2] = whack::split(t, sizeof(T1) / sizeof(Scalar), sizeof(T2) / sizeof(Scalar));
     return { extract<T1>(t1), extract<T2>(t2) };
 }
 
 template <typename T1, typename T2, typename T3, typename Tensor>
 std::tuple<T1, T2, T3> extract(const Tensor& t)
 {
-    using scalar_t = typename Tensor::value_type;
-    static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
-    static_assert(sizeof(T2) % sizeof(scalar_t) == 0);
-    static_assert(sizeof(T3) % sizeof(scalar_t) == 0);
+    using Scalar = typename Tensor::value_type;
+    static_assert(sizeof(T1) % sizeof(Scalar) == 0);
+    static_assert(sizeof(T2) % sizeof(Scalar) == 0);
+    static_assert(sizeof(T3) % sizeof(Scalar) == 0);
 
     REQUIRE(t.location() == whack::Location::Host);
     CAPTURE(sizeof(T1));
     CAPTURE(sizeof(T2));
     CAPTURE(sizeof(T3));
-    CAPTURE(sizeof(scalar_t));
-    REQUIRE((sizeof(T1) + sizeof(T2) + sizeof(T3)) / sizeof(scalar_t) == t.numel());
-    const auto [t1, t2, t3] = whack::split(t, sizeof(T1) / sizeof(scalar_t), sizeof(T2) / sizeof(scalar_t), sizeof(T3) / sizeof(scalar_t));
+    CAPTURE(sizeof(Scalar));
+    REQUIRE((sizeof(T1) + sizeof(T2) + sizeof(T3)) / sizeof(Scalar) == t.numel());
+    const auto [t1, t2, t3] = whack::split(t, sizeof(T1) / sizeof(Scalar), sizeof(T2) / sizeof(Scalar), sizeof(T3) / sizeof(Scalar));
     return { extract<T1>(t1), extract<T2>(t2), extract<T3>(t3) };
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename Tensor>
 std::tuple<T1, T2, T3, T4> extract(const Tensor& t)
 {
-    using scalar_t = typename Tensor::value_type;
-    static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
-    static_assert(sizeof(T2) % sizeof(scalar_t) == 0);
-    static_assert(sizeof(T3) % sizeof(scalar_t) == 0);
-    static_assert(sizeof(T4) % sizeof(scalar_t) == 0);
+    using Scalar = typename Tensor::value_type;
+    static_assert(sizeof(T1) % sizeof(Scalar) == 0);
+    static_assert(sizeof(T2) % sizeof(Scalar) == 0);
+    static_assert(sizeof(T3) % sizeof(Scalar) == 0);
+    static_assert(sizeof(T4) % sizeof(Scalar) == 0);
 
     REQUIRE(t.location() == whack::Location::Host);
     CAPTURE(sizeof(T1));
     CAPTURE(sizeof(T2));
     CAPTURE(sizeof(T3));
     CAPTURE(sizeof(T4));
-    CAPTURE(sizeof(scalar_t));
-    REQUIRE((sizeof(T1) + sizeof(T2) + sizeof(T3) + sizeof(T4)) / sizeof(scalar_t) == t.numel());
+    CAPTURE(sizeof(Scalar));
+    REQUIRE((sizeof(T1) + sizeof(T2) + sizeof(T3) + sizeof(T4)) / sizeof(Scalar) == t.numel());
     const auto [t1, t2, t3, t4] = whack::split(t,
-        sizeof(T1) / sizeof(scalar_t),
-        sizeof(T2) / sizeof(scalar_t),
-        sizeof(T3) / sizeof(scalar_t),
-        sizeof(T4) / sizeof(scalar_t));
+        sizeof(T1) / sizeof(Scalar),
+        sizeof(T2) / sizeof(Scalar),
+        sizeof(T3) / sizeof(Scalar),
+        sizeof(T4) / sizeof(Scalar));
     return { extract<T1>(t1), extract<T2>(t2), extract<T3>(t3), extract<T4>(t4) };
 }
 
@@ -119,12 +119,12 @@ std::tuple<T1, T2, T3, T4> extract(const Tensor& t)
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename Tensor>
 std::tuple<T1, T2, T3, T4, T5> extract(const Tensor& t)
 {
-    using scalar_t = typename Tensor::value_type;
-    static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
-    static_assert(sizeof(T2) % sizeof(scalar_t) == 0);
-    static_assert(sizeof(T3) % sizeof(scalar_t) == 0);
-    static_assert(sizeof(T4) % sizeof(scalar_t) == 0);
-    static_assert(sizeof(T5) % sizeof(scalar_t) == 0);
+    using Scalar = typename Tensor::value_type;
+    static_assert(sizeof(T1) % sizeof(Scalar) == 0);
+    static_assert(sizeof(T2) % sizeof(Scalar) == 0);
+    static_assert(sizeof(T3) % sizeof(Scalar) == 0);
+    static_assert(sizeof(T4) % sizeof(Scalar) == 0);
+    static_assert(sizeof(T5) % sizeof(Scalar) == 0);
 
     REQUIRE(t.location() == whack::Location::Host);
     CAPTURE(sizeof(T1));
@@ -132,36 +132,36 @@ std::tuple<T1, T2, T3, T4, T5> extract(const Tensor& t)
     CAPTURE(sizeof(T3));
     CAPTURE(sizeof(T4));
     CAPTURE(sizeof(T5));
-    CAPTURE(sizeof(scalar_t));
-    REQUIRE((sizeof(T1) + sizeof(T2) + sizeof(T3) + sizeof(T4) + sizeof(T5)) / sizeof(scalar_t) == t.numel());
+    CAPTURE(sizeof(Scalar));
+    REQUIRE((sizeof(T1) + sizeof(T2) + sizeof(T3) + sizeof(T4) + sizeof(T5)) / sizeof(Scalar) == t.numel());
     const auto [t1, t2, t3, t4, t5] = whack::split(t,
-        sizeof(T1) / sizeof(scalar_t),
-        sizeof(T2) / sizeof(scalar_t),
-        sizeof(T3) / sizeof(scalar_t),
-        sizeof(T4) / sizeof(scalar_t),
-        sizeof(T5) / sizeof(scalar_t));
+        sizeof(T1) / sizeof(Scalar),
+        sizeof(T2) / sizeof(Scalar),
+        sizeof(T3) / sizeof(Scalar),
+        sizeof(T4) / sizeof(Scalar),
+        sizeof(T5) / sizeof(Scalar));
     return { extract<T1>(t1), extract<T2>(t2), extract<T3>(t3), extract<T4>(t4), extract<T5>(t5) };
 }
 
-template <typename scalar_t, typename T1>
-whack::Tensor<scalar_t, 1> pack_tensor(const T1& v)
+template <typename Scalar, typename T1>
+whack::Tensor<Scalar, 1> pack_tensor(const T1& v)
 {
-    static_assert(sizeof(T1) % sizeof(scalar_t) == 0);
-    auto ret_tensor = whack::make_tensor<scalar_t>(whack::Location::Host, sizeof(T1) / sizeof(scalar_t));
+    static_assert(sizeof(T1) % sizeof(Scalar) == 0);
+    auto ret_tensor = whack::make_tensor<Scalar>(whack::Location::Host, sizeof(T1) / sizeof(Scalar));
     ret_tensor.template view<T1>(1)(0) = v;
     return ret_tensor;
 }
 
-template <typename scalar_t, typename T1, typename... OtherTs>
-whack::Tensor<scalar_t, 1> pack_tensor(const T1& v1, const OtherTs&... args)
+template <typename Scalar, typename T1, typename... OtherTs>
+whack::Tensor<Scalar, 1> pack_tensor(const T1& v1, const OtherTs&... args)
 {
-    return whack::concat(pack_tensor<scalar_t>(v1), pack_tensor<scalar_t>(args)...);
+    return whack::concat(pack_tensor<Scalar>(v1), pack_tensor<Scalar>(args)...);
 }
 
 namespace gradcheck_internal {
     namespace detail {
-        template <typename scalar_t>
-        void init_index_eq_i(whack::Tensor<scalar_t, 1>* data, size_t i)
+        template <typename Scalar>
+        void init_index_eq_i(whack::Tensor<Scalar, 1>* data, size_t i)
         {
             // this can't be put into analytical jacobian because:
             // error: A type local to a function ("Function" and "GradientFunction" ) cannot be used in the template argument of the enclosing parent function
@@ -180,8 +180,8 @@ namespace gradcheck_internal {
                 });
         }
 
-        template <typename scalar_t>
-        void copy_A_to_B_at_row_i(const whack::Tensor<scalar_t, 1>& a, whack::Tensor<scalar_t, 2>* b, size_t i)
+        template <typename Scalar>
+        void copy_A_to_B_at_row_i(const whack::Tensor<Scalar, 1>& a, whack::Tensor<Scalar, 2>* b, size_t i)
         {
             // this can't be put into analytical jacobian because:
             // error: A type local to a function ("Function" and "GradientFunction" ) cannot be used in the template argument of the enclosing parent function
@@ -204,8 +204,8 @@ namespace gradcheck_internal {
                 });
         }
 
-        template <typename scalar_t>
-        whack::Tensor<scalar_t, 1> copy_A_add_dx_at_i(const whack::Tensor<scalar_t, 1>& a, scalar_t dx, size_t i)
+        template <typename Scalar>
+        whack::Tensor<Scalar, 1> copy_A_add_dx_at_i(const whack::Tensor<Scalar, 1>& a, Scalar dx, size_t i)
         {
             assert(i < a.numel());
 
@@ -225,8 +225,8 @@ namespace gradcheck_internal {
             return std::move(b);
         }
 
-        template <typename scalar_t, typename IndexStoreType = unsigned int, typename IndexCalculateType = IndexStoreType>
-        void set_jacobian_col_with(whack::Tensor<scalar_t, 2u>& J, size_t col, const whack::Tensor<scalar_t, 1u>& out_with_plus_dx, const whack::Tensor<scalar_t, 1u>& out_with_minus_dx, scalar_t dx)
+        template <typename Scalar, typename IndexStoreType = unsigned int, typename IndexCalculateType = IndexStoreType>
+        void set_jacobian_col_with(whack::Tensor<Scalar, 2u>& J, size_t col, const whack::Tensor<Scalar, 1u>& out_with_plus_dx, const whack::Tensor<Scalar, 1u>& out_with_minus_dx, Scalar dx)
         {
             auto Jv = J.view();
             const auto out_plus_v = out_with_plus_dx.view();
@@ -249,8 +249,8 @@ namespace gradcheck_internal {
         }
     } // namespace detail
 
-    template <typename scalar_t, typename Function, typename GradientFunction>
-    whack::Tensor<scalar_t, 2> analytical_jacobian(Function fun, GradientFunction grad_fun, const whack::Tensor<scalar_t, 1>& input)
+    template <typename Scalar, typename Function, typename GradientFunction>
+    whack::Tensor<Scalar, 2> analytical_jacobian(Function fun, GradientFunction grad_fun, const whack::Tensor<Scalar, 1>& input)
     {
         const auto location = input.location();
         const auto dummy_output = fun(input);
@@ -259,8 +259,8 @@ namespace gradcheck_internal {
         const auto n_inputs = input.numel();
         const size_t n_outputs = dummy_output.numel();
 
-        whack::Tensor<scalar_t, 2> J = whack::make_tensor<scalar_t>(location, n_outputs, n_inputs);
-        whack::Tensor<scalar_t, 1> output_grad = whack::make_tensor<scalar_t>(location, n_outputs);
+        whack::Tensor<Scalar, 2> J = whack::make_tensor<Scalar>(location, n_outputs, n_inputs);
+        whack::Tensor<Scalar, 1> output_grad = whack::make_tensor<Scalar>(location, n_outputs);
         for (size_t i = 0; i < n_outputs; ++i) {
             detail::init_index_eq_i(&output_grad, i);
             // std::cout << "output_grad: " << output_grad << std::endl;
@@ -273,8 +273,8 @@ namespace gradcheck_internal {
         return J;
     }
 
-    template <typename scalar_t, typename Function>
-    whack::Tensor<scalar_t, 2> numerical_jacobian(Function fun, const whack::Tensor<scalar_t, 1>& input, scalar_t dx)
+    template <typename Scalar, typename Function>
+    whack::Tensor<Scalar, 2> numerical_jacobian(Function fun, const whack::Tensor<Scalar, 1>& input, Scalar dx)
     {
         const auto location = input.location();
         const auto dummy_output = fun(input);
@@ -283,16 +283,16 @@ namespace gradcheck_internal {
         const auto n_inputs = input.numel();
         const size_t n_outputs = dummy_output.numel();
 
-        whack::Tensor<scalar_t, 2> J = whack::make_tensor<scalar_t>(location, n_outputs, n_inputs);
-        whack::Tensor<scalar_t, 1> output_grad = whack::make_tensor<scalar_t>(location, n_outputs);
+        whack::Tensor<Scalar, 2> J = whack::make_tensor<Scalar>(location, n_outputs, n_inputs);
+        whack::Tensor<Scalar, 1> output_grad = whack::make_tensor<Scalar>(location, n_outputs);
         for (size_t i = 0; i < n_inputs; ++i) {
-            const auto input_plus_dx = detail::copy_A_add_dx_at_i<scalar_t>(input, dx / 2, i);
-            const auto input_minus_dx = detail::copy_A_add_dx_at_i<scalar_t>(input, -dx / 2, i);
+            const auto input_plus_dx = detail::copy_A_add_dx_at_i<Scalar>(input, dx / 2, i);
+            const auto input_minus_dx = detail::copy_A_add_dx_at_i<Scalar>(input, -dx / 2, i);
 
             const auto out_with_plus_dx = fun(input_plus_dx);
             const auto out_with_minus_dx = fun(input_minus_dx);
 
-            detail::set_jacobian_col_with<scalar_t>(J, i, out_with_plus_dx, out_with_minus_dx, dx);
+            detail::set_jacobian_col_with<Scalar>(J, i, out_with_plus_dx, out_with_minus_dx, dx);
         }
 
         // std::cout << "numerical_jacobian: " << J << std::endl;
@@ -300,11 +300,11 @@ namespace gradcheck_internal {
     }
 } // namespace gradcheck_internal
 
-template <typename scalar_t, typename Function, typename GradientFunction>
-void check_gradient(Function fun, GradientFunction grad_fun, const whack::Tensor<scalar_t, 1>& test_input, scalar_t dx = 0.0001, scalar_t allowed_error_factor = 50)
+template <typename Scalar, typename Function, typename GradientFunction>
+void check_gradient(Function fun, GradientFunction grad_fun, const whack::Tensor<Scalar, 1>& test_input, Scalar dx = 0.0001, Scalar allowed_error_factor = 50)
 {
-    const auto analytical_jacobian = gradcheck_internal::analytical_jacobian<scalar_t>(fun, grad_fun, test_input).host_copy();
-    const auto numerical_jacobian = gradcheck_internal::numerical_jacobian<scalar_t>(fun, test_input, dx).host_copy();
+    const auto analytical_jacobian = gradcheck_internal::analytical_jacobian<Scalar>(fun, grad_fun, test_input).host_copy();
+    const auto numerical_jacobian = gradcheck_internal::numerical_jacobian<Scalar>(fun, test_input, dx).host_copy();
     REQUIRE(analytical_jacobian.numel() == numerical_jacobian.numel());
     REQUIRE(analytical_jacobian.n_dimensions() == 2);
     REQUIRE(analytical_jacobian.n_dimensions() == numerical_jacobian.n_dimensions());

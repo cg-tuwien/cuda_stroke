@@ -32,34 +32,34 @@
 
 namespace stroke::grad {
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE TwoGrads<scalar_t, scalar_t> divide_a_by_b(scalar_t a, scalar_t b, decltype(a / b) incoming_grad)
+template <typename Scalar>
+STROKE_DEVICES_INLINE TwoGrads<Scalar, Scalar> divide_a_by_b(Scalar a, Scalar b, decltype(a / b) incoming_grad)
 {
-    static_assert(std::is_floating_point_v<scalar_t>);
+    static_assert(std::is_floating_point_v<Scalar>);
     const auto a_grad = incoming_grad / b;
     //    *b_grad = -incoming_grad * a / (b * b);
     const auto b_grad = -a_grad * a / b; // same, but numerically more stable
     return { a_grad, b_grad };
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t sqrt(const scalar_t& a, scalar_t incoming_grad)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar sqrt(const Scalar& a, Scalar incoming_grad)
 {
-    static_assert(std::is_floating_point_v<scalar_t>);
+    static_assert(std::is_floating_point_v<Scalar>);
     return incoming_grad / (2 * stroke::sqrt(a));
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t erf(const scalar_t& a, scalar_t incoming_grad)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar erf(const Scalar& a, Scalar incoming_grad)
 {
-    static_assert(std::is_floating_point_v<scalar_t>);
+    static_assert(std::is_floating_point_v<Scalar>);
     // https://en.wikipedia.org/wiki/Error_function
-    constexpr scalar_t const_factor = 2 / gcem::sqrt(glm::pi<double>());
+    constexpr Scalar const_factor = 2 / gcem::sqrt(glm::pi<double>());
     return incoming_grad * const_factor * stroke::exp(-sq(a));
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE scalar_t clamp(scalar_t v, scalar_t min, scalar_t max, scalar_t incoming_grad)
+template <typename Scalar>
+STROKE_DEVICES_INLINE Scalar clamp(Scalar v, Scalar min, Scalar max, Scalar incoming_grad)
 {
     if (v > min && v < max)
         return incoming_grad;

@@ -29,25 +29,25 @@
 
 TEST_CASE("stroke quaternion toMat3 gradients")
 {
-    using scalar_t = double;
-    using quat_t = glm::qua<scalar_t>;
-    using mat3_t = glm::mat<3, 3, scalar_t>;
+    using Scalar = double;
+    using Quat = glm::qua<Scalar>;
+    using mat3_t = glm::mat<3, 3, Scalar>;
 
-    const auto fun = [](const whack::Tensor<scalar_t, 1>& input) {
-        const auto quat = stroke::extract<quat_t>(input);
-        return stroke::pack_tensor<scalar_t>(glm::toMat3(quat));
+    const auto fun = [](const whack::Tensor<Scalar, 1>& input) {
+        const auto quat = stroke::extract<Quat>(input);
+        return stroke::pack_tensor<Scalar>(glm::toMat3(quat));
     };
 
-    const auto fun_grad = [](const whack::Tensor<scalar_t, 1>& input, const whack::Tensor<scalar_t, 1>& grad_output) {
-        const auto quat = stroke::extract<quat_t>(input);
+    const auto fun_grad = [](const whack::Tensor<Scalar, 1>& input, const whack::Tensor<Scalar, 1>& grad_output) {
+        const auto quat = stroke::extract<Quat>(input);
         const auto incoming_grad = stroke::extract<mat3_t>(grad_output);
         const auto grad_quat = stroke::grad::toMat3(quat, incoming_grad);
-        return stroke::pack_tensor<scalar_t>(grad_quat);
+        return stroke::pack_tensor<Scalar>(grad_quat);
     };
 
-    whack::random::HostGenerator<scalar_t> rnd;
+    whack::random::HostGenerator<Scalar> rnd;
     for (int i = 0; i < 10; ++i) {
-        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<scalar_t>(stroke::host_random_quaternion<scalar_t>(&rnd)), 0.0000001);
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<Scalar>(stroke::host_random_quaternion<Scalar>(&rnd)), 0.0000001);
     }
 }
 

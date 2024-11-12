@@ -94,36 +94,36 @@ void check_integrate_exponential()
 template <uint n_dims>
 void check_eval_exponential_normalised_inv_C()
 {
-    using scalar_t = double;
-    using vec3_t = glm::vec<3, scalar_t>;
-    using cov3_t = stroke::Cov3<scalar_t>;
-    using Gaussian1d = stroke::gaussian::ParamsWithWeight<1, scalar_t>;
+    using Scalar = double;
+    using Vec3 = glm::vec<3, Scalar>;
+    using Cov3 = stroke::Cov3<Scalar>;
+    using Gaussian1d = stroke::gaussian::ParamsWithWeight<1, Scalar>;
 
-    whack::random::HostGenerator<scalar_t> rnd;
+    whack::random::HostGenerator<Scalar> rnd;
 
     for (int i = 0; i < 10; ++i) {
-        const auto fun = [](const whack::Tensor<scalar_t, 1>& input) {
-            const auto [g_pos, g_cov, e_pos] = stroke::extract<vec3_t, cov3_t, vec3_t>(input);
+        const auto fun = [](const whack::Tensor<Scalar, 1>& input) {
+            const auto [g_pos, g_cov, e_pos] = stroke::extract<Vec3, Cov3, Vec3>(input);
             const auto value1 = stroke::gaussian::eval_exponential_inv_C(g_pos, g_cov, e_pos);
             const auto value2 = stroke::gaussian::eval_normalised_inv_C(g_pos, g_cov, e_pos);
-            return stroke::pack_tensor<scalar_t>(value1, value2);
+            return stroke::pack_tensor<Scalar>(value1, value2);
         };
 
-        const auto fun_grad = [](const whack::Tensor<scalar_t, 1>& input, const whack::Tensor<scalar_t, 1>& grad_output) {
-            const auto [g_pos, g_cov, e_pos] = stroke::extract<vec3_t, cov3_t, vec3_t>(input);
-            const auto [grad_value1, grad_value2] = stroke::extract<scalar_t, scalar_t>(grad_output);
+        const auto fun_grad = [](const whack::Tensor<Scalar, 1>& input, const whack::Tensor<Scalar, 1>& grad_output) {
+            const auto [g_pos, g_cov, e_pos] = stroke::extract<Vec3, Cov3, Vec3>(input);
+            const auto [grad_value1, grad_value2] = stroke::extract<Scalar, Scalar>(grad_output);
 
             auto grad_outgoing = stroke::grad::gaussian::eval_exponential_inv_C(g_pos, g_cov, e_pos, grad_value1);
             stroke::grad::gaussian::eval_normalised_inv_C(g_pos, g_cov, e_pos, grad_value2).addTo(&grad_outgoing.m_left, &grad_outgoing.m_middle, &grad_outgoing.m_right);
 
-            return stroke::pack_tensor<scalar_t>(grad_outgoing);
+            return stroke::pack_tensor<Scalar>(grad_outgoing);
         };
 
         const auto g_pos = rnd.normal3() * 10.;
         const auto g_cov = inverse(stroke::host_random_cov<3, double>(&rnd));
         const auto e_pos = g_pos + rnd.normal3() * 2.5;
-        const auto test_data = stroke::pack_tensor<scalar_t>(g_pos, g_cov, e_pos);
-        stroke::check_gradient(fun, fun_grad, test_data, scalar_t(0.000001));
+        const auto test_data = stroke::pack_tensor<Scalar>(g_pos, g_cov, e_pos);
+        stroke::check_gradient(fun, fun_grad, test_data, Scalar(0.000001));
     }
 }
 } // namespace
@@ -151,87 +151,87 @@ TEST_CASE("stroke gaussian gradients")
 
     SECTION("1d norm_factor_inv_C")
     {
-        using scalar_t = double;
-        whack::random::HostGenerator<scalar_t> rnd;
+        using Scalar = double;
+        whack::random::HostGenerator<Scalar> rnd;
 
         for (int i = 0; i < 10; ++i) {
-            const auto fun = [](const whack::Tensor<scalar_t, 1>& input) {
-                const auto inv_var = stroke::extract<scalar_t>(input);
-                const auto norm_fct = stroke::gaussian::norm_factor_inv_C<scalar_t>(inv_var);
-                return stroke::pack_tensor<scalar_t>(norm_fct);
+            const auto fun = [](const whack::Tensor<Scalar, 1>& input) {
+                const auto inv_var = stroke::extract<Scalar>(input);
+                const auto norm_fct = stroke::gaussian::norm_factor_inv_C<Scalar>(inv_var);
+                return stroke::pack_tensor<Scalar>(norm_fct);
             };
 
-            const auto fun_grad = [](const whack::Tensor<scalar_t, 1>& input, const whack::Tensor<scalar_t, 1>& grad_output) {
-                const auto inv_var = stroke::extract<scalar_t>(input);
-                const auto grad_incoming = stroke::extract<scalar_t>(grad_output);
+            const auto fun_grad = [](const whack::Tensor<Scalar, 1>& input, const whack::Tensor<Scalar, 1>& grad_output) {
+                const auto inv_var = stroke::extract<Scalar>(input);
+                const auto grad_incoming = stroke::extract<Scalar>(grad_output);
 
-                const auto grad_outgoing = stroke::grad::gaussian::norm_factor_inv_C<scalar_t>(inv_var, grad_incoming);
+                const auto grad_outgoing = stroke::grad::gaussian::norm_factor_inv_C<Scalar>(inv_var, grad_incoming);
 
-                return stroke::pack_tensor<scalar_t>(grad_outgoing);
+                return stroke::pack_tensor<Scalar>(grad_outgoing);
             };
 
-            const auto test_data = stroke::pack_tensor<scalar_t>(rnd.uniform());
-            stroke::check_gradient(fun, fun_grad, test_data, scalar_t(0.000001));
+            const auto test_data = stroke::pack_tensor<Scalar>(rnd.uniform());
+            stroke::check_gradient(fun, fun_grad, test_data, Scalar(0.000001));
         }
     }
 
     SECTION("cdf_inv_SD")
     {
-        using scalar_t = double;
-        whack::random::HostGenerator<scalar_t> rnd;
+        using Scalar = double;
+        whack::random::HostGenerator<Scalar> rnd;
 
         for (int i = 0; i < 20; ++i) {
-            const auto fun = [](const whack::Tensor<scalar_t, 1>& input) {
-                const auto [p, inv_sd, t] = stroke::extract<scalar_t, scalar_t, scalar_t>(input);
-                const auto val = stroke::gaussian::cdf_inv_SD<scalar_t>(p, inv_sd, t);
-                return stroke::pack_tensor<scalar_t>(val);
+            const auto fun = [](const whack::Tensor<Scalar, 1>& input) {
+                const auto [p, inv_sd, t] = stroke::extract<Scalar, Scalar, Scalar>(input);
+                const auto val = stroke::gaussian::cdf_inv_SD<Scalar>(p, inv_sd, t);
+                return stroke::pack_tensor<Scalar>(val);
             };
 
-            const auto fun_grad = [](const whack::Tensor<scalar_t, 1>& input, const whack::Tensor<scalar_t, 1>& grad_output) {
-                const auto [p, inv_sd, t] = stroke::extract<scalar_t, scalar_t, scalar_t>(input);
-                const auto grad_incoming = stroke::extract<scalar_t>(grad_output);
+            const auto fun_grad = [](const whack::Tensor<Scalar, 1>& input, const whack::Tensor<Scalar, 1>& grad_output) {
+                const auto [p, inv_sd, t] = stroke::extract<Scalar, Scalar, Scalar>(input);
+                const auto grad_incoming = stroke::extract<Scalar>(grad_output);
 
-                const auto grad_outgoing = stroke::grad::gaussian::cdf_inv_SD<scalar_t>(p, inv_sd, t, grad_incoming);
+                const auto grad_outgoing = stroke::grad::gaussian::cdf_inv_SD<Scalar>(p, inv_sd, t, grad_incoming);
 
-                return stroke::pack_tensor<scalar_t>(grad_outgoing);
+                return stroke::pack_tensor<Scalar>(grad_outgoing);
             };
 
-            const auto test_data = stroke::pack_tensor<scalar_t>(rnd.normal(), 1. / (rnd.uniform() + 0.000001), rnd.normal() * 2);
-            stroke::check_gradient(fun, fun_grad, test_data, scalar_t(0.000001));
+            const auto test_data = stroke::pack_tensor<Scalar>(rnd.normal(), 1. / (rnd.uniform() + 0.000001), rnd.normal() * 2);
+            stroke::check_gradient(fun, fun_grad, test_data, Scalar(0.000001));
         }
     }
 
     SECTION("intersect_with_ray_inv_C")
     {
-        using scalar_t = double;
-        using vec3_t = glm::vec<3, scalar_t>;
-        using cov3_t = stroke::Cov3<scalar_t>;
-        using Gaussian1d = stroke::gaussian::ParamsWithWeight<1, scalar_t>;
+        using Scalar = double;
+        using Vec3 = glm::vec<3, Scalar>;
+        using Cov3 = stroke::Cov3<Scalar>;
+        using Gaussian1d = stroke::gaussian::ParamsWithWeight<1, Scalar>;
 
-        whack::random::HostGenerator<scalar_t> rnd;
+        whack::random::HostGenerator<Scalar> rnd;
 
         for (int i = 0; i < 10; ++i) {
-            const auto fun = [](const whack::Tensor<scalar_t, 1>& input) {
-                const auto [g_pos, g_cov, r_pos, r_dir] = stroke::extract<vec3_t, cov3_t, vec3_t, vec3_t>(input);
-                const auto g1d = stroke::gaussian::intersect_with_ray_inv_C<scalar_t>(g_pos, g_cov, { r_pos, r_dir });
-                return stroke::pack_tensor<scalar_t>(g1d);
+            const auto fun = [](const whack::Tensor<Scalar, 1>& input) {
+                const auto [g_pos, g_cov, r_pos, r_dir] = stroke::extract<Vec3, Cov3, Vec3, Vec3>(input);
+                const auto g1d = stroke::gaussian::intersect_with_ray_inv_C<Scalar>(g_pos, g_cov, { r_pos, r_dir });
+                return stroke::pack_tensor<Scalar>(g1d);
             };
 
-            const auto fun_grad = [](const whack::Tensor<scalar_t, 1>& input, const whack::Tensor<scalar_t, 1>& grad_output) {
-                const auto [g_pos, g_cov, r_pos, r_dir] = stroke::extract<vec3_t, cov3_t, vec3_t, vec3_t>(input);
+            const auto fun_grad = [](const whack::Tensor<Scalar, 1>& input, const whack::Tensor<Scalar, 1>& grad_output) {
+                const auto [g_pos, g_cov, r_pos, r_dir] = stroke::extract<Vec3, Cov3, Vec3, Vec3>(input);
                 const auto grad_incoming = stroke::extract<Gaussian1d>(grad_output);
 
-                const auto grad_outgoing = stroke::grad::gaussian::intersect_with_ray_inv_C<scalar_t>(g_pos, g_cov, { r_pos, r_dir }, grad_incoming);
+                const auto grad_outgoing = stroke::grad::gaussian::intersect_with_ray_inv_C<Scalar>(g_pos, g_cov, { r_pos, r_dir }, grad_incoming);
 
-                return stroke::pack_tensor<scalar_t>(grad_outgoing);
+                return stroke::pack_tensor<Scalar>(grad_outgoing);
             };
 
             const auto g_pos = rnd.normal3() * 10.;
             const auto g_cov = inverse(stroke::host_random_cov<3, double>(&rnd));
             const auto r_pos = g_pos + rnd.normal3() * 0.5;
             const auto r_dir = normalize(rnd.normal3());
-            const auto test_data = stroke::pack_tensor<scalar_t>(g_pos, g_cov, r_pos, r_dir);
-            stroke::check_gradient(fun, fun_grad, test_data, scalar_t(0.000001));
+            const auto test_data = stroke::pack_tensor<Scalar>(g_pos, g_cov, r_pos, r_dir);
+            stroke::check_gradient(fun, fun_grad, test_data, Scalar(0.000001));
         }
     }
 }

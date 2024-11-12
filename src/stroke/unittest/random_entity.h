@@ -28,10 +28,10 @@
 #include <whack/random/generators.h>
 
 namespace stroke {
-template <glm::length_t n_dims, typename scalar_t, typename Generator>
-STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> random_matrix(Generator* rnd)
+template <glm::length_t n_dims, typename Scalar, typename Generator>
+STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, Scalar> random_matrix(Generator* rnd)
 {
-    glm::mat<n_dims, n_dims, scalar_t> mat;
+    glm::mat<n_dims, n_dims, Scalar> mat;
     for (auto c = 0; c < n_dims; ++c) {
         for (auto r = 0; r < n_dims; ++r) {
             mat[c][r] = rnd->normal();
@@ -40,17 +40,17 @@ STROKE_DEVICES_INLINE glm::mat<n_dims, n_dims, scalar_t> random_matrix(Generator
     return mat;
 }
 
-template <glm::length_t n_dims, typename scalar_t, typename Generator>
-STROKE_DEVICES_INLINE stroke::Cov<n_dims, scalar_t> random_cov(Generator* rnd)
+template <glm::length_t n_dims, typename Scalar, typename Generator>
+STROKE_DEVICES_INLINE stroke::Cov<n_dims, Scalar> random_cov(Generator* rnd)
 {
-    const auto mat = random_matrix<n_dims, scalar_t>(rnd);
-    return stroke::Cov<n_dims, scalar_t>(mat * transpose(mat)) + stroke::Cov<n_dims, scalar_t>(0.05);
+    const auto mat = random_matrix<n_dims, Scalar>(rnd);
+    return stroke::Cov<n_dims, Scalar>(mat * transpose(mat)) + stroke::Cov<n_dims, Scalar>(0.05);
 }
 
-template <glm::length_t n_dims, typename scalar_t, typename Generator>
-glm::mat<n_dims, n_dims, scalar_t> host_random_matrix(Generator* rnd)
+template <glm::length_t n_dims, typename Scalar, typename Generator>
+glm::mat<n_dims, n_dims, Scalar> host_random_matrix(Generator* rnd)
 {
-    glm::mat<n_dims, n_dims, scalar_t> mat;
+    glm::mat<n_dims, n_dims, Scalar> mat;
     for (auto c = 0; c < n_dims; ++c) {
         for (auto r = 0; r < n_dims; ++r) {
             mat[c][r] = rnd->normal();
@@ -59,17 +59,17 @@ glm::mat<n_dims, n_dims, scalar_t> host_random_matrix(Generator* rnd)
     return mat;
 }
 
-template <glm::length_t n_dims, typename scalar_t, typename Generator>
-stroke::Cov<n_dims, scalar_t> host_random_cov(Generator* rnd)
+template <glm::length_t n_dims, typename Scalar, typename Generator>
+stroke::Cov<n_dims, Scalar> host_random_cov(Generator* rnd)
 {
-    const auto mat = host_random_matrix<n_dims, scalar_t>(rnd);
-    return stroke::Cov<n_dims, scalar_t>(mat * transpose(mat)) + stroke::Cov<n_dims, scalar_t>(0.05);
+    const auto mat = host_random_matrix<n_dims, Scalar>(rnd);
+    return stroke::Cov<n_dims, Scalar>(mat * transpose(mat)) + stroke::Cov<n_dims, Scalar>(0.05);
 }
 
-template <typename scalar_t, typename Generator>
-glm::qua<scalar_t> host_random_quaternion(Generator* rnd)
+template <typename Scalar, typename Generator>
+glm::qua<Scalar> host_random_quaternion(Generator* rnd)
 {
-    return glm::qua<scalar_t>(rnd->uniform3() * (scalar_t(2) * glm::pi<scalar_t>()));
+    return glm::qua<Scalar>(rnd->uniform3() * (Scalar(2) * glm::pi<Scalar>()));
 }
 
 } // namespace stroke

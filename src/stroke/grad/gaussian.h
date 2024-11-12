@@ -35,10 +35,10 @@
 
 namespace stroke::grad::gaussian {
 
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE Cov<n_dims, scalar_t> norm_factor(const Cov<n_dims, scalar_t>& covariance, scalar_t incoming_grad)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE Cov<n_dims, Scalar> norm_factor(const Cov<n_dims, Scalar>& covariance, Scalar incoming_grad)
 {
-    constexpr auto factor = scalar_t(gcem::pow(2 * glm::pi<double>(), double(n_dims)));
+    constexpr auto factor = Scalar(gcem::pow(2 * glm::pi<double>(), double(n_dims)));
 
     const auto d = det(covariance);
     const auto fd = factor * d;
@@ -48,10 +48,10 @@ STROKE_DEVICES_INLINE Cov<n_dims, scalar_t> norm_factor(const Cov<n_dims, scalar
     return to_symmetric_gradient(grad_cov);
 }
 
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE Cov<n_dims, scalar_t> norm_factor_inv_C(const Cov<n_dims, scalar_t>& inversed_covariance, scalar_t incoming_grad)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE Cov<n_dims, Scalar> norm_factor_inv_C(const Cov<n_dims, Scalar>& inversed_covariance, Scalar incoming_grad)
 {
-    constexpr auto factor = scalar_t(1 / gcem::sqrt(gcem::pow(2 * glm::pi<double>(), double(n_dims))));
+    constexpr auto factor = Scalar(1 / gcem::sqrt(gcem::pow(2 * glm::pi<double>(), double(n_dims))));
     const auto d = det(inversed_covariance);
     // return factor * sqrt_d;
     const auto grd_d = incoming_grad * factor / (2 * stroke::sqrt(d));
@@ -59,37 +59,37 @@ STROKE_DEVICES_INLINE Cov<n_dims, scalar_t> norm_factor_inv_C(const Cov<n_dims, 
     return to_symmetric_gradient(grad_inversed_covariance);
 }
 
-template <typename scalar_t,
-    std::enable_if_t<std::is_floating_point<scalar_t>::value, bool> = true>
-STROKE_DEVICES_INLINE scalar_t norm_factor_inv_C(const scalar_t& inversed_variance, scalar_t incoming_grad)
+template <typename Scalar,
+    std::enable_if_t<std::is_floating_point<Scalar>::value, bool> = true>
+STROKE_DEVICES_INLINE Scalar norm_factor_inv_C(const Scalar& inversed_variance, Scalar incoming_grad)
 {
-    constexpr auto factor = scalar_t(1 / gcem::sqrt(2 * glm::pi<double>()));
+    constexpr auto factor = Scalar(1 / gcem::sqrt(2 * glm::pi<double>()));
     static_assert(factor > 0); // make sure factor is consteval
     const auto grd_sqrt = incoming_grad * factor;
     return grd_sqrt / (2 * stroke::sqrt(inversed_variance));
 }
 
-template <typename scalar_t,
-    std::enable_if_t<std::is_floating_point<scalar_t>::value, bool> = true>
-STROKE_DEVICES_INLINE scalar_t integrate_exponential(const scalar_t& variance, scalar_t incoming_grad)
+template <typename Scalar,
+    std::enable_if_t<std::is_floating_point<Scalar>::value, bool> = true>
+STROKE_DEVICES_INLINE Scalar integrate_exponential(const Scalar& variance, Scalar incoming_grad)
 {
-    constexpr auto factor = scalar_t(gcem::sqrt(2 * glm::pi<double>()));
+    constexpr auto factor = Scalar(gcem::sqrt(2 * glm::pi<double>()));
     static_assert(factor > 0); // make sure factor is consteval
     // return sqrt(variance) * factor;
     return sqrt(variance, factor * incoming_grad);
 }
 
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE Cov<n_dims, scalar_t> integrate_exponential(const Cov<n_dims, scalar_t>& covariance, scalar_t incoming_grad)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE Cov<n_dims, Scalar> integrate_exponential(const Cov<n_dims, Scalar>& covariance, Scalar incoming_grad)
 {
 
-    constexpr auto factor = scalar_t(gcem::pow(2 * glm::pi<double>(), double(n_dims)));
+    constexpr auto factor = Scalar(gcem::pow(2 * glm::pi<double>(), double(n_dims)));
 
     const auto detcov = det(covariance);
     if (detcov <= 0)
         return {}; // handling gradient of max function
 
-    const auto bounded_detcov = stroke::max(detcov, scalar_t(0));
+    const auto bounded_detcov = stroke::max(detcov, Scalar(0));
 
     // return sqrt(factor * bounded_detcov);
     const auto grad_detcov = stroke::grad::sqrt(factor * bounded_detcov, incoming_grad) * factor;
@@ -98,38 +98,38 @@ STROKE_DEVICES_INLINE Cov<n_dims, scalar_t> integrate_exponential(const Cov<n_di
     return to_symmetric_gradient(grad_cov);
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE ThreeGrads<scalar_t, scalar_t, scalar_t>
-cdf_inv_SD(const scalar_t& centre, const scalar_t& inv_SD, const scalar_t& x, scalar_t incoming_grad)
+template <typename Scalar>
+STROKE_DEVICES_INLINE ThreeGrads<Scalar, Scalar, Scalar>
+cdf_inv_SD(const Scalar& centre, const Scalar& inv_SD, const Scalar& x, Scalar incoming_grad)
 {
-    constexpr scalar_t inv_sqrt2 = 1 / gcem::sqrt(scalar_t(2));
+    constexpr Scalar inv_sqrt2 = 1 / gcem::sqrt(Scalar(2));
 
     const auto scaling = inv_sqrt2 * inv_SD;
     const auto q = (x - centre) * scaling;
-    // return scalar_t(0.5) * (1 + stroke::erf(q));
-    const auto grd_q = stroke::grad::erf(q, incoming_grad * scalar_t(0.5));
+    // return Scalar(0.5) * (1 + stroke::erf(q));
+    const auto grd_q = stroke::grad::erf(q, incoming_grad * Scalar(0.5));
     const auto grd_x_m_centre = grd_q * scaling;
     const auto grd_scaling = grd_q * (x - centre);
 
     return { -grd_x_m_centre, grd_scaling * inv_sqrt2, grd_x_m_centre };
 }
 
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE ThreeGrads<glm::vec<n_dims, scalar_t>, Cov<n_dims, scalar_t>, glm::vec<n_dims, scalar_t>>
-eval_exponential_inv_C(const glm::vec<n_dims, scalar_t>& centre, const Cov<n_dims, scalar_t>& inversed_covariance, const glm::vec<n_dims, scalar_t>& point, scalar_t incoming_grad)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE ThreeGrads<glm::vec<n_dims, Scalar>, Cov<n_dims, Scalar>, glm::vec<n_dims, Scalar>>
+eval_exponential_inv_C(const glm::vec<n_dims, Scalar>& centre, const Cov<n_dims, Scalar>& inversed_covariance, const glm::vec<n_dims, Scalar>& point, Scalar incoming_grad)
 {
     const auto t = point - centre;
     const auto inv_times_t = inversed_covariance * t;
     const auto dot = glm::dot(t, inv_times_t);
-    const auto v = scalar_t(-0.5) * dot;
+    const auto v = Scalar(-0.5) * dot;
     // return stroke::exp(v);
     const auto grad_v = stroke::exp(v) * incoming_grad;
-    const auto grad_dot = grad_v * scalar_t(-0.5);
-    glm::vec<n_dims, scalar_t> grad_t = {};
-    glm::vec<n_dims, scalar_t> grad_inv_times_t = {};
+    const auto grad_dot = grad_v * Scalar(-0.5);
+    glm::vec<n_dims, Scalar> grad_t = {};
+    glm::vec<n_dims, Scalar> grad_inv_times_t = {};
     stroke::grad::dot(t, inv_times_t, grad_dot).addTo(&grad_t, &grad_inv_times_t);
 
-    ThreeGrads<glm::vec<n_dims, scalar_t>, Cov<n_dims, scalar_t>, glm::vec<n_dims, scalar_t>> outgoing_grads = {};
+    ThreeGrads<glm::vec<n_dims, Scalar>, Cov<n_dims, Scalar>, glm::vec<n_dims, Scalar>> outgoing_grads = {};
     stroke::grad::matvecmul(inversed_covariance, t, grad_inv_times_t).addTo(&outgoing_grads.m_middle, &grad_t);
     outgoing_grads.m_left = -grad_t;
     outgoing_grads.m_right = grad_t;
@@ -137,9 +137,9 @@ eval_exponential_inv_C(const glm::vec<n_dims, scalar_t>& centre, const Cov<n_dim
     return outgoing_grads;
 }
 
-template <glm::length_t n_dims, typename scalar_t>
-STROKE_DEVICES_INLINE ThreeGrads<glm::vec<n_dims, scalar_t>, Cov<n_dims, scalar_t>, glm::vec<n_dims, scalar_t>>
-eval_normalised_inv_C(const glm::vec<n_dims, scalar_t>& centre, const Cov<n_dims, scalar_t>& inversed_covariance, const glm::vec<n_dims, scalar_t>& point, scalar_t incoming_grad)
+template <glm::length_t n_dims, typename Scalar>
+STROKE_DEVICES_INLINE ThreeGrads<glm::vec<n_dims, Scalar>, Cov<n_dims, Scalar>, glm::vec<n_dims, Scalar>>
+eval_normalised_inv_C(const glm::vec<n_dims, Scalar>& centre, const Cov<n_dims, Scalar>& inversed_covariance, const glm::vec<n_dims, Scalar>& point, Scalar incoming_grad)
 {
     // return norm_factor_inv_C(inverted_covariance) * eval_exponential_inv_C(centroid, inverted_covariance, point);
     const auto norm_fct = stroke::gaussian::norm_factor_inv_C(inversed_covariance);
@@ -150,13 +150,13 @@ eval_normalised_inv_C(const glm::vec<n_dims, scalar_t>& centre, const Cov<n_dims
     return grad_via_eval_exp;
 }
 
-template <typename scalar_t>
-STROKE_DEVICES_INLINE grad::ThreeGrads<glm::vec<3, scalar_t>, SymmetricMat<3, scalar_t>, Ray<3, scalar_t>>
-intersect_with_ray_inv_C(const glm::vec<3, scalar_t>& centre, const SymmetricMat<3, scalar_t>& inversed_covariance, const Ray<3, scalar_t>& ray, const stroke::gaussian::ParamsWithWeight<1, scalar_t>& incoming_grad)
+template <typename Scalar>
+STROKE_DEVICES_INLINE grad::ThreeGrads<glm::vec<3, Scalar>, SymmetricMat<3, Scalar>, Ray<3, Scalar>>
+intersect_with_ray_inv_C(const glm::vec<3, Scalar>& centre, const SymmetricMat<3, Scalar>& inversed_covariance, const Ray<3, Scalar>& ray, const stroke::gaussian::ParamsWithWeight<1, Scalar>& incoming_grad)
 {
     const auto Cxd = inversed_covariance * ray.direction;
     const auto inversed_variance = dot(ray.direction, Cxd);
-    grad::ThreeGrads<glm::vec<3, scalar_t>, SymmetricMat<3, scalar_t>, Ray<3, scalar_t>> grads = {};
+    grad::ThreeGrads<glm::vec<3, Scalar>, SymmetricMat<3, Scalar>, Ray<3, Scalar>> grads = {};
     if (inversed_variance <= 0.001f)
         return grads;
     const auto variance = 1 / inversed_variance;
@@ -169,7 +169,7 @@ intersect_with_ray_inv_C(const glm::vec<3, scalar_t>& centre, const SymmetricMat
     const auto eval_n = stroke::gaussian::eval_normalised_inv_C(centre, inversed_covariance, t_pos);
     const auto grd_exp_int = incoming_grad.weight * eval_n;
     const auto grd_eval_n = incoming_grad.weight * exp_int;
-    glm::vec<3, scalar_t> grd_t_pos = {};
+    glm::vec<3, Scalar> grd_t_pos = {};
     stroke::grad::gaussian::eval_normalised_inv_C(centre, inversed_covariance, t_pos, grd_eval_n).addTo(&grads.m_left, &grads.m_middle, &grd_t_pos);
     grads.m_right.origin = grd_t_pos;
     grads.m_right.direction = position * grd_t_pos;
@@ -177,10 +177,10 @@ intersect_with_ray_inv_C(const glm::vec<3, scalar_t>& centre, const SymmetricMat
     const auto grd_dot_cxd_cntr = grd_position * variance;
     const auto grd_variance = grd_position * dot_cxd_cntr + incoming_grad.C + stroke::grad::gaussian::integrate_exponential(variance, grd_exp_int);
 
-    const auto grd_inversed_variance = stroke::grad::divide_a_by_b<scalar_t>(1, inversed_variance, grd_variance).m_right;
-    glm::vec<3, scalar_t> grd_Cxd = {};
+    const auto grd_inversed_variance = stroke::grad::divide_a_by_b<Scalar>(1, inversed_variance, grd_variance).m_right;
+    glm::vec<3, Scalar> grd_Cxd = {};
     stroke::grad::dot(ray.direction, Cxd, grd_inversed_variance).addTo(&grads.m_right.direction, &grd_Cxd);
-    glm::vec<3, scalar_t> grd_centr_m_orig = {};
+    glm::vec<3, Scalar> grd_centr_m_orig = {};
     stroke::grad::dot(Cxd, centr_m_orig, grd_dot_cxd_cntr).addTo(&grd_Cxd, &grd_centr_m_orig);
     grads.m_left += grd_centr_m_orig;
     grads.m_right.origin -= grd_centr_m_orig;
