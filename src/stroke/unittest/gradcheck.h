@@ -21,20 +21,20 @@
  ****************************************************************************/
 
 #pragma once
-#include <iostream>
-#include <vector>
 
-#include <stroke/pretty_printers.h>
 #include <whack/pretty_printer.h>
+// whack pretty printer must go before stroke
+#include <stroke/pretty_printers.h>
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <iostream>
+#include <stroke/cuda_compat.h>
+#include <vector>
 #include <whack/Tensor.h>
 #include <whack/TensorView.h>
 #include <whack/kernel.h>
-
-#include "stroke/cuda_compat.h"
-#include "whack/tensor_operations.h"
+#include <whack/tensor_operations.h>
 
 namespace stroke {
 
