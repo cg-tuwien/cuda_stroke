@@ -27,7 +27,7 @@
 #include <stroke/unittest/random_entity.h>
 #include <whack/random/generators.h>
 
-TEST_CASE("stroke quaternion gradients")
+TEST_CASE("stroke quaternion toMat3 gradients")
 {
     using scalar_t = double;
     using quat_t = glm::qua<scalar_t>;
@@ -48,5 +48,29 @@ TEST_CASE("stroke quaternion gradients")
     whack::random::HostGenerator<scalar_t> rnd;
     for (int i = 0; i < 10; ++i) {
         stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<scalar_t>(stroke::host_random_quaternion<scalar_t>(&rnd)), 0.0000001);
+    }
+}
+
+TEST_CASE("stroke quaternion toMat4 gradients")
+{
+    using Scalar = double;
+    using Quat = glm::qua<Scalar>;
+    using Mat4 = glm::mat<4, 4, Scalar>;
+
+    const auto fun = [](const whack::Tensor<Scalar, 1>& input) {
+        const auto quat = stroke::extract<Quat>(input);
+        return stroke::pack_tensor<Scalar>(glm::toMat4(quat));
+    };
+
+    const auto fun_grad = [](const whack::Tensor<Scalar, 1>& input, const whack::Tensor<Scalar, 1>& grad_output) {
+        const auto quat = stroke::extract<Quat>(input);
+        const auto incoming_grad = stroke::extract<Mat4>(grad_output);
+        const auto grad_quat = stroke::grad::toMat4(quat, incoming_grad);
+        return stroke::pack_tensor<Scalar>(grad_quat);
+    };
+
+    whack::random::HostGenerator<Scalar> rnd;
+    for (int i = 0; i < 10; ++i) {
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<Scalar>(stroke::host_random_quaternion<Scalar>(&rnd)), 0.0000001);
     }
 }

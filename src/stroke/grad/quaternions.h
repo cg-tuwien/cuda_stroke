@@ -127,4 +127,10 @@ STROKE_DEVICES_INLINE glm::qua<scalar_t> toMat3(const glm::qua<scalar_t>& quat, 
     return grad_quat;
 }
 
+template <typename scalar_t>
+STROKE_DEVICES_INLINE glm::qua<scalar_t> toMat4(const glm::qua<scalar_t>& quat, const glm::mat<4, 4, scalar_t>& incoming_grad)
+{
+    return toMat3(quat, glm::mat<3, 3, scalar_t>(incoming_grad));
+}
+
 } // namespace stroke::grad
