@@ -149,9 +149,9 @@ STROKE_DEVICES_INLINE TwoGrads<glm::vec<3, scalar_t>, scalar_t> divide_a_by_b(co
     return { a_grad, b_grad };
 }
 
-template <typename scalar_t, int n_dims>
-STROKE_DEVICES_INLINE TwoGrads<glm::mat<n_dims, n_dims, scalar_t>, glm::mat<n_dims, n_dims, scalar_t>>
-matmul(const glm::mat<n_dims, n_dims, scalar_t>& a, const glm::mat<n_dims, n_dims, scalar_t>& b, const glm::mat<n_dims, n_dims, scalar_t>& grad)
+template <typename scalar_t, int n_dims_l, int n_dims_m, int n_dims_r>
+STROKE_DEVICES_INLINE TwoGrads<glm::mat<n_dims_m, n_dims_l, scalar_t>, glm::mat<n_dims_r, n_dims_m, scalar_t>>
+matmul(const glm::mat<n_dims_m, n_dims_l, scalar_t>& a, const glm::mat<n_dims_r, n_dims_m, scalar_t>& b, const glm::mat<n_dims_r, n_dims_l, scalar_t>& grad)
 {
     return { grad * transpose(b), transpose(a) * grad };
 }

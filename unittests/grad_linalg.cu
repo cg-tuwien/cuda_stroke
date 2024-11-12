@@ -129,6 +129,28 @@ TEST_CASE("stroke linalg gradients")
         const auto m2 = glm::dmat3(11.1, 11.2, 11.3, 22.1, 22.2, 22.3, 33.1, 33.2, 33.3);
         stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(m1, m2), 0.0000001);
     }
+    SECTION("matmul non-square")
+    {
+        using Mat32 = glm::mat<3, 2, double>; // a [2, 3]
+        using Mat43 = glm::mat<4, 3, double>; // b [3, 4]
+        using Mat42 = glm::mat<4, 2, double>; // a * b =  [2, 3]*[3, 4] = [2, 4] // l = 2, m = 3, r = 4
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto [a, b] = stroke::extract<Mat32, Mat43>(input);
+            return stroke::pack_tensor<double>(a * b);
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto [a, b] = stroke::extract<Mat32, Mat43>(input);
+            const auto incoming_grad = stroke::extract<Mat42>(grad_output);
+            const auto [grad_a, grad_b] = stroke::grad::matmul(a, b, incoming_grad);
+            return stroke::pack_tensor<double>(grad_a, grad_b);
+        };
+
+        const auto m1 = Mat32(1.1, 1.2, 1.3, 2.1, 2.2, 2.3);
+        const auto m2 = Mat43(11.1, 11.2, 11.3, 22.1,
+            22.2, 22.3, 33.1, 33.2, 13.3, 13.1, 11.3, 11.1);
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(m1, m2), 0.0000001);
+    }
     SECTION("matvecmul")
     {
         const auto fun = [](const whack::Tensor<double, 1>& input) {
