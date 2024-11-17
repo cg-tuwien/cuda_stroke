@@ -49,8 +49,10 @@
 
 #ifndef __CUDACC__
 // kill errors in qt creator.
-void __syncthreads() { assert(false); }
-int __syncthreads_count(bool) { assert(false); }
+inline void __syncthreads() { assert(false); }
+inline int __syncthreads_count(bool) { assert(false); }
+inline float atomicAdd(float*, float) { assert(false); }
+inline double atomicAdd(double*, double) { assert(false); }
 #endif
 
 #define STROKE_DEVICES_INLINE STROKE_DEVICES STROKE_INLINE
