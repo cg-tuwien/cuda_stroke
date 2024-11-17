@@ -21,6 +21,7 @@
  ****************************************************************************/
 
 #pragma once
+#include <cassert>
 #include <cuda_runtime.h>
 
 // #ifdef __CUDACC__
@@ -44,6 +45,12 @@
 #define STROKE_INLINE __forceinline__
 #else
 #define STROKE_INLINE inline
+#endif
+
+#ifndef __CUDACC__
+// kill errors in qt creator.
+void __syncthreads() { assert(false); }
+int __syncthreads_count(bool) { assert(false); }
 #endif
 
 #define STROKE_DEVICES_INLINE STROKE_DEVICES STROKE_INLINE
