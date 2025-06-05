@@ -1,13 +1,8 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.25)
 project(cuda_stroke_unittests LANGUAGES CUDA CXX)
 
-include(FetchContent)
-FetchContent_Declare(catch2
-    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-    GIT_TAG v3.4.0
-    SOURCE_DIR 		${CMAKE_SOURCE_DIR}/3rdparty/Catch2
-)
-FetchContent_MakeAvailable(catch2)
+alp_add_git_repository(catch2 URL https://github.com/catchorg/Catch2.git COMMITISH v3.6.0)
+
 find_package(CUDAToolkit 12.0 REQUIRED)
 
 add_executable(stroke_unittests
