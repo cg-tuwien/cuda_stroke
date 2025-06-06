@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 project(cuda_stroke_lib LANGUAGES CUDA CXX)
 
 alp_add_git_repository(gcem URL https://github.com/kthohr/gcem.git COMMITISH v1.18.0)
-alp_add_git_repository(whack URL git@github.com:cg-tuwien/cuda_whack.git COMMITISH 529afd88b771376b0249b0b8c120d3112491f8c5)
+alp_add_git_repository(whack URL git@github.com:cg-tuwien/cuda_whack.git COMMITISH b986da25d43eb269fc0972204365ff1c0575644d)
 
 add_library(stroke INTERFACE
     stroke/detail/symmetric_mat.h
