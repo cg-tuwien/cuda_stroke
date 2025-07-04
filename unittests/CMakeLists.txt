@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.25)
 project(cuda_stroke_unittests LANGUAGES CUDA CXX)
 
-alp_add_git_repository(catch2 URL https://github.com/catchorg/Catch2.git COMMITISH v3.6.0)
+if (NOT TARGET Catch2::Catch2WithMain)
+    alp_add_git_repository(catch2 URL https://github.com/catchorg/Catch2.git COMMITISH v3.6.0)
+endif()
 
 find_package(CUDAToolkit 12.0 REQUIRED)
 
