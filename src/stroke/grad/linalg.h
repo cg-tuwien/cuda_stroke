@@ -139,6 +139,14 @@ STROKE_DEVICES_INLINE glm::vec<n_dims, Scalar> length(const glm::vec<n_dims, Sca
     return vec * l;
 }
 
+template <typename Scalar, int n_dims>
+STROKE_DEVICES_INLINE TwoGrads<glm::vec<n_dims, Scalar>, glm::vec<n_dims, Scalar>> distance(const glm::vec<n_dims, Scalar>& a, const glm::vec<n_dims, Scalar>& b, Scalar grad)
+{
+    const auto vec = a - b;
+    const auto l = grad / length(vec);
+    return { vec * l, -vec * l };
+}
+
 template <typename Scalar>
 STROKE_DEVICES_INLINE TwoGrads<glm::vec<3, Scalar>, Scalar> divide_a_by_b(const glm::vec<3, Scalar>& a, Scalar b, const glm::vec<3, Scalar>& incoming_grad)
 {
