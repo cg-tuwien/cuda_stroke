@@ -206,6 +206,30 @@ TEST_CASE("stroke linalg gradients")
         stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(m, v), 0.0000001);
     }
 
+    SECTION("matvecmul with non-square matrix")
+    {
+        using Mat32 = glm::mat<3, 2, double>;
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto [a, b] = stroke::extract<Mat32, glm::dvec3>(input);
+            return stroke::pack_tensor<double>(a * b);
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto [a, b] = stroke::extract<Mat32, glm::dvec3>(input);
+            const auto incoming_grad = stroke::extract<glm::dvec2>(grad_output);
+            const auto [grad_a, grad_b] = stroke::grad::matvecmul(a, b, incoming_grad);
+            return stroke::pack_tensor<double>(grad_a, grad_b);
+        };
+
+        // clang-format off
+        const auto m = Mat32({1.1, 1.2},
+                             {2.1, 2.2},
+                             {3.1, 3.2});
+        const auto v = glm::dvec3(11.1, 11.2, 11.3);
+        // clang-format on
+        stroke::check_gradient(fun, fun_grad, stroke::pack_tensor<double>(m, v), 0.0000001);
+    }
+
     SECTION("matvecmul with cov")
     {
         const auto fun = [](const whack::Tensor<double, 1>& input) {
