@@ -125,6 +125,12 @@ STROKE_DEVICES_INLINE TwoGrads<glm::vec<n_dims, Scalar>, glm::vec<n_dims, Scalar
     return { b * incoming_grad, a * incoming_grad };
 }
 
+template <typename Scalar>
+STROKE_DEVICES_INLINE TwoGrads<glm::vec<3, Scalar>, glm::vec<3, Scalar>> cross(const glm::vec<3, Scalar>& a, const glm::vec<3, Scalar>& b, const glm::vec<3, Scalar>& incoming_grad)
+{
+    return { cross(b, incoming_grad), cross(incoming_grad, a) };
+}
+
 template <typename Scalar, int n_dims>
 STROKE_DEVICES_INLINE glm::vec<n_dims, Scalar> length(const glm::vec<n_dims, Scalar>& vec, Scalar grad)
 {

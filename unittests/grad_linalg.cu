@@ -47,6 +47,23 @@ TEST_CASE("stroke linalg gradients")
         const auto test_data_host = whack::make_tensor<double>(whack::Location::Host, { 3, 2, 1, 2, 4, 3 }, 6);
         stroke::check_gradient(fun, fun_grad, test_data_host, 0.0000001);
     }
+    SECTION("cross")
+    {
+        const auto fun = [](const whack::Tensor<double, 1>& input) {
+            const auto [a, b] = stroke::extract<glm::dvec3, glm::dvec3>(input);
+            return stroke::pack_tensor<double>(cross(a, b));
+        };
+
+        const auto fun_grad = [](const whack::Tensor<double, 1>& input, const whack::Tensor<double, 1>& grad_output) {
+            const auto [a, b] = stroke::extract<glm::dvec3, glm::dvec3>(input);
+            const auto incoming_grad = stroke::extract<glm::dvec3>(grad_output);
+            const auto [grad_a, grad_b] = stroke::grad::cross(a, b, incoming_grad);
+            return stroke::pack_tensor<double>(grad_a, grad_b);
+        };
+
+        const auto test_data_host = whack::make_tensor<double>(whack::Location::Host, { 3, 2, 1, 2, 4, 3 }, 6);
+        stroke::check_gradient(fun, fun_grad, test_data_host, 0.0000001);
+    }
 
     SECTION("det")
     {
