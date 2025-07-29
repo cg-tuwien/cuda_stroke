@@ -155,6 +155,15 @@ STROKE_DEVICES_INLINE bool isnan(const glm::vec<DIMS, Scalar>& x)
 }
 
 template <int DIMS, typename Scalar>
+STROKE_DEVICES_INLINE glm::vec<DIMS, Scalar> floor(const glm::vec<DIMS, Scalar>& x)
+{
+    glm::vec<DIMS, Scalar> f;
+    for (unsigned i = 0; i < DIMS; ++i)
+        f[i] = stroke::floor(x[i]);
+    return f;
+}
+
+template <int DIMS, typename Scalar>
 STROKE_DEVICES_INLINE bool isnan(const glm::mat<DIMS, DIMS, Scalar>& x)
 {
     bool nan = false;
