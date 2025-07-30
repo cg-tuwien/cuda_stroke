@@ -186,7 +186,7 @@ matmul(const glm::mat<n_dims, n_dims, Scalar>& a, const stroke::SymmetricMat<n_d
     return { grad * mat_t(b), to_symmetric_gradient(transpose(a) * grad) };
 }
 
-template <typename Scalar, int n_cols, int n_rows>
+template <int n_cols, int n_rows, typename Scalar>
 STROKE_DEVICES_INLINE TwoGrads<glm::mat<n_cols, n_rows, Scalar>, glm::vec<n_cols, Scalar>>
 matvecmul(const glm::mat<n_cols, n_rows, Scalar>& a, const glm::vec<n_cols, Scalar>& b, const glm::vec<n_rows, Scalar>& grad)
 {
