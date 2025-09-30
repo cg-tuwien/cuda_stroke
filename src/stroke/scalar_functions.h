@@ -29,19 +29,19 @@
 namespace stroke {
 
 template <typename T>
-STROKE_DEVICES_INLINE T sq(const T& v)
+STROKE_DEVICES_INLINE constexpr T sq(const T& v)
 {
     return v * v;
 }
 
 template <typename T>
-STROKE_DEVICES_INLINE T cubed(const T& v)
+STROKE_DEVICES_INLINE constexpr T cubed(const T& v)
 {
     return v * v * v;
 }
 
 template <typename Scalar>
-STROKE_DEVICES_INLINE int sign(Scalar v)
+STROKE_DEVICES_INLINE constexpr int sign(Scalar v)
 {
     return v >= 0 ? 1 : -1;
 }
